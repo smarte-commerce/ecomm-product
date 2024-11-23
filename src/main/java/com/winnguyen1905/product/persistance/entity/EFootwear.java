@@ -1,7 +1,6 @@
-package com.winnguyen1905.technologystore.entity;
+package com.winnguyen1905.product.persistance.entity;
 
-import com.winnguyen1905.technologystore.common.ProductTypeConstant;
-import com.winnguyen1905.technologystore.entity.base.BaseEntityAudit;
+import com.winnguyen1905.product.core.common.ProductTypeConstant;
 
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
@@ -16,6 +15,6 @@ import lombok.Setter;
 @Table(name = "footwears")
 @PrimaryKeyJoinColumn(name = "footwear_id")
 @DiscriminatorValue(ProductTypeConstant.FOOTWEAR)
-public class FootwearEntity extends BaseEntityAudit {
+public class EFootwear extends com.winnguyen1905.product.persistance.entity.EBaseAudit {
 
 }

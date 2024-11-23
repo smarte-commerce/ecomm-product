@@ -10,6 +10,6 @@ import lombok.Setter;
 @Setter
 @Entity
 @Table(name = "categories")
-public class CategoryEntity extends BaseEntityAudit {
+public class ECategory extends EBaseAudit {
     
 }

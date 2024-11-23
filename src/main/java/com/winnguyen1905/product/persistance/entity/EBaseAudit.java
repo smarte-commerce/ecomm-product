@@ -1,13 +1,7 @@
 package com.winnguyen1905.product.persistance.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.EntityListeners;
-import jakarta.persistence.MappedSuperclass;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreRemove;
-import jakarta.persistence.PreUpdate;
-import lombok.Getter;
-import lombok.Setter;
+import java.time.Instant;
+import java.util.Objects;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -15,14 +9,17 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import java.time.Instant;
-import java.util.Objects;
+import jakarta.persistence.Column;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.MappedSuperclass;
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Setter
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
-public abstract class BaseEntityAudit extends BaseEntity {
+public abstract class EBaseAudit extends EBase {
     @JsonIgnore
     @Column(name = "created_by", nullable = true)
     private String createdBy;
@@ -43,11 +40,11 @@ public abstract class BaseEntityAudit extends BaseEntity {
     public boolean equals(Object o) {
         if (this == o)
             return true;
-        if (!(o instanceof BaseEntityAudit))
+        if (!(o instanceof EBaseAudit))
             return false;
         if (!super.equals(o))
             return false;
-        BaseEntityAudit that = (BaseEntityAudit) o;
+        EBaseAudit that = (EBaseAudit) o;
         return createdBy.equals(that.createdBy) && updatedBy.equals(that.updatedBy) &&
                 createdDate.equals(that.createdDate) && updatedDate.equals(that.updatedDate);
     }

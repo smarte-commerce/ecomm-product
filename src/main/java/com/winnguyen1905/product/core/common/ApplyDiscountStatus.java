@@ -4,7 +4,7 @@ public enum ApplyDiscountStatus {
     REVIEW("review"),
     COMMIT("commit");
 
-    String ApplyDiscountStatus;
+    final String ApplyDiscountStatus;
 
     ApplyDiscountStatus(String ApplyDiscountStatus) {
         this.ApplyDiscountStatus = ApplyDiscountStatus;

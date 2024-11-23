@@ -1,9 +1,14 @@
-package com.winnguyen1905.technologystore.entity;
+package com.winnguyen1905.product.persistance.entity;
 
-import com.winnguyen1905.technologystore.common.ProductTypeConstant;
 
-import jakarta.persistence.*;
-import lombok.*;
+import com.winnguyen1905.product.core.common.ProductTypeConstant;
+
+import jakarta.persistence.DiscriminatorValue;
+import jakarta.persistence.Entity;
+import jakarta.persistence.PrimaryKeyJoinColumn;
+import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
 @Getter
@@ -11,7 +16,7 @@ import lombok.*;
 @Table(name = "furnitures")
 @DiscriminatorValue(ProductTypeConstant.FURNITURE)
 @PrimaryKeyJoinColumn(name = "furniture_id")
-public class FurnitureEntity extends ProductEntity {
+public class EFurniture extends EProduct {
     // @Column(name = "size", nullable = false)
     // private Double size;
 

@@ -1,22 +1,32 @@
 package com.winnguyen1905.product.persistance.entity;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
+import com.winnguyen1905.product.core.common.ApplyDiscountType;
 import com.winnguyen1905.product.core.common.DiscountType;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import jakarta.validation.constraints.Min;
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
 @Getter
 @Setter
 @Table(name = "discounts")
-public class DiscountEntity extends BaseEntityAudit {
+public class EDiscount extends EBaseAudit {
     @Version
     private Integer version;
 
@@ -51,13 +61,13 @@ public class DiscountEntity extends BaseEntityAudit {
     @Column(name = "discount_uses_count")
     private int usesCount;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-        name = "discount_users_used",
-        joinColumns = @JoinColumn(name = "discount_id"),
-        inverseJoinColumns = @JoinColumn(name = "user_id")
-    )
-    private List<UserEntity> customer = new ArrayList<>();
+    // @ManyToMany(fetch = FetchType.LAZY)
+    // @JoinTable(
+    //     name = "discount_users_used",
+    //     joinColumns = @JoinColumn(name = "discount_id"),
+    //     inverseJoinColumns = @JoinColumn(name = "user_id")
+    // )
+    // private List<UserEntity> customer = new ArrayList<>();
 
     @Min(value = 1)
     @Column(name = "discount_max_uses_per_user")
@@ -67,9 +77,9 @@ public class DiscountEntity extends BaseEntityAudit {
     @Column(name = "discount_min_order_value")
     private Double minOrderValue;
 
-    @ManyToOne
-    @JoinColumn(name = "shop_id")
-    private UserEntity shop;
+    // @ManyToOne
+    // @JoinColumn(name = "shop_id")
+    // private UserEntity shop;
 
     @Column(name = "discount_is_active")
     private Boolean isActive;
@@ -84,21 +94,20 @@ public class DiscountEntity extends BaseEntityAudit {
         joinColumns = @JoinColumn(name = "discount_id"),
         inverseJoinColumns = @JoinColumn(name = "product_id")
     )
-    private Set<ProductEntity> products = new HashSet<>();
+    private Set<EProduct> products = new HashSet<>();
 
     // @ManyToMany(mappedBy = "discounts")
     // private List<CartEntity> carts;
 
-    public void addProduct(ProductEntity product) {
+    public void addProduct(EProduct product) {
         this.products.add(product);
     }
     
-    @Override
     @PrePersist
     protected void prePersist() {
-        this.setDiscountType(this.discountType == null ? DiscountType.FIXED_AMOUNT : this.discountType);
-        this.setAppliesTo(this.appliesTo == null ? ApplyDiscountType.ALL : this.appliesTo);
-        this.setIsActive(this.isActive == null ? false : this.isActive);
-        super.prePersist();
+        // this.setDiscountType(this.discountType == null ? DiscountType.FIXED_AMOUNT : this.discountType);
+        // this.setAppliesTo(this.appliesTo == null ? ApplyDiscountType.ALL : this.appliesTo);
+        // this.setIsActive(this.isActive == null ? false : this.isActive);
+        // super.prePersist();
     }
 }
