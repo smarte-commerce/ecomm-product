@@ -6,15 +6,17 @@ import java.util.List;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.winnguyen1905.product.core.common.ProductTypeConstant;
+import com.winnguyen1905.product.common.ProductTypeConstant;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorColumn;
 import jakarta.persistence.DiscriminatorType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import jakarta.persistence.OneToMany;
@@ -31,15 +33,17 @@ import lombok.Setter;
 @SQLDelete(sql = "UPDATE products SET is_deleted = TRUE WHERE ID=? and VERSION=?")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "p_type", discriminatorType = DiscriminatorType.STRING)
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
-@JsonSubTypes({ @JsonSubTypes.Type(value = Electronic.class, name = ProductTypeConstant.ELECTRONIC),
-    @JsonSubTypes.Type(value = EFurniture.class, name = ProductTypeConstant.FURNITURE),
-    @JsonSubTypes.Type(value = EClothing.class, name = ProductTypeConstant.CLOTHING),
-    @JsonSubTypes.Type(value = EFootwear.class, name = ProductTypeConstant.FOOTWEAR) })
+// @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY,
+// property = "type")
+// @JsonSubTypes({ @JsonSubTypes.Type(value = EElectronic.class, name =
+// ProductTypeConstant.ELECTRONIC),
+// @JsonSubTypes.Type(value = EFurniture.class, name =
+// ProductTypeConstant.FURNITURE),
+// @JsonSubTypes.Type(value = EClothing.class, name =
+// ProductTypeConstant.CLOTHING),
+// @JsonSubTypes.Type(value = EFootwear.class, name =
+// ProductTypeConstant.FOOTWEAR) })
 public class EProduct extends EBaseAudit {
-
-  @Version
-  private Integer version;
 
   @Column(name = "p_name", nullable = false)
   private String name;
@@ -77,10 +81,10 @@ public class EProduct extends EBaseAudit {
   //
   // @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
   // private List<CartItemEntity> cartItems = new ArrayList<>();
-  //
+
   @OneToMany(mappedBy = "product", cascade = CascadeType.PERSIST)
   private List<EVariation> variations = new ArrayList<>();
-  //
+  
   // @OneToMany(mappedBy = "product")
   // private List<CommentEntity> comments = new ArrayList<>();
   //

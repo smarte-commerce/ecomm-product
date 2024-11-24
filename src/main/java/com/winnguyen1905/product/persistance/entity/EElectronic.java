@@ -1,6 +1,10 @@
 package com.winnguyen1905.product.persistance.entity;
 
-import com.winnguyen1905.product.core.common.ProductTypeConstant;
+import org.hibernate.annotations.Type;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.vladmihalcea.hibernate.type.json.JsonType;
+import com.winnguyen1905.product.common.ProductTypeConstant;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
@@ -16,33 +20,11 @@ import lombok.Setter;
 @Table(name = "electronics")
 @DiscriminatorValue(ProductTypeConstant.ELECTRONIC)
 @PrimaryKeyJoinColumn(name = "electronic_id")
-public class Electronic extends EProduct {
-  @Column(name = "x_size", nullable = true)
-  private Double xSize;
-
-  @Column(name = "y_size", nullable = true)
-  private Double ySize;
-
-  @Column(name = "panel_type", nullable = false)
-  private String panelType;
-
-  @Column(name = "resolution", nullable = true)
-  private String resolution;
-
-  @Column(name = "os", nullable = false)
-  private String os;
-
-  @Column(name = "ram", nullable = false)
-  private Integer ram;
-
-  @Column(name = "rom", nullable = false)
-  private Integer rom;
-
-  @Column(name = "pin", nullable = false)
-  private Integer pin;
-
-  @Column(name = "chipset", nullable = false)
-  private String chipset;
+public class EElectronic extends EProduct {
+  
+  @Type(JsonType.class)
+  @Column(columnDefinition = "jsonb")
+  private JsonNode features;
 
   // @PrePersist
   // protected void prePersist() {

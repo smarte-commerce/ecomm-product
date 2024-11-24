@@ -1,4 +1,4 @@
-package com.winnguyen1905.product.core.common;
+package com.winnguyen1905.product.common;
 
 public class SystemConstant {
     /*Spring security 4: ROLE_ADMIN, Spring security 3 not required*/

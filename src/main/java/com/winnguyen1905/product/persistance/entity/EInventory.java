@@ -1,5 +1,7 @@
 package com.winnguyen1905.product.persistance.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -16,21 +18,24 @@ import lombok.Setter;
 @Table(name = "inventories")
 public class EInventory extends EBaseAudit {
 
-    @Version
-    private int version;
+  @Column(name = "sku")
+  String sku;
 
-    @Column(name = "inven_stock")
-    private int stock;
+  @ManyToOne
+  @JoinColumn(name = "product_id")
+  private EProduct product;
 
-//    @OneToMany(mappedBy = "inventory", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-//    private Set<ReservationEntity> reservations = new HashSet<>();
+  @ManyToOne
+  @JoinColumn(name = "variant_id")
+  private EVariation variant;
 
-    @ManyToOne(cascade = CascadeType.MERGE)
-    @JoinColumn(name = "product_id")
-    private EVariation productVariation;
+  @Column(name = "quantity_available")
+  private int quantityAvailable;
 
-//    @ManyToOne
-//    @JoinColumn(name = "shop_id")
-//    private UserEntity shop;
-    
+  @Column(name = "quantity_reserved")
+  private int quantityReserved;
+
+  @Column(name = "quantity_sold")
+  private int quantitySold;
+
 }

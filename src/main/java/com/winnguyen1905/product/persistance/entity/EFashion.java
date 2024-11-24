@@ -17,13 +17,11 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-@Table(name = "furnitures")
-@DiscriminatorValue(ProductTypeConstant.FURNITURE)
-@PrimaryKeyJoinColumn(name = "furniture_id")
-public class EFurniture extends EProduct {
-
+@Table(name = "fashions")
+@DiscriminatorValue(ProductTypeConstant.FASHION)
+@PrimaryKeyJoinColumn(name = "fashion_id")
+public class EFashion extends EProduct {
   @Type(JsonType.class)
   @Column(columnDefinition = "jsonb")
   private JsonNode features;
-
 }

@@ -1,4 +1,4 @@
-package com.winnguyen1905.product.core.common;
+package com.winnguyen1905.product.common;
 
 public enum DiscountType {
     FIXED_AMOUNT("fixed_amount"),

@@ -1,4 +1,4 @@
-package com.winnguyen1905.product.core.common;
+package com.winnguyen1905.product.common;
 
 public enum ApplyDiscountType {
     ALL("all"),
