@@ -31,7 +31,7 @@ import lombok.Setter;
 @Table(name = "products")
 @SQLRestriction("is_deleted <> true")
 @SQLDelete(sql = "UPDATE products SET is_deleted = TRUE WHERE ID=? and VERSION=?")
-@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@Inheritance(strategy = InheritanceType.JOINED)
 @DiscriminatorColumn(name = "p_type", discriminatorType = DiscriminatorType.STRING)
 // @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY,
 // property = "type")

@@ -4,6 +4,10 @@ import java.util.UUID;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,8 +17,14 @@ import lombok.Setter;
 @Entity
 @Table(name = "user_discounts")
 public class EUserDiscount extends EBaseAudit {
-  @Column(name = "discount_id")
-  private UUID discountId;
+
+  public static enum Role {
+    USER, CREATOR
+  }
+
+  @ManyToOne
+  @JoinColumn(name = "discount_id")
+  private EDiscount discount;
 
   @Column(name = "user_id")
   private UUID userId;
@@ -22,5 +32,8 @@ public class EUserDiscount extends EBaseAudit {
   @Column(name = "remaining_usage")
   private Long remainingUsage;
 
-  private String role;
+  @Column(name = "user_role")
+  @Enumerated(EnumType.STRING)
+  private Role role;
+
 }

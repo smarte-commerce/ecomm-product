@@ -26,6 +26,6 @@ public class EVariation extends EBaseAudit {
   @JoinColumn(name = "product_id")
   private EProduct product;
 
-  @OneToMany(mappedBy = "product", fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST })
+  @OneToMany(mappedBy = "variation", fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST })
   private List<EInventory> inventories = new ArrayList<>();
 }

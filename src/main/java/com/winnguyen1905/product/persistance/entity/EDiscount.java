@@ -1,7 +1,9 @@
 package com.winnguyen1905.product.persistance.entity;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import com.winnguyen1905.product.common.ApplyDiscountType;
@@ -15,10 +17,12 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 import jakarta.validation.constraints.Min;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -27,6 +31,15 @@ import lombok.Setter;
 @Setter
 @Table(name = "discounts")
 public class EDiscount extends EBaseAudit {
+
+  public static enum Scope {
+    SHOP, GLOBAL
+  }
+
+  @Enumerated(EnumType.STRING)
+  @Column(name = "discount_scope")
+  private Scope scope;
+
   @Column(name = "discount_name")
   private String name;
 
@@ -58,14 +71,6 @@ public class EDiscount extends EBaseAudit {
   @Column(name = "discount_uses_count")
   private int usesCount;
 
-  // @ManyToMany(fetch = FetchType.LAZY)
-  // @JoinTable(
-  // name = "discount_users_used",
-  // joinColumns = @JoinColumn(name = "discount_id"),
-  // inverseJoinColumns = @JoinColumn(name = "user_id")
-  // )
-  // private List<UserEntity> customer = new ArrayList<>();
-
   @Min(value = 1)
   @Column(name = "discount_max_uses_per_user")
   private int maxUsesPerUser;
@@ -74,9 +79,8 @@ public class EDiscount extends EBaseAudit {
   @Column(name = "discount_min_order_value")
   private Double minOrderValue;
 
-  // @ManyToOne
-  // @JoinColumn(name = "shop_id")
-  // private UserEntity shop;
+  @OneToMany(mappedBy = "discount")
+  private List<EUserDiscount> userDiscounts = new ArrayList<>();
 
   @Column(name = "discount_is_active")
   private Boolean isActive;

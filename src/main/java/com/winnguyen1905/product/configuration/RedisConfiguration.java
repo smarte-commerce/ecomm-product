@@ -15,32 +15,32 @@ import jakarta.annotation.PostConstruct;
 
 @Configuration
 public class RedisConfiguration {
-    @PostConstruct
-    public void init(RedisService redisService) {
-        redisService.initializeRedis();
-    }
+  // @PostConstruct
+  // public void init(RedisService redisService) {
+  //   redisService.initializeRedis();
+  // }
 
-    @Bean
-    ConcurrentLinkedDeque<?> redisQueue() {
-        return new ConcurrentLinkedDeque<>();
-    }
+  // @Bean
+  // ConcurrentLinkedDeque<Object> redisQueue() {
+  //   return new ConcurrentLinkedDeque<>();
+  // }
 
-    @Bean
-    ExecutorService executorService() {
-        return Executors.newFixedThreadPool(2);
-    }
+  // @Bean
+  // ExecutorService executorService() {
+  //   return Executors.newFixedThreadPool(2);
+  // }
 
-    @Bean
-    JedisConnectionFactory jedisConnectionFactory() {
-        // jedisConFactory.setHostName("${host.url}");
-        // jedisConFactory.setPort(6379);
-        return new JedisConnectionFactory();
-    }
+  // @Bean
+  // JedisConnectionFactory jedisConnectionFactory() {
+  //   // jedisConFactory.setHostName("${host.url}");
+  //   // jedisConFactory.setPort(6379);
+  //   return new JedisConnectionFactory();
+  // }
 
-    @Bean
-    RedisTemplate<String, Object> redisTemplate() {
-        RedisTemplate<String, Object> template = new RedisTemplate<>();
-        template.setConnectionFactory(jedisConnectionFactory());
-        return template;
-    }
+  // @Bean
+  // RedisTemplate<String, Object> redisTemplate() {
+  //   RedisTemplate<String, Object> template = new RedisTemplate<>();
+  //   template.setConnectionFactory(jedisConnectionFactory());
+  //   return template;
+  // }
 }
