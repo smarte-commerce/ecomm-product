@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 
-import com.winnguyen1905.product.core.service.RedisService;
+// import com.winnguyen1905.product.core.service.RedisService;
 
 import jakarta.annotation.PostConstruct;
 
