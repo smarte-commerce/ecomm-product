@@ -1,4 +1,4 @@
-package com.winnguyen1905.product.core.model.request.service;
+package com.winnguyen1905.product.core.model.request;
 
 import java.util.List;
 import java.util.Set;

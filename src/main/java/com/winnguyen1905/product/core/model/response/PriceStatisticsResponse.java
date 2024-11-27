@@ -12,13 +12,13 @@ import lombok.Setter;
 @Setter
 @Builder
 public class PriceStatisticsResponse extends AbstractModel {
-    private Double totalPrice;
-    private Double totalShipPrice;
-    private UUID discountId;
-    private Double totalDiscountVoucher;
+  private Double totalPrice;
+  private Double totalShipPrice;
+  private UUID discountId;
+  private Double totalDiscountVoucher;
 
-    private Double amountShipReduced;
-    private Double amountProductReduced;
+  private Double amountShipReduced;
+  private Double amountProductReduced;
 
-    private Double finalPrice;
+  private Double finalPrice;
 }

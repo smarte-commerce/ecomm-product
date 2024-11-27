@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import com.winnguyen1905.product.common.ApplyDiscountType;
 import com.winnguyen1905.product.common.DiscountType;
@@ -79,7 +80,7 @@ public class EDiscount extends EBaseAudit {
   @Column(name = "discount_min_order_value")
   private Double minOrderValue;
 
-  @OneToMany(mappedBy = "discount")
+  @OneToMany(mappedBy = "discount", fetch = FetchType.LAZY)
   private List<EUserDiscount> userDiscounts = new ArrayList<>();
 
   @Column(name = "discount_is_active")
@@ -88,17 +89,12 @@ public class EDiscount extends EBaseAudit {
   @Enumerated(EnumType.STRING)
   @Column(name = "discount_applies_to")
   private ApplyDiscountType appliesTo;
-
-  @ManyToMany(fetch = FetchType.LAZY)
-  @JoinTable(name = "discount_products", joinColumns = @JoinColumn(name = "discount_id"), inverseJoinColumns = @JoinColumn(name = "product_id"))
+  
+  @ManyToMany(mappedBy = "discounts")
   private Set<EProduct> products = new HashSet<>();
 
-  // @ManyToMany(mappedBy = "discounts")
-  // private List<CartEntity> carts;
-
-  public void addProduct(EProduct product) {
-    this.products.add(product);
-  }
+  @Column(name = "shop_id", nullable = false)
+  private UUID shopId;
 
   @PrePersist
   protected void prePersist() {

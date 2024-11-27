@@ -1,6 +1,4 @@
-package com.winnguyen1905.product.core.model.request.service;
-
-import java.util.List;
+package com.winnguyen1905.product.core.model.request;
 
 import com.winnguyen1905.product.core.model.Product;
 

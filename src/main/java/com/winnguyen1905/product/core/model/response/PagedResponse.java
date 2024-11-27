@@ -10,7 +10,7 @@ import lombok.Setter;
 
 @Setter
 @Getter
-public class PaginationResponse<T> extends AbstractModel {
+public class PagedResponse<T> extends AbstractModel {
     private Integer maxPageItems;
 
     private Integer page;
