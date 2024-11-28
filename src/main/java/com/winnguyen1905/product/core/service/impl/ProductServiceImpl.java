@@ -32,11 +32,10 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ProductServiceImpl implements ProductService {
 
-  private final ModelMapper modelMapper;
+  private final ModelMapper mapper;
   private final ProductConverter productConverter;
   private final ProductRepository productRepository;
-  private final Type pagedResponseType = new TypeToken<PagedResponse<Product>>() {
-  }.getType();
+  private final Type pagedResponseType = new TypeToken<PagedResponse<Product>>() {}.getType();
 
   @Override
   public Product handleAddProduct(UUID shopId, AddProductRequest addProductRequest) {
@@ -60,7 +59,7 @@ public class ProductServiceImpl implements ProductService {
   public PagedResponse<Product> handleGetAllProducts(SearchProductRequest productSearchRequest, Pageable pageable) {
     List<Specification<EProduct>> specList = NormalSpecificationUtils.toNormalSpec(productSearchRequest);
     Page<EProduct> productPages = this.productRepository.findAll(Specification.allOf(specList), pageable);
-    return this.modelMapper.map(productPages, pagedResponseType);
+    return this.mapper.map(productPages, pagedResponseType);
   }
 
   @Override

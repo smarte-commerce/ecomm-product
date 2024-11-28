@@ -1,4 +1,4 @@
-package com.winnguyen1905.product.configuration;
+package com.winnguyen1905.product.config;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

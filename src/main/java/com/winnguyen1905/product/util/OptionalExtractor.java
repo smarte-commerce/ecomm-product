@@ -9,4 +9,5 @@ public class OptionalExtractor {
     if (optional.isPresent() && optional.get() instanceof T t) return t;
     else throw new ResourceNotFoundException("Resource not found for optional extract !");
   }
+
 }

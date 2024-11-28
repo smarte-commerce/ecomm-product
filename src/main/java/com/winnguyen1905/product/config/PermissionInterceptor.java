@@ -1,4 +1,4 @@
-package com.winnguyen1905.product.configuration;
+package com.winnguyen1905.product.config;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,7 +25,7 @@ public class PermissionInterceptor implements HandlerInterceptor {
 
     if (SecurityUtils.getCurrentUsersPermissions().isPresent()) {
       List<Permission> permissionDTOs = SecurityUtils.getCurrentUsersPermissions().get().stream()
-          .map(stringPermission -> StringToPermissionUtils.toPermission(stringPermission)).toList();
+          .map(stringPermission -> SecurityUtils.jsonToPermission(stringPermission)).toList();
       Boolean isAllow = permissionDTOs.stream()
           .anyMatch(item -> (item.getApiPath().equals(path) && item.getMethod().equals(httpMethod))
               || item.getApiPath().equals("/api/v1/"));

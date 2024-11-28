@@ -21,9 +21,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class InventoryServiceImpl implements InventoryService {
 
-  private final RedisTemplate<String, Integer> redisTemplate;
-  private final InventoryRepository inventoryRepository;
-  private final String INVENTORY_KEY = "inventory:";
+  // private final RedisTemplate<String, Integer> redisTemplate;
+  // private final InventoryRepository inventoryRepository;
+  // private final String INVENTORY_KEY = "inventory:";
 
   @Override
   @SuppressWarnings({ "null", "unchecked", "rawtypes" })

@@ -1,4 +1,4 @@
-package com.winnguyen1905.product.configuration;
+package com.winnguyen1905.product.config;
 
 import com.winnguyen1905.product.core.model.BaseObject;
 

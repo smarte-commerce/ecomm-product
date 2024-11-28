@@ -1,4 +1,4 @@
-package com.winnguyen1905.product.configuration;
+package com.winnguyen1905.product.config;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
@@ -18,8 +18,8 @@ import com.nimbusds.jose.util.Base64;
 import com.winnguyen1905.product.exception.BadRequestException;
 
 @Configuration
-public class JwtConfiguration {
-  @Value("${techstore.jwt.base64-secret}")
+public class JwtConfig {
+  @Value("${jwt.base64-secret}")
   private String jwtKey;
 
   public SecretKey secretKey() {

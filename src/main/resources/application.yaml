@@ -9,7 +9,7 @@ spring:
   application:
     name: product-service
   main:
-    web-application-type: reactive
+    allow-bean-definition-overriding: true
   datasource:
     url: jdbc:mysql://localhost:3306/ecommerce
     username: root

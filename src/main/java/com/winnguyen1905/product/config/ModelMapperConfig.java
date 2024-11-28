@@ -1,4 +1,4 @@
-package com.winnguyen1905.product.configuration;
+package com.winnguyen1905.product.config;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class ModelMapperConfiguration {
+public class ModelMapperConfig {
     @Bean
     ModelMapper modelMapper() {
         List<String> excludes = List.of("createdDate", "updatedDate", "createdBy", "updatedBy");
