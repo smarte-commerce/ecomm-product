@@ -22,7 +22,7 @@ import com.winnguyen1905.product.util.OptionalExtractor;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("${release.api.prefix}/products")
+@RequestMapping("products/")
 public class ProductController {
 
   private final ProductService productService;
@@ -51,7 +51,7 @@ public class ProductController {
   @PostMapping
   @MetaMessage(message = "add new product success")
   public ResponseEntity<Product> addProduct(@RequestBody AddProductRequest productRequest) {
-    UUID userId = OptionalExtractor.extractFromResource(SecurityUtils.getCurrentUserId());
+    UUID userId = OptionalExtractor.extractUserId();
     return ResponseEntity.status(HttpStatus.CREATED.value())
         .body(this.productService.handleAddProduct(userId, productRequest));
   }

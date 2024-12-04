@@ -13,16 +13,16 @@ import lombok.Setter;
 @Setter
 @Builder
 public class Checkout extends AbstractModel {
-  private PriceStatisticsResponse PriceStatistics;
-  private List<CheckoutItem> checkoutItems;
+  // private PriceStatisticsResponse PriceStatistics;
+  // private List<CheckoutItem> checkoutItems;
 
-  @Getter
-  @Setter
-  @Builder
-  public static class CheckoutItem extends AbstractModel {
-    // private Cart cart;
-    private Discount bestVoucher;
-    private Set<Discount> discounts;
-    private PriceStatisticsResponse PriceStatistics;
-  }
+  // @Getter
+  // @Setter
+  // @Builder
+  // public static class CheckoutItem extends AbstractModel {
+  //   // private Cart cart;
+  //   private Discount bestVoucher;
+  //   private Set<Discount> discounts;
+  //   private PriceStatisticsResponse PriceStatistics;
+  // }
 }

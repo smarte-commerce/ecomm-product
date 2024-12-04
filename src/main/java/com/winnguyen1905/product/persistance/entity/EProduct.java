@@ -36,8 +36,8 @@ import lombok.Setter;
 @Entity
 @Table(name = "products")
 @SQLRestriction("is_deleted <> true")
-@SQLDelete(sql = "UPDATE products SET is_deleted = TRUE WHERE ID=? and VERSION=?")
 @Inheritance(strategy = InheritanceType.JOINED)
+@SQLDelete(sql = "UPDATE products SET is_deleted = TRUE WHERE ID=? and VERSION=?")
 @DiscriminatorColumn(name = "p_type", discriminatorType = DiscriminatorType.STRING)
 public class EProduct extends EBaseAudit {
   @Column(name = "p_name", nullable = false)
@@ -73,12 +73,6 @@ public class EProduct extends EBaseAudit {
   @OneToMany(mappedBy = "product", cascade = CascadeType.PERSIST)
   private List<EVariation> variations = new ArrayList<>();
 
-  @ManyToMany(fetch = FetchType.LAZY)
-  @JoinTable(
-    name = "discount_products", 
-    joinColumns = @JoinColumn(name = "product_id"), 
-    inverseJoinColumns = @JoinColumn(name = "discount_id"))
-  private Set<EDiscount> discounts = new HashSet<>();
   //
   // @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
   // private List<CartItemEntity> cartItems = new ArrayList<>();

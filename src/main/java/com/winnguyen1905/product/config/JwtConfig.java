@@ -22,18 +22,14 @@ public class JwtConfig {
   @Value("${jwt.base64-secret}")
   private String jwtKey;
 
-  public SecretKey secretKey() {
+  @Bean
+  SecretKey secretKey() {
     byte[] keyBytes = Base64.from(this.jwtKey).decode();
     return new SecretKeySpec(keyBytes, 0, keyBytes.length, SecurityUtils.JWT_ALGORITHM.getName());
   }
 
   @Bean
-  public JwtEncoder jwtEncoder() {
-    return new NimbusJwtEncoder(new ImmutableSecret<>(secretKey()));
-  }
-
-  @Bean
-  public JwtDecoder jwtDecoder() {
+  JwtDecoder jwtDecoder() {
     NimbusJwtDecoder nimbusJwtDecoder = NimbusJwtDecoder.withSecretKey(secretKey())
         .macAlgorithm(SecurityUtils.JWT_ALGORITHM).build();
     System.out.println(jwtKey);
@@ -46,11 +42,6 @@ public class JwtConfig {
         throw new BadRequestException("refresh token invalid", 401);
       }
     };
-  }
-
-  @Bean
-  JwtUtils jwtUtils() {
-    return new JwtUtils();
   }
 
   @Bean

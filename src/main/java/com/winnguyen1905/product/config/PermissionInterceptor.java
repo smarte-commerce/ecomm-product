@@ -8,7 +8,6 @@ import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.HandlerMapping;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.winnguyen1905.product.exception.BadRequestException;
 import com.winnguyen1905.product.exception.BaseException;
 
 import jakarta.servlet.http.HttpServletRequest;

@@ -17,9 +17,9 @@ import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 @EnableMethodSecurity(securedEnabled = true)
 public class SecurityConfig implements WebMvcConfigurer {
 
-  private final String[] whiteList = { "/api/v1/auth/register", "/api/v1/auth/login", "/api/v1/auth/refresh",
-      "/storage/**", "/api/v1/products/**" }; 
-      
+  private final String[] whiteList = {
+      "/storage/**", "/products/**" };
+
   @Bean
   PermissionInterceptor getPermissionInterceptor() {
     return new PermissionInterceptor();
