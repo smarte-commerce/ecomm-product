@@ -1,13 +1,21 @@
 package com.winnguyen1905.product.core.model.request;
 
-import com.winnguyen1905.product.core.model.Product;
+import java.util.List;
+import java.util.UUID;
 
-import lombok.Getter;
-import lombok.Setter;
+import com.winnguyen1905.product.core.model.AbstractModel;
+import com.winnguyen1905.product.core.model.ProductImage;
+import com.winnguyen1905.product.core.model.Variation;
 
-@Setter
-@Getter
-public class UpdateProductRequest extends Product {
-  private Boolean isDraft;
-  private Boolean isPublished;
+public record UpdateProductRequest(
+    UUID id,
+    String name,
+    String slug,
+    String brand,
+    String thumb,
+    Double price,
+    String productType,
+    String description,
+    List<Variation> variations,
+    List<ProductImage> images, Boolean isDraft, Boolean isPublished) implements AbstractModel {
 }

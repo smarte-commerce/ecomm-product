@@ -2,14 +2,13 @@ package com.winnguyen1905.product.core.model.response;
 
 import com.winnguyen1905.product.core.model.AbstractModel;
 
-import lombok.*;
+import lombok.Builder;
 
-@Getter
-@Setter
 @Builder
-public class RestResponse<T> extends AbstractModel {
-    private Integer statusCode;
-    private String error;
-    private Object message;
-    private T data;
+public record RestResponse<T>(
+    Integer statusCode,
+    String error,
+    Object message,
+    T data)
+    implements AbstractModel {
 }

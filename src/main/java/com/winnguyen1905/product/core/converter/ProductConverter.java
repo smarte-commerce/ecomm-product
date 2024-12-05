@@ -12,7 +12,6 @@ import org.springframework.stereotype.Component;
 
 import com.winnguyen1905.product.core.model.Product;
 import com.winnguyen1905.product.exception.ResourceNotFoundException;
-import com.winnguyen1905.product.persistance.entity.EElectronic;
 import com.winnguyen1905.product.persistance.entity.EProduct;
 
 import lombok.RequiredArgsConstructor;
@@ -21,53 +20,53 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ProductConverter {
 
-  private final ModelMapper modelMapper;
-  private static final Map<String, Class<?>> productRegistry;
+  // private final ModelMapper modelMapper;
+  // private static final Map<String, Class<?>> productRegistry;
 
-  static {
-    productRegistry = new HashMap<String, Class<?>>();
+  // static {
+    // productRegistry = new HashMap<String, Class<?>>();
     // productRegistry.put("electronic_", Electronic.class);
-    productRegistry.put("eelectronic", EElectronic.class);
+    // productRegistry.put("eelectronic", EElectronic.class);
 
     // productRegistry.put("smartwatch_", SmartPhone.class);
     // productRegistry.put("smartwatch_entity", SmartPhoneEntity.class);
-  }
+  // }
 
-  public <D> D toProductEntity(Product product) {
-    try {
-      Class<?> dClass = this.productRegistry.get(product.getProductType() + "_entity");
-      if (dClass == null)
-        throw new ResourceNotFoundException("Not found product type " + product.getProductType());
-      D instanceOfDClass = (D) dClass.getDeclaredConstructor().newInstance();
-      this.modelMapper.map(product, instanceOfDClass);
-      return instanceOfDClass;
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-    return (D) this.modelMapper.map(product, EProduct.class);
-  }
+  // public <D> D toProductEntity(Product product) {
+  //   try {
+  //     Class<?> dClass = this.productRegistry.get(product.getProductType() + "_entity");
+  //     if (dClass == null)
+  //       throw new ResourceNotFoundException("Not found product type " + product.getProductType());
+  //     D instanceOfDClass = (D) dClass.getDeclaredConstructor().newInstance();
+  //     this.modelMapper.map(product, instanceOfDClass);
+  //     return instanceOfDClass;
+  //   } catch (Exception e) {
+  //     e.printStackTrace();
+  //   }
+  //   return (D) this.modelMapper.map(product, EProduct.class);
+  // }
 
-  public <D> D toProduct(EProduct product) {
-    try {
-      Class<?> dClass = this.productRegistry.get(product.getProductType() + "_");
-      if (dClass == null)
-        throw new ResourceNotFoundException("Not found product type " + product.getProductType());
-      D instanceOfDClass = (D) dClass.getDeclaredConstructor().newInstance();
-      this.modelMapper.map(product, instanceOfDClass);
-      return instanceOfDClass;
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-    return (D) this.modelMapper.map(product, Product.class);
-  }
+  // public <D> D toProduct(EProduct product) {
+  //   try {
+  //     Class<?> dClass = this.productRegistry.get(product.getProductType() + "_");
+  //     if (dClass == null)
+  //       throw new ResourceNotFoundException("Not found product type " + product.getProductType());
+  //     D instanceOfDClass = (D) dClass.getDeclaredConstructor().newInstance();
+  //     this.modelMapper.map(product, instanceOfDClass);
+  //     return instanceOfDClass;
+  //   } catch (Exception e) {
+  //     e.printStackTrace();
+  //   }
+  //   return (D) this.modelMapper.map(product, Product.class);
+  // }
 
-  public List<Field> getAllField(Class<?> dClass) {
-    if (dClass == Object.class)
-      return new ArrayList<>();
-    List<Field> parentFields = getAllField(dClass.getSuperclass());
-    parentFields.addAll(Arrays.asList(dClass.getDeclaredFields()));
-    return parentFields;
-  }
+  // public List<Field> getAllField(Class<?> dClass) {
+  //   if (dClass == Object.class)
+  //     return new ArrayList<>();
+  //   List<Field> parentFields = getAllField(dClass.getSuperclass());
+  //   parentFields.addAll(Arrays.asList(dClass.getDeclaredFields()));
+  //   return parentFields;
+  // }
 
   // public <D> D taget(D object, D target) {
   // List<Field> fieldList = getAllField(object.getClass());
