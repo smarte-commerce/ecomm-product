@@ -23,7 +23,7 @@ public class EInventory extends EBaseAudit {
 
   @ManyToOne
   @JoinColumn(name = "variant_id")
-  private EVariation variation;
+  private EProduct product;
 
   @Column(name = "quantity_available")
   private int quantityAvailable;
@@ -33,5 +33,5 @@ public class EInventory extends EBaseAudit {
 
   @Column(name = "quantity_sold")
   private int quantitySold;
-
+  
 }

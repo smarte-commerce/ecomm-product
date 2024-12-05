@@ -22,7 +22,7 @@ import com.winnguyen1905.product.util.OptionalExtractor;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("products/")
+@RequestMapping("products")
 public class ProductController {
 
   private final ProductService productService;
@@ -51,7 +51,7 @@ public class ProductController {
   @PostMapping
   @MetaMessage(message = "add new product success")
   public ResponseEntity<Product> addProduct(@RequestBody AddProductRequest productRequest) {
-    UUID userId = OptionalExtractor.extractUserId();
+    UUID userId = OptionalExtractor.currentUserId();
     return ResponseEntity.status(HttpStatus.CREATED.value())
         .body(this.productService.handleAddProduct(userId, productRequest));
   }
@@ -61,7 +61,7 @@ public class ProductController {
   // public ResponseEntity<Product> getAllMyProducts(
   //     Pageable pageable,
   //     @ModelAttribute(SystemConstant.MODEL) SearchProductRequest productSearchRequest) {
-  //   UUID shopOwner = OptionalExtractor.extractUserId();
+  //   UUID shopOwner = OptionalExtractor.currentUserId();
   //   productSearchRequest.setCreatedBy(shopOwner);
   //   return ResponseEntity.ok(this.productService.handleGetAllProducts(productSearchRequest,
   //       pageable));
@@ -79,13 +79,13 @@ public class ProductController {
   @PatchMapping("/change-status/{ids}")
   @MetaMessage(message = "Change visible products status success")
   public ResponseEntity<List<Product>> publishProducts(@PathVariable List<UUID> ids) {
-    UUID shopId = OptionalExtractor.extractUserId();
+    UUID shopId = OptionalExtractor.currentUserId();
     return ResponseEntity.ok(this.productService.handleChangeProductStatus(shopId, ids));
   }
 
   @DeleteMapping("/{ids}")
   public ResponseEntity<Void> deleteProducts(@PathVariable Set<UUID> ids) {
-    UUID shopId = OptionalExtractor.extractUserId();
+    UUID shopId = OptionalExtractor.currentUserId();
     this.productService.handleDeleteProducts(shopId, List.copyOf(ids));
     return ResponseEntity.noContent().build();
   }

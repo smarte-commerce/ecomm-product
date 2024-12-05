@@ -26,8 +26,8 @@ public class PermissionInterceptor implements HandlerInterceptor {
       List<Permission> permissionDTOs = SecurityUtils.getCurrentUsersPermissions().get().stream()
           .map(stringPermission -> SecurityUtils.jsonToPermission(stringPermission)).toList();
       Boolean isAllow = permissionDTOs.stream()
-          .anyMatch(item -> (item.getApiPath().equals(path) && item.getMethod().equals(httpMethod))
-              || item.getApiPath().equals("/api/v1/"));
+          .anyMatch(item -> (item.apiPath().equals(path) && item.method().equals(httpMethod))
+              || item.apiPath().equals("/api/v1/"));
       if (isAllow == false)
         throw new BaseException("Cannot use endpoint " + path, 403, "Forbidden");
     }

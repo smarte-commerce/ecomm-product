@@ -11,6 +11,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
 import com.winnguyen1905.product.core.model.Product;
+import com.winnguyen1905.product.core.model.request.AddProductRequest;
 import com.winnguyen1905.product.exception.ResourceNotFoundException;
 import com.winnguyen1905.product.persistance.entity.EProduct;
 
@@ -20,8 +21,19 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ProductConverter {
 
-  // private final ModelMapper modelMapper;
-  // private static final Map<String, Class<?>> productRegistry;
+  private final ModelMapper mapper;
+
+  public EProduct map(AddProductRequest product) {
+    return null;
+  }
+
+  public EProduct map(Product product) {
+    return null;
+  }
+
+  public Product map(EProduct product) {
+    return null;
+  }
 
   // static {
     // productRegistry = new HashMap<String, Class<?>>();

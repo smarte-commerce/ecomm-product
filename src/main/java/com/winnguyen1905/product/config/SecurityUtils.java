@@ -29,14 +29,16 @@ public class SecurityUtils {
       }
     }
 
-    Permission dto = new Permission();
-    dto.setName(map.get("name"));
-    dto.setCode(map.get("code"));
-    dto.setApiPath(map.get("apiPath"));
-    dto.setMethod(map.get("method"));
-    dto.setModule(map.get("module"));
-    dto.setId(UUID.fromString(map.get("id")));
-    return dto;
+    Permission permission = Permission.builder()
+        .id(UUID.fromString(map.get("id")))
+        .name(map.get("name"))
+        .code(map.get("code"))
+        .apiPath(map.get("apiPath"))
+        .method(map.get("method"))
+        .module(map.get("module"))
+        .build();
+        
+    return permission;
   }
 
   public static final MacAlgorithm JWT_ALGORITHM = MacAlgorithm.HS256;

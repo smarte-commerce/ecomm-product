@@ -17,5 +17,7 @@ public record UpdateProductRequest(
     String productType,
     String description,
     List<Variation> variations,
-    List<ProductImage> images, Boolean isDraft, Boolean isPublished) implements AbstractModel {
+    List<ProductImage> images, 
+    Boolean isDraft, 
+    Boolean isPublished) implements AbstractModel {
 }

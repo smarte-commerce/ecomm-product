@@ -7,22 +7,22 @@ import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 
+@Entity
 @Getter
 @Setter
-@Entity
-@Table(name = "variations")
-public class EVariation extends EBaseAudit {
-  @Column(name = "variation_price")
-  private Double price;
+@Table(name = "brand")
+public class EBrand extends EBaseAudit {
+  @Column(name = "brand_name", unique = true, nullable = false)
+  private String name;
 
-  @ManyToOne
-  @JoinColumn(name = "product_id")
-  private EProduct product;
+  @Column(name = "brand_category", nullable = true)
+  private String description;
+
+  @OneToMany(mappedBy = "brand", fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST })
+  private List<EProduct> products = new ArrayList<>();
 }

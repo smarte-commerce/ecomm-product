@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.JsonNode;
 
 public record Product(
     UUID id,
@@ -12,10 +13,12 @@ public record Product(
     String brand,
     String thumb,
     Double price,
+    String category,
+    JsonNode features,
+    Boolean isDeleted,
     String productType,
     String description,
     List<Variation> variations,
-    Boolean isDeleted,
-    @JsonFormat(pattern = "HH-mm-ss a dd-MM-yyyy", timezone = "GMT+7") String createdDate,
-    @JsonFormat(pattern = "HH-mm-ss a dd-MM-yyyy", timezone = "GMT+7") String updatedDate) implements AbstractModel {
+    String createdDate,
+    String updatedDate) implements AbstractModel {
 }

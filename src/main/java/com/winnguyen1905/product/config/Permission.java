@@ -1,20 +1,18 @@
 package com.winnguyen1905.product.config;
 
-import com.winnguyen1905.product.core.model.BaseObject;
+import java.util.UUID;
 
-import lombok.Getter;
-import lombok.Setter;
+import com.winnguyen1905.product.core.model.AbstractModel;
 
-@Getter
-@Setter
-public class Permission extends BaseObject<Permission> {
-  private String name;
+import lombok.Builder;
 
-  private String code;
-
-  private String apiPath;
-
-  private String method;
-
-  private String module;
+@Builder
+public record Permission(
+    UUID id,
+    String name,
+    String code,
+    String apiPath,
+    String method,
+    String module)
+    implements AbstractModel {
 }

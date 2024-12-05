@@ -7,14 +7,13 @@ import com.winnguyen1905.product.config.SecurityUtils;
 import com.winnguyen1905.product.exception.ResourceNotFoundException;
 
 public class OptionalExtractor {
-  public static <T> T extractFromResource(Optional<T> optional) {
+  public static <T> T fromOptional(Optional<T> optional, String errorMessage) {
     if (optional.isPresent() && optional.get() instanceof T t) return t;
-    else throw new ResourceNotFoundException("Resource not found for optional extract !");
+    else throw new ResourceNotFoundException(errorMessage != null ? errorMessage : "Resource not found for optional extract !");
   }
-
-  public static UUID extractUserId() {
+  
+  public static UUID currentUserId() {
     if(SecurityUtils.getCurrentUserId().isEmpty()) throw new ResourceNotFoundException("");
     return SecurityUtils.getCurrentUserId().get();
   }
-
 }
