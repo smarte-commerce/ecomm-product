@@ -23,6 +23,9 @@ public class EBrand extends EBaseAudit {
   @Column(name = "brand_category", nullable = true)
   private String description;
 
+  @Column(name = "brand_is_verified")
+  private boolean isVerified;
+
   @OneToMany(mappedBy = "brand", fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST })
   private List<EProduct> products = new ArrayList<>();
 }

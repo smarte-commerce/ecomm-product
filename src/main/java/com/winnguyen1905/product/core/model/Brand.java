@@ -4,7 +4,9 @@ import java.util.UUID;
 
 public record Brand(
     UUID id,
+    String name,
+    String description,
+    boolean isVerified,
     String createdDate,
-    String updatedDate,
-    String name, String description) {
+    String updatedDate) implements AbstractModel {
 }

@@ -4,12 +4,13 @@ import java.util.UUID;
 
 import com.winnguyen1905.product.core.model.AbstractModel;
 
-import lombok.Builder; 
+import lombok.Builder;
 
 @Builder
-public record PriceStatisticsResponse(Double totalPrice,
-    Double totalShipPrice,
+public record PriceStatisticsResponse(
+    Double totalPrice,
     UUID discountId,
+    Double totalShipPrice,
     Double totalDiscountVoucher,
     Double amountShipReduced,
     Double amountProductReduced,

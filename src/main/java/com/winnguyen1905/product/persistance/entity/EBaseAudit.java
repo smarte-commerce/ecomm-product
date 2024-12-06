@@ -21,7 +21,6 @@ import lombok.Setter;
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
 public abstract class EBaseAudit extends EBase {
-  
   @Version
   private long version;
 

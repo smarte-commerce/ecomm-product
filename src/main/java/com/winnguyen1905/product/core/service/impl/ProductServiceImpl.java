@@ -49,12 +49,12 @@ public class ProductServiceImpl implements ProductService {
   private final ProductConverter productConverter;
   private final ProductRepository productRepository;
   private final CategoryRepository categoryRepository;
-  private final Type pagedResponseType = new TypeToken<PagedResponse<Product>>() {}.getType();
+  private final Type pagedResponseType = new TypeToken<PagedResponse<Product>>() {
+  }.getType();
 
   @Override
   @Transactional
   public Product addProduct(UUID shopId, AddProductRequest addProductRequest) {
-
     List<EProductImage> productImages = CommonUtils.stream(addProductRequest.images())
         .map(item -> this.mapper.map(item, EProductImage.class))
         .toList();
@@ -67,22 +67,22 @@ public class ProductServiceImpl implements ProductService {
         .map(item -> this.mapper.map(item, EInventory.class))
         .toList();
 
-    EBrand brand = this.brandRepository.findByName(addProductRequest.brand())
+    EBrand brand = this.brandRepository.findById(addProductRequest.brand().id())
         .orElseGet(() -> {
           EBrand newBrand = new EBrand();
-          newBrand.setName(addProductRequest.brand());
+          newBrand.setVerified(false);
+          newBrand.setName(addProductRequest.brand().name());
           return this.brandRepository.save(newBrand);
         });
 
-    ECategory category = 
-        this.categoryRepository.findByIdAndShopId(addProductRequest.category().id(), shopId)
-            .orElse(handleGetCategoryEntity(addProductRequest.category(), shopId));
+    ECategory category = this.categoryRepository.findByIdAndShopId(addProductRequest.category().id(), shopId)
+        .orElse(handleGetCategoryEntity(addProductRequest.category(), shopId));
 
     EProduct product = this.productConverter.map(addProductRequest);
     product.setBrand(brand);
+    product.setShopId(shopId);
     product.setCategory(category);
     product.setDraft(true);
-    product.setShopId(shopId);
     product.setImages(productImages);
     product.setPublished(false);
     product.setVariations(productVariations);
@@ -102,19 +102,20 @@ public class ProductServiceImpl implements ProductService {
   public ECategory handleGetCategoryEntity(Category categoryDto, UUID shopId) {
     Optional<ECategory> optionalCategory = this.categoryRepository.findByIdAndShopId(categoryDto.id(), shopId);
 
-    if (optionalCategory.isPresent()) return optionalCategory.get();
+    if (optionalCategory.isPresent())
+      return optionalCategory.get();
 
     ECategory newCategory = this.mapper.map(categoryDto, ECategory.class);
     newCategory.setShopId(shopId);
 
-    if (newCategory.getParentId() == null) {    
+    if (newCategory.getParentId() == null) {
       Long numberOfCategory = this.categoryRepository.countByShopId(shopId);
-      newCategory.setLeft(numberOfCategory*2 + 1);
-      newCategory.setRight(numberOfCategory*2 + 2);
+      newCategory.setLeft(numberOfCategory * 2 + 1);
+      newCategory.setRight(numberOfCategory * 2 + 2);
     } else {
       ECategory parentCategory = OptionalExtractor.fromOptional(
-        this.categoryRepository.findByIdAndShopId(newCategory.getParentId(), shopId),
-        "Not found parent category id " + newCategory.getParentId());
+          this.categoryRepository.findByIdAndShopId(newCategory.getParentId(), shopId),
+          "Not found parent category id " + newCategory.getParentId());
       newCategory.setLeft(parentCategory.getRight());
       newCategory.setRight(parentCategory.getRight() + 1);
       parentCategory.setRight(newCategory.getRight() + 1);
