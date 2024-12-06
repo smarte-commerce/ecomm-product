@@ -3,6 +3,7 @@ package com.winnguyen1905.product.core.service.impl;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.UUID;
+import java.util.Locale.Category;
 
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
@@ -22,12 +23,16 @@ import com.winnguyen1905.product.core.model.response.PagedResponse;
 import com.winnguyen1905.product.core.service.ProductService;
 import com.winnguyen1905.product.exception.ResourceNotFoundException;
 import com.winnguyen1905.product.persistance.entity.EBrand;
+import com.winnguyen1905.product.persistance.entity.ECategory;
 import com.winnguyen1905.product.persistance.entity.EInventory;
 import com.winnguyen1905.product.persistance.entity.EProduct;
 import com.winnguyen1905.product.persistance.entity.EProductImage;
 import com.winnguyen1905.product.persistance.entity.EVariation;
 import com.winnguyen1905.product.persistance.repository.BrandRepository;
+import com.winnguyen1905.product.persistance.repository.CategoryRepository;
+import com.winnguyen1905.product.persistance.repository.InventoryRepository;
 import com.winnguyen1905.product.persistance.repository.ProductRepository;
+import com.winnguyen1905.product.persistance.repository.VariationRepository;
 import com.winnguyen1905.product.util.CommonUtils;
 import com.winnguyen1905.product.util.OptionalExtractor;
 
@@ -42,8 +47,10 @@ public class ProductServiceImpl implements ProductService {
   private final BrandRepository brandRepository;
   private final ProductConverter productConverter;
   private final ProductRepository productRepository;
-  private final Type pagedResponseType = new TypeToken<PagedResponse<Product>>() {
-  }.getType();
+  private final CategoryRepository categoryRepository;
+  private final VariationRepository variationRepository;
+  private final InventoryRepository inventoryRepository;
+  private final Type pagedResponseType = new TypeToken<PagedResponse<Product>>() {}.getType();
 
   @Override
   @Transactional
@@ -53,7 +60,7 @@ public class ProductServiceImpl implements ProductService {
         .map(item -> this.mapper.map(item, EProductImage.class))
         .toList();
 
-    List<EVariation> productVaricactions = CommonUtils.stream(addProductRequest.variations())
+    List<EVariation> productVariations = CommonUtils.stream(addProductRequest.variations())
         .map(item -> this.mapper.map(item, EVariation.class))
         .toList();
 
@@ -68,20 +75,29 @@ public class ProductServiceImpl implements ProductService {
           return this.brandRepository.save(newBrand);
         });
 
+    ECategory category = this.categoryRepository.findByNameAndShopId(addProductRequest.category(), shopId)
+        .orElseGet(() -> {
+          ECategory newCategory = new ECategory();
+          newCategory.setShopId(shopId);
+          newCategory.setName(addProductRequest.category());
+          return this.categoryRepository.save(newCategory);
+        });
+
     EProduct product = this.productConverter.map(addProductRequest);
     product.setBrand(brand);
+    product.setCategory(category);
     product.setDraft(true);
     product.setShopId(shopId);
     product.setImages(productImages);
     product.setPublished(false);
+    product.setVariations(productVariations);
     product.setInventories(productInventories);
-    product.setVariations(productVaricactions);
 
     final EProduct finalProduct = product;
     brand.getProducts().add(finalProduct);
     productImages.forEach(item -> item.setProduct(finalProduct));
     productInventories.forEach(item -> item.setProduct(finalProduct));
-    productVaricactions.forEach(item -> item.setProduct(finalProduct));
+    productVariations.forEach(item -> item.setProduct(finalProduct));
 
     product = this.productRepository.save(product);
     return this.productConverter.map(product);

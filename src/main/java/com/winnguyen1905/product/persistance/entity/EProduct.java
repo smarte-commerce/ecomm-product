@@ -81,7 +81,7 @@ public class EProduct extends EBaseAudit {
 
   @Type(JsonType.class)
   @Column(columnDefinition = "jsonb")
-  private JsonNode features;
+  private JsonNode feature;
 
   // @PrePersist
   // protected void prePersist() {
