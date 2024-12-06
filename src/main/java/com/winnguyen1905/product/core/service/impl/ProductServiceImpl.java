@@ -2,8 +2,8 @@ package com.winnguyen1905.product.core.service.impl;
 
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
-import java.util.Locale.Category;
 
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
@@ -19,6 +19,7 @@ import com.winnguyen1905.product.core.model.Product;
 import com.winnguyen1905.product.core.model.request.AddProductRequest;
 import com.winnguyen1905.product.core.model.request.SearchProductRequest;
 import com.winnguyen1905.product.core.model.request.UpdateProductRequest;
+import com.winnguyen1905.product.core.model.response.Category;
 import com.winnguyen1905.product.core.model.response.PagedResponse;
 import com.winnguyen1905.product.core.service.ProductService;
 import com.winnguyen1905.product.exception.ResourceNotFoundException;
@@ -48,8 +49,6 @@ public class ProductServiceImpl implements ProductService {
   private final ProductConverter productConverter;
   private final ProductRepository productRepository;
   private final CategoryRepository categoryRepository;
-  private final VariationRepository variationRepository;
-  private final InventoryRepository inventoryRepository;
   private final Type pagedResponseType = new TypeToken<PagedResponse<Product>>() {}.getType();
 
   @Override
@@ -75,13 +74,9 @@ public class ProductServiceImpl implements ProductService {
           return this.brandRepository.save(newBrand);
         });
 
-    ECategory category = this.categoryRepository.findByNameAndShopId(addProductRequest.category(), shopId)
-        .orElseGet(() -> {
-          ECategory newCategory = new ECategory();
-          newCategory.setShopId(shopId);
-          newCategory.setName(addProductRequest.category());
-          return this.categoryRepository.save(newCategory);
-        });
+    ECategory category = 
+        this.categoryRepository.findByIdAndShopId(addProductRequest.category().id(), shopId)
+            .orElse(handleGetCategoryEntity(addProductRequest.category(), shopId));
 
     EProduct product = this.productConverter.map(addProductRequest);
     product.setBrand(brand);
@@ -95,12 +90,38 @@ public class ProductServiceImpl implements ProductService {
 
     final EProduct finalProduct = product;
     brand.getProducts().add(finalProduct);
+    category.getProducts().add(finalProduct);
     productImages.forEach(item -> item.setProduct(finalProduct));
-    productInventories.forEach(item -> item.setProduct(finalProduct));
     productVariations.forEach(item -> item.setProduct(finalProduct));
+    productInventories.forEach(item -> item.setProduct(finalProduct));
 
     product = this.productRepository.save(product);
     return this.productConverter.map(product);
+  }
+
+  public ECategory handleGetCategoryEntity(Category categoryDto, UUID shopId) {
+    Optional<ECategory> optionalCategory = this.categoryRepository.findByIdAndShopId(categoryDto.id(), shopId);
+
+    if (optionalCategory.isPresent()) return optionalCategory.get();
+
+    ECategory newCategory = this.mapper.map(categoryDto, ECategory.class);
+    newCategory.setShopId(shopId);
+
+    if (newCategory.getParentId() == null) {    
+      Long numberOfCategory = this.categoryRepository.countByShopId(shopId);
+      newCategory.setLeft(numberOfCategory*2 + 1);
+      newCategory.setRight(numberOfCategory*2 + 2);
+    } else {
+      ECategory parentCategory = OptionalExtractor.fromOptional(
+        this.categoryRepository.findByIdAndShopId(newCategory.getParentId(), shopId),
+        "Not found parent category id " + newCategory.getParentId());
+      newCategory.setLeft(parentCategory.getRight());
+      newCategory.setRight(parentCategory.getRight() + 1);
+      parentCategory.setRight(newCategory.getRight() + 1);
+      this.categoryRepository.updateCategoryTreeOfShop(parentCategory.getRight(), shopId);
+      this.categoryRepository.save(parentCategory);
+    }
+    return this.categoryRepository.save(newCategory);
   }
 
   @Override

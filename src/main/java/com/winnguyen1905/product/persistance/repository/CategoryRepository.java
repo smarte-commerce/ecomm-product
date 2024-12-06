@@ -13,14 +13,18 @@ import com.winnguyen1905.product.persistance.entity.ECategory;
 
 @Repository
 public interface CategoryRepository extends JpaRepository<ECategory, UUID> {
-  Optional<ECategory> findByNameAndShopId(String name, UUID shopId);
+  Optional<ECategory> findByIdAndShopId(UUID id, UUID shopId);
 
   @Modifying
   @Query("""
       update categories as c
       set c.category_right = c.category_right + 2, c.category_left = c.category_left + 2
-      where c.category_right >= :start and c.shop_id = :shopId
+      where c.category_left > :start and c.shop_id = :shopId
       """)
   @Transactional
-  int updateCategoryTree(int start, UUID shopId);
+  Long updateCategoryTreeOfShop(Long start, UUID shopId);
+
+  Optional<ECategory> findTopByShopIdOrderByRightDesc(UUID shopId);
+
+  Long countByShopId(UUID shopId);
 }
