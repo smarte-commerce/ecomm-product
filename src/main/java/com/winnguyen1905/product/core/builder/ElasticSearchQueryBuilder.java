@@ -5,13 +5,17 @@ import java.util.Objects;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.elasticsearch.client.elc.NativeQuery;
+import org.springframework.util.StringUtils;
 
 import com.winnguyen1905.product.core.model.request.SearchProductRequest;
 import com.winnguyen1905.product.util.CommonUtils;
 
+import co.elastic.clients.elasticsearch._types.FieldValue;
 import co.elastic.clients.elasticsearch._types.SortOptions;
+import co.elastic.clients.elasticsearch._types.SortOrder;
 import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import co.elastic.clients.elasticsearch._types.query_dsl.TermsQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.TermsQueryField;
 import co.elastic.clients.json.JsonData;
 import lombok.extern.slf4j.Slf4j;
@@ -41,60 +45,46 @@ public class ElasticSearchQueryBuilder {
   private static void setPagination(SearchProductRequest searchProductRequest, NativeQuery nativeQuery) {
     if (Objects.nonNull(searchProductRequest.pagination())) {
       nativeQuery.setPageable(
-          Pageable.ofSize(searchProductRequest.pagination().getPageSize())
-              .withPage(searchProductRequest.pagination().getPageNo()));
+          Pageable.ofSize(searchProductRequest.pagination().pageSize())
+              .withPage(searchProductRequest.pagination().pageNum()));
     }
   }
 
   private static SortOptions getSortOptions(SearchProductRequest searchProductRequest) {
     SortOptions.Builder sortOptionsBuilder = new SortOptions.Builder();
 
-    CommonUtils.stream(searchProductRequest.getSorts())
+    CommonUtils.stream(searchProductRequest.sorts())
         .forEach(
             sort -> sortOptionsBuilder.field(
-                f -> f.field(sort.getField())
+                f -> f.field(sort.field())
                     .order(
-                        sort.getOrder().equals("asc") ? SortOrder.Asc : SortOrder.Desc)));
+                        sort.order().equals("asc") ? SortOrder.Asc : SortOrder.Desc)));
 
     return sortOptionsBuilder.build();
   }
 
   private static void setMatchQuery(SearchProductRequest searchProductRequest, BoolQuery.Builder bq) {
-    if (StringUtils.hasLength(searchProductRequest.getSearchTerm())) {
+    if (StringUtils.hasLength(searchProductRequest.searchTerm())) {
       bq.must(
           m -> m.match(
-              matchQuery -> matchQuery.query(q -> q.stringValue(searchProductRequest.getSearchTerm())).field("name")));
+              matchQuery -> matchQuery.query(q -> q.stringValue(searchProductRequest.searchTerm())).field("name")));
     }
   }
 
   private static void setFilters(SearchProductRequest searchProductRequest, BoolQuery.Builder bq) {
-    CommonUtils.stream(searchProductRequest.getFilters())
+    CommonUtils.stream(searchProductRequest.filters())
         .forEach(
             filter -> {
               TermsQueryField valueTerms = new TermsQueryField.Builder()
                   .value(
-                      filter.getValues().stream()
+                      filter.values().stream()
                           .map(String::toLowerCase)
                           .map(FieldValue::of)
                           .toList())
                   .build();
 
-              TermsQuery termsQuery = TermsQuery.of(t -> t.field(filter.getField()).terms(valueTerms));
+              TermsQuery termsQuery = TermsQuery.of(t -> t.field(filter.field()).terms(valueTerms));
               bq.filter(f -> f.terms(termsQuery));
             });
-  }
-
-  private static Query multipleTermsQuery(TermsQueryField terms) {
-    return Query.of(
-        q -> q.bool(
-            b -> b.filter(f -> f.terms(t -> t.field("features.Brand").terms(terms)))
-                .filter(f -> f.terms(t -> t.field("category.name").terms(terms)))));
-  }
-
-  private static Query getSingleTerm(JsonData data) {
-    return Query.of(
-        q -> q.bool(
-            b -> b.filter(
-                f -> f.term(t -> t.field("features.Brand").value(v -> v.anyValue(data))))));
   }
 }

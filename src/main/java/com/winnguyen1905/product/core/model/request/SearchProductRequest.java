@@ -24,10 +24,10 @@ public record SearchProductRequest(
 
   public static record Pagination(
       @Default int pageSize,
-      @Default int pageNo) {
+      @Default int pageNum) {
     public Pagination {
       pageSize = pageSize == 0 ? Integer.MAX_VALUE : pageSize;
-      pageNo = pageNo == 0 ? 0 : pageNo;
+      pageNum = pageNum == 0 ? 0 : pageNum;
     }
   }
 
