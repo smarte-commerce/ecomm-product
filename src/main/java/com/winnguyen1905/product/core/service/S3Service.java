@@ -5,5 +5,5 @@ import java.util.List;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface S3Service {
-  List<MultipartFile> putPackages(List<MultipartFile> packages);
+  List<String> putPackages(List<MultipartFile> packages);
 }
