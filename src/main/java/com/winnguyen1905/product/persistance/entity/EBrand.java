@@ -8,6 +8,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
@@ -28,4 +29,9 @@ public class EBrand extends EBaseAudit {
 
   @OneToMany(mappedBy = "brand", fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST })
   private List<EProduct> products = new ArrayList<>();
+
+  @PrePersist
+  private void prePersist() {
+    this.isVerified = false;
+  }
 }

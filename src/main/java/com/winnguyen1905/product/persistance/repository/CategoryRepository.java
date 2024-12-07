@@ -1,5 +1,6 @@
 package com.winnguyen1905.product.persistance.repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -13,6 +14,8 @@ import com.winnguyen1905.product.persistance.entity.ECategory;
 
 @Repository
 public interface CategoryRepository extends JpaRepository<ECategory, UUID> {
+  List<ECategory> findAllByShopId(UUID shopId);
+  List<ECategory> findAllByShopIdAndPageable(UUID shopId);
   Optional<ECategory> findByIdAndShopId(UUID id, UUID shopId);
 
   @Modifying

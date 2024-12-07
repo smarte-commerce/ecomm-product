@@ -70,7 +70,6 @@ public class ProductServiceImpl implements ProductService {
     EBrand brand = this.brandRepository.findById(addProductRequest.brand().id())
         .orElseGet(() -> {
           EBrand newBrand = new EBrand();
-          newBrand.setVerified(false);
           newBrand.setName(addProductRequest.brand().name());
           return this.brandRepository.save(newBrand);
         });
@@ -99,11 +98,10 @@ public class ProductServiceImpl implements ProductService {
     return this.productConverter.map(product);
   }
 
-  public ECategory handleGetCategoryEntity(Category categoryDto, UUID shopId) {
+  private ECategory handleGetCategoryEntity(Category categoryDto, UUID shopId) {
     Optional<ECategory> optionalCategory = this.categoryRepository.findByIdAndShopId(categoryDto.id(), shopId);
 
-    if (optionalCategory.isPresent())
-      return optionalCategory.get();
+    if (optionalCategory.isPresent()) return optionalCategory.get();
 
     ECategory newCategory = this.mapper.map(categoryDto, ECategory.class);
     newCategory.setShopId(shopId);
