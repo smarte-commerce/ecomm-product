@@ -21,8 +21,8 @@ public class SecurityConfig implements WebMvcConfigurer {
       "/storage/**", "/products/**" };
 
   @Bean
-  PermissionInterceptor getPermissionInterceptor() {
-    return new PermissionInterceptor();
+  PPermissionInterceptor getPermissionInterceptor() {
+    return new PPermissionInterceptor();
   }
 
   @Override

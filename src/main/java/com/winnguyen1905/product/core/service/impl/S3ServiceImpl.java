@@ -26,11 +26,12 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 @Slf4j
 @Service
 public class S3ServiceImpl implements S3Service {
-  private static final String BUCKET_NAME = "product-images";
 
   private static S3Client s3Client = null;
 
-  public static S3Client getClient() {
+  private static final String BUCKET_NAME = "product-images";
+
+  private static S3Client getClient() {
     if (Objects.isNull(s3Client)) {
 
       Region region = Region.CA_CENTRAL_1;
@@ -43,7 +44,7 @@ public class S3ServiceImpl implements S3Service {
     return s3Client;
   }
 
-  public String putObject(MultipartFile file) {
+  private String putObject(MultipartFile file) {
 
     PutObjectRequest putOb = getPutObjectRequest(file);
     try {
@@ -67,7 +68,6 @@ public class S3ServiceImpl implements S3Service {
 
   @Override
   public List<String> putPackages(List<MultipartFile> files) {
-
     return files.stream().map(this::putObject).collect(Collectors.toList());
   }
 

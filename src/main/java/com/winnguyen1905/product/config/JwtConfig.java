@@ -19,6 +19,7 @@ import com.winnguyen1905.product.exception.BadRequestException;
 
 @Configuration
 public class JwtConfig {
+  
   @Value("${jwt.base64-secret}")
   private String jwtKey;
 

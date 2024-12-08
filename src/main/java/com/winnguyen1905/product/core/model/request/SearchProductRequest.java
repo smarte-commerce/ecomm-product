@@ -7,6 +7,7 @@ import org.springframework.integration.annotation.Default;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.winnguyen1905.product.core.model.AbstractModel;
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -14,7 +15,7 @@ public record SearchProductRequest(
     List<Sort> sorts,
     String searchTerm,
     List<Filter> filters,
-    Pagination pagination) {
+    Pagination pagination) implements AbstractModel {
   public Pagination getPage() {
     if (Objects.isNull(pagination)) {
       return new SearchProductRequest.Pagination(0, 0);
@@ -31,15 +32,11 @@ public record SearchProductRequest(
     }
   }
 
-  @JsonInclude(JsonInclude.Include.NON_EMPTY)
-  @JsonIgnoreProperties(ignoreUnknown = true)
   public static record Filter(
       String field,
       List<String> values) {
   }
 
-  @JsonInclude(JsonInclude.Include.NON_EMPTY)
-  @JsonIgnoreProperties(ignoreUnknown = true)
   public static record Sort(
       String order,
       String field) {

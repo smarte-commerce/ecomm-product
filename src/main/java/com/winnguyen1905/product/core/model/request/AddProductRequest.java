@@ -13,7 +13,8 @@ import com.winnguyen1905.product.core.model.response.Category;
 
 import jakarta.annotation.Nonnull;
 
-public record AddProductRequest(UUID id,
+public record AddProductRequest(
+    UUID id,
     String slug,
     String thumb,
     Brand brand,
