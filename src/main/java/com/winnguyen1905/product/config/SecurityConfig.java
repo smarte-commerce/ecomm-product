@@ -1,42 +1,59 @@
 package com.winnguyen1905.product.config;
 
+import org.springframework.boot.autoconfigure.web.WebProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
+import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
+import org.springframework.security.config.web.server.ServerHttpSecurity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.security.web.context.SecurityContextPersistenceFilter;
+import org.springframework.security.web.server.SecurityWebFilterChain;
+import org.springframework.security.web.server.context.NoOpServerSecurityContextRepository;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity(securedEnabled = true)
 public class SecurityConfig implements WebMvcConfigurer {
 
-  private final String[] whiteList = {
+  public static final String[] whiteList = {
       "/storage/**", "/products/**" };
 
   @Bean
-  PPermissionInterceptor getPermissionInterceptor() {
-    return new PPermissionInterceptor();
-  }
-
-  @Override
-  public void addInterceptors(InterceptorRegistry registry) {
-    registry.addInterceptor(getPermissionInterceptor()).excludePathPatterns(this.whiteList);
+  PermissionCheckFilter permissionCheckFilter() {
+    return new PermissionCheckFilter();
   }
 
   @Bean
-  SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-
-    http.csrf(c -> c.disable()).cors(Customizer.withDefaults())
-        .authorizeHttpRequests(authz -> authz.requestMatchers(this.whiteList).permitAll().anyRequest().authenticated())
-        .oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults())).formLogin(f -> f.disable())
-        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-    return http.build();
-  }
+public SecurityWebFilterChain springWebFilterChain(
+    ServerHttpSecurity http,
+    PermissionCheckFilter permissionCheckFilter,
+    ReactiveAuthenticationManager reactiveAuthenticationManager
+) {
+    return http
+        .csrf(ServerHttpSecurity.CsrfSpec::disable)
+        .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
+        .authenticationManager(reactiveAuthenticationManager)
+        .securityContextRepository(NoOpServerSecurityContextRepository.getInstance())
+        .authorizeExchange(authorize -> authorize
+            .pathMatchers(SecurityConfig.whiteList).permitAll()
+            .pathMatchers("/ws/events").permitAll()
+            .pathMatchers("/auth/**", "/stripe/**", "/swagger-ui/**", "-docs/**", "/webjars/**").permitAll()
+            .pathMatchers("/admin/**").hasAnyAuthority("ADMIN", "ROLE_ADMIN")
+            .anyExchange().authenticated()
+        )
+        .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
+        .addFilterBefore(permissionCheckFilter, SecurityWebFiltersOrder.AUTHORIZATION)
+        .build();
+}
 }

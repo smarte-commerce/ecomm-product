@@ -7,26 +7,33 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
+import org.springframework.data.redis.connection.ReactiveRedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
+import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
+import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.RedisSerializer;
 
 @Configuration
-class RedisConfig {
+public class RedisConfig {
 
   @Bean
-  JedisConnectionFactory jedisConnectionFactory() {
-    JedisConnectionFactory jedisConFactory = new JedisConnectionFactory();
-    return jedisConFactory;
+  public ReactiveRedisConnectionFactory jedisConnectionFactory() {
+    return new LettuceConnectionFactory("localhost", 6379);
   }
 
   @Bean
-  RedisTemplate<String, Object> redisTemplate() {
-    RedisTemplate<String, Object> template = new RedisTemplate<>();
-    template.setConnectionFactory(jedisConnectionFactory());
-    return template;
+  public ReactiveRedisTemplate<String, Object> reactiveRedisTemplate(ReactiveRedisConnectionFactory factory) {
+    Jackson2JsonRedisSerializer<Object> serializer = new Jackson2JsonRedisSerializer<>(Object.class);
+    RedisSerializationContext.RedisSerializationContextBuilder<String, Object> builder = RedisSerializationContext
+        .newSerializationContext(new Jackson2JsonRedisSerializer<>(String.class));
+    RedisSerializationContext<String, Object> context = builder.value(serializer).hashValue(serializer)
+        .hashKey(serializer).build();
+    return new ReactiveRedisTemplate<>(factory, context);
   }
 
   @Bean
