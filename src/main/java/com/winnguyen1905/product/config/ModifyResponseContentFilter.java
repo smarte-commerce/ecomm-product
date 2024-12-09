@@ -1,27 +1,79 @@
-package com.winnguyen1905.auth.config;
+package com.winnguyen1905.product.config;
 
+import org.springframework.core.MethodParameter;
+import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.winnguyen1905.product.core.model.response.RestResponse;
+import com.winnguyen1905.product.util.MetaMessage;
+
+import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
 @Component
-@SuppressWarnings("null")
+@RequiredArgsConstructor
 public class ModifyResponseContentFilter implements WebFilter {
+
+    private final ObjectMapper objectMapper;
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
-        // Intercepting the response body to modify it
-        return chain.filter(exchange).then(Mono.fromRunnable(() -> {
-            // Example: Modify the response body (e.g., wrapping it in a custom structure)
-            exchange.getResponse().beforeCommit(() -> {
-                // Modify response content before it is written
-                exchange.getResponse().setStatusCode(HttpStatus.OK);
-                return Mono.empty();
-            });
+        return chain.filter(exchange)
+                .then(Mono.defer(() -> handleResponse(exchange)));
+    }
+
+    private Mono<Void> handleResponse(ServerWebExchange exchange) {
+        ServerHttpResponse response = exchange.getResponse();
+
+        if (response.isCommitted()) {
+            return Mono.empty();
+        }
+
+        HttpStatusCode statusCode = getHttpStatus(response);
+
+        return response.writeWith(Mono.fromCallable(() -> {
+            Object content = statusCode.isError()
+                    ? "An error occurred."
+                    : buildRestResponse(exchange, statusCode);
+
+            return createDataBuffer(response, content);
         }));
+    }
+
+    private HttpStatusCode getHttpStatus(ServerHttpResponse response) {
+        return response.getStatusCode() != null ? response.getStatusCode() : HttpStatus.INTERNAL_SERVER_ERROR;
+    }
+
+    private RestResponse<Object> buildRestResponse(ServerWebExchange exchange, HttpStatusCode statusCode) {
+        Object body = exchange.getAttribute("responseBody");
+        MethodParameter returnType = (MethodParameter) exchange.getAttribute("returnType");
+
+        String message = null;
+        if (returnType != null) {
+            MetaMessage metaMessage = returnType.getMethodAnnotation(MetaMessage.class);
+            if (metaMessage != null) {
+                message = metaMessage.message();
+            }
+        }
+
+        return RestResponse.builder()
+                .data(body)
+                .message(message)
+                .statusCode(statusCode.value())
+                .build();
+    }
+
+    private DataBuffer createDataBuffer(ServerHttpResponse response, Object content) throws JsonProcessingException {
+        String jsonResponse = objectMapper.writeValueAsString(content);
+        response.getHeaders().add("Content-Type", "application/json");
+        return response.bufferFactory().wrap(jsonResponse.getBytes());
     }
 }
