@@ -6,14 +6,20 @@ import java.util.UUID;
 import com.winnguyen1905.product.config.SecurityUtils;
 import com.winnguyen1905.product.exception.ResourceNotFoundException;
 
+import reactor.core.publisher.Mono;
+
 public class OptionalExtractor {
   public static <T> T fromOptional(Optional<T> optional, String errorMessage) {
-    if (optional.isPresent() && optional.get() instanceof T t) return t;
-    else throw new ResourceNotFoundException(errorMessage != null ? errorMessage : "Resource not found for optional extract !");
+    if (optional.isPresent() && optional.get() instanceof T t)
+      return t;
+    else
+      throw new ResourceNotFoundException(
+          errorMessage != null ? errorMessage : "Resource not found for optional extract !");
   }
-  
+
   public static UUID currentUserId() {
-    if(SecurityUtils.getCurrentUserId().isEmpty()) throw new ResourceNotFoundException("");
-    return SecurityUtils.getCurrentUserId().get();
+    return SecurityUtils.getCurrentUserId()
+        .switchIfEmpty(Mono.error(new ResourceNotFoundException("Current user ID not found")))
+        .block();
   }
 }
