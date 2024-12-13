@@ -10,16 +10,21 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
+import org.springframework.security.oauth2.jwt.NimbusReactiveJwtDecoder;
+import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
+import org.springframework.web.reactive.function.client.WebClientResponseException.Unauthorized;
 
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
 import com.nimbusds.jose.util.Base64;
 import com.winnguyen1905.product.exception.BadRequestException;
+import com.winnguyen1905.product.exception.BaseException;
 
 @Configuration
+@SuppressWarnings("unused")
 public class JwtConfig {
-  
+
   @Value("${jwt.base64-secret}")
   private String jwtKey;
 
@@ -30,9 +35,11 @@ public class JwtConfig {
   }
 
   @Bean
-  JwtDecoder jwtDecoder() {
-    NimbusJwtDecoder nimbusJwtDecoder = NimbusJwtDecoder.withSecretKey(secretKey())
-        .macAlgorithm(SecurityUtils.JWT_ALGORITHM).build();
+  ReactiveJwtDecoder jwtDecoder() {
+    NimbusReactiveJwtDecoder nimbusJwtDecoder = NimbusReactiveJwtDecoder
+        .withSecretKey(secretKey())
+        .macAlgorithm(SecurityUtils.JWT_ALGORITHM)
+        .build();
     System.out.println(jwtKey);
     return token -> {
       try {
@@ -40,7 +47,7 @@ public class JwtConfig {
         return nimbusJwtDecoder.decode(token);
       } catch (Exception e) {
         System.out.println("Token error: " + token);
-        throw new BadRequestException("refresh token invalid", 401);
+        throw new BaseException("refresh token invalid", 401);
       }
     };
   }

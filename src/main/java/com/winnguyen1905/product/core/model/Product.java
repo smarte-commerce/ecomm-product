@@ -5,6 +5,9 @@ import java.util.UUID;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
+import lombok.Builder;
+
+@Builder
 public record Product(
     UUID id,
     String name,
@@ -17,7 +20,8 @@ public record Product(
     Boolean isDeleted,
     String productType,
     String description,
-    List<Variation> variations,
     String createdDate,
+    List<Variation> variations,
+    List<Inventory> inventories,
     String updatedDate) implements AbstractModel {
 }

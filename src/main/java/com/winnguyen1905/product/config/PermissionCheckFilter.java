@@ -15,20 +15,36 @@ public class PermissionCheckFilter implements WebFilter {
 
   @Override
   public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
-    // String path = exchange.getRequest().getPath().toString();
-    // String requestURI = exchange.getRequest().getURI().toString();
-    // String httpMethod = exchange.getRequest().getMethod().toString();
-    return SecurityUtils.getCurrentUsersPermissions(OptionalExtractor.currentUserId())
-        .filter(permission -> permission.apiPath().equals(exchange.getRequest().getPath().toString())
-            && permission.method().equals(exchange.getRequest().getMethod().toString())
-            || permission.apiPath().equals("/api/**"))
-        .hasElements()
-        .flatMap(hasPermission -> {
-          if (hasPermission) {
-            return chain.filter(exchange);
-          }
-          exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-          return exchange.getResponse().setComplete();
-        });
+      String requestPath = exchange.getRequest().getPath().toString();
+      String requestMethod = exchange.getRequest().getMethod().toString();
+  
+      if (isWhitelisted(requestPath)) return chain.filter(exchange);  
+  
+      return SecurityUtils.getCurrentUsersPermissions(OptionalExtractor.currentUserId())
+          .filter(permission -> 
+              permission.apiPath().equals(requestPath) && permission.method().equals(requestMethod)
+              || permission.apiPath().equals("/api/**"))
+          .hasElements()
+          .flatMap(hasPermission -> {
+              if (hasPermission) {
+                  return chain.filter(exchange);
+              }
+              exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
+              return exchange.getResponse().setComplete();
+          });
+  }
+
+  private boolean isWhitelisted(String path) {
+    for (String pattern : SecurityConfig.whiteList) {
+      if (pathMatches(pattern, path)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private boolean pathMatches(String pattern, String path) {
+    String regexPattern = pattern.replace("**", ".*");
+    return path.matches(regexPattern);
   }
 }

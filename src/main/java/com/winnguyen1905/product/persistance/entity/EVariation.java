@@ -27,16 +27,13 @@ public class EVariation extends EBaseAudit {
   @Column(name = "variation_price")
   private Double price;
 
-  /*
-   * title: ...
-   * name: ....
-   * imageUrl: ....
-   * 
-   */
+  @Column(name = "sku")
+  String sku;
+
   @Type(JsonType.class)
   @Column(columnDefinition = "jsonb")
   private JsonNode detail;
-  
+
   @ManyToOne
   @JoinColumn(name = "product_id")
   private EProduct product;

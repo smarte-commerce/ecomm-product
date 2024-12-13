@@ -1,24 +1,21 @@
 package com.winnguyen1905.product.config;
 
-import org.springframework.boot.autoconfigure.web.WebProperties;
+import java.util.UUID;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.context.SecurityContextPersistenceFilter;
+import org.springframework.security.oauth2.core.AuthorizationGrantType;
+import org.springframework.security.oauth2.server.authorization.client.InMemoryRegisteredClientRepository;
+import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
+import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.context.NoOpServerSecurityContextRepository;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
@@ -27,7 +24,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class SecurityConfig implements WebMvcConfigurer {
 
   public static final String[] whiteList = {
-      "/storage/**", "/products/**" };
+      "/storage/**", "/products/**", "/inventories/**", "/variations/**" };
 
   @Bean
   PermissionCheckFilter permissionCheckFilter() {
@@ -35,11 +32,16 @@ public class SecurityConfig implements WebMvcConfigurer {
   }
 
   @Bean
-public SecurityWebFilterChain springWebFilterChain(
-    ServerHttpSecurity http,
-    PermissionCheckFilter permissionCheckFilter,
-    ReactiveAuthenticationManager reactiveAuthenticationManager
-) {
+  ModifyResponseContentFilter modifyResponseContentFilter() {
+    return new ModifyResponseContentFilter();
+  }
+
+  @Bean
+  SecurityWebFilterChain springWebFilterChain(
+      ServerHttpSecurity http,
+      PermissionCheckFilter permissionCheckFilter,
+      ModifyResponseContentFilter modifyResponseContentFilter,
+      ReactiveAuthenticationManager reactiveAuthenticationManager) {
     return http
         .csrf(ServerHttpSecurity.CsrfSpec::disable)
         .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
@@ -50,10 +52,23 @@ public SecurityWebFilterChain springWebFilterChain(
             .pathMatchers("/ws/events").permitAll()
             .pathMatchers("/auth/**", "/stripe/**", "/swagger-ui/**", "-docs/**", "/webjars/**").permitAll()
             .pathMatchers("/admin/**").hasAnyAuthority("ADMIN", "ROLE_ADMIN")
-            .anyExchange().authenticated()
-        )
+            .anyExchange().authenticated())
         .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
         .addFilterBefore(permissionCheckFilter, SecurityWebFiltersOrder.AUTHORIZATION)
+        .addFilterAfter(modifyResponseContentFilter, SecurityWebFiltersOrder.LAST)
         .build();
-}
+  }
+
+  @Bean
+  RegisteredClientRepository registeredClientRepository() {
+    RegisteredClient client = RegisteredClient.withId(UUID.randomUUID().toString())
+        .clientId("client-id")
+        .clientSecret("{noop}client-secret")
+        .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+        .scope("read")
+        .scope("write")
+        .redirectUri("http://localhost:8080/login/oauth2/code/my-client")
+        .build();
+    return new InMemoryRegisteredClientRepository(client);
+  }
 }

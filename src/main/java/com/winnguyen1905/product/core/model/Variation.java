@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import io.micrometer.common.lang.NonNull;
 
 public record Variation(
+    String sku,
     @NonNull JsonNode detail,
     @NonNull Integer price) implements AbstractModel {
 }

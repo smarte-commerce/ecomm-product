@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.winnguyen1905.product.common.ProductImageType;
+import com.winnguyen1905.product.core.builder.ProductBuilder;
 import com.winnguyen1905.product.core.converter.ProductConverter;
 import com.winnguyen1905.product.core.model.Product;
 import com.winnguyen1905.product.core.model.request.AddProductRequest;
@@ -77,13 +78,11 @@ public class ProductServiceImpl implements ProductService {
     ECategory category = this.categoryRepository.findByIdAndShopId(addProductRequest.category().id(), shopId)
         .orElse(handleGetCategoryEntity(addProductRequest.category(), shopId));
 
-    EProduct product = this.productConverter.map(addProductRequest);
+    EProduct product = ProductBuilder.with(addProductRequest);
     product.setBrand(brand);
     product.setShopId(shopId);
     product.setCategory(category);
-    product.setDraft(true);
     product.setImages(productImages);
-    product.setPublished(false);
     product.setVariations(productVariations);
     product.setInventories(productInventories);
 
@@ -95,7 +94,7 @@ public class ProductServiceImpl implements ProductService {
     productInventories.forEach(item -> item.setProduct(finalProduct));
 
     product = this.productRepository.save(product);
-    return this.productConverter.map(product);
+    return ProductBuilder.with(product);
   }
 
   private ECategory handleGetCategoryEntity(Category categoryDto, UUID shopId) {
@@ -120,6 +119,7 @@ public class ProductServiceImpl implements ProductService {
       this.categoryRepository.updateCategoryTreeOfShop(parentCategory.getRight(), shopId);
       this.categoryRepository.save(parentCategory);
     }
+  
     return this.categoryRepository.save(newCategory);
   }
 
