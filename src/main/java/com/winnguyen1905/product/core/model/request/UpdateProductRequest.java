@@ -5,7 +5,7 @@ import java.util.UUID;
 
 import com.winnguyen1905.product.core.model.AbstractModel;
 import com.winnguyen1905.product.core.model.ProductImage;
-import com.winnguyen1905.product.core.model.Variation;
+import com.winnguyen1905.product.core.model.ProductVariant;
 
 public record UpdateProductRequest(
     UUID id,
@@ -16,7 +16,7 @@ public record UpdateProductRequest(
     Double price,
     String productType,
     String description,
-    List<Variation> variations,
+    List<ProductVariant> variations,
     List<ProductImage> images,
     Boolean isDraft, 
     Boolean isPublished) implements AbstractModel {

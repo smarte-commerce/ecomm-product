@@ -21,7 +21,7 @@ public record Product(
     String productType,
     String description,
     String createdDate,
-    List<Variation> variations,
+    List<ProductVariant> variations,
     List<Inventory> inventories,
     String updatedDate) implements AbstractModel {
 }

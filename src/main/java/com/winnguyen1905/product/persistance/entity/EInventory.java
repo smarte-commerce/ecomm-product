@@ -22,7 +22,7 @@ public class EInventory extends EBaseAudit {
   String sku;
 
   @ManyToOne
-  @JoinColumn(name = "variant_id")
+  @JoinColumn(name = "product_id")
   private EProduct product;
 
   @Column(name = "quantity_available")

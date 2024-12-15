@@ -11,6 +11,7 @@ import lombok.*;
 @Builder
 @RedisHash(value = "inventory")
 public class RInventory extends EBase {
+  private UUID productId;
   private UUID variationId;
-  // Inventory inventory;
+  private EInventory inventory;
 }

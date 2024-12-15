@@ -8,7 +8,7 @@ import com.winnguyen1905.product.core.model.AbstractModel;
 import com.winnguyen1905.product.core.model.Brand;
 import com.winnguyen1905.product.core.model.Inventory;
 import com.winnguyen1905.product.core.model.ProductImage;
-import com.winnguyen1905.product.core.model.Variation;
+import com.winnguyen1905.product.core.model.ProductVariant;
 import com.winnguyen1905.product.core.model.response.Category;
 
 import jakarta.annotation.Nonnull;
@@ -23,7 +23,7 @@ public record AddProductRequest(
     @Nonnull String name,
     @Nonnull Double price,
     @Nonnull ProductType productType,
-    @Nonnull List<Variation> variations,
+    @Nonnull List<ProductVariant> variations,
     List<Inventory> inventories,
     List<ProductImage> images) implements AbstractModel {
 }

@@ -7,9 +7,10 @@ import lombok.Builder;
 @Builder
 public record Inventory(
     UUID id,
-    String sku,
     String createdDate,
     String updatedDate,
-    Boolean isDeleted, 
-    int stock) implements AbstractModel {
+    Boolean isDeleted,
+    int quantitySold,
+    int quantityReserved,
+    int quantityAvailable) implements AbstractModel {
 }

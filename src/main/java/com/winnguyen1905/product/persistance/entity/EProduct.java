@@ -38,14 +38,8 @@ public class EProduct extends EBaseAudit {
   @Column(name = "p_name", nullable = false)
   private String name;
 
-  @Column(name = "p_thumb", nullable = true)
-  private String thumb;
-
   @Column(name = "p_description", nullable = true)
   private String description;
-
-  @Column(name = "p_price", nullable = false)
-  private Double price;
 
   @Column(name = "p_slug", nullable = true, unique = true)
   private String slug;
@@ -81,8 +75,8 @@ public class EProduct extends EBaseAudit {
   private ProductType productType;
 
   @Type(JsonType.class)
-  @Column(columnDefinition = "jsonb")
-  private JsonNode feature;
+  @Column(columnDefinition = "jsonb", name = "product_features")
+  private JsonNode features;
 
   // @PrePersist
   // protected void prePersist() {

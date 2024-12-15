@@ -15,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.winnguyen1905.product.common.ProductImageType;
 import com.winnguyen1905.product.core.builder.ProductBuilder;
-import com.winnguyen1905.product.core.converter.ProductConverter;
+import com.winnguyen1905.product.core.mapper.ProductMapper;
 import com.winnguyen1905.product.core.model.Product;
 import com.winnguyen1905.product.core.model.request.AddProductRequest;
 import com.winnguyen1905.product.core.model.request.SearchProductRequest;
@@ -47,7 +47,7 @@ public class ProductServiceImpl implements ProductService {
 
   private final ModelMapper mapper;
   private final BrandRepository brandRepository;
-  private final ProductConverter productConverter;
+  private final ProductMapper productConverter;
   private final ProductRepository productRepository;
   private final CategoryRepository categoryRepository;
   private final Type pagedResponseType = new TypeToken<PagedResponse<Product>>() {

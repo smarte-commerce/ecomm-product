@@ -1,6 +1,6 @@
 package com.winnguyen1905.product.core.service.impl;
 
-import com.winnguyen1905.product.core.model.Variation;
+import com.winnguyen1905.product.core.model.ProductVariant;
 import com.winnguyen1905.product.core.model.response.PagedResponse;
 import com.winnguyen1905.product.core.service.ElasticSearchService;
 import com.winnguyen1905.product.persistance.entity.EProduct;
@@ -17,7 +17,7 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
   }
 
   @Override
-  public Mono<PagedResponse<Variation>> searchProducts(SearchRequest request) {
+  public Mono<PagedResponse<ProductVariant>> searchProducts(SearchRequest request) {
     // TODO Auto-generated method stub
     throw new UnsupportedOperationException("Unimplemented method 'searchProducts'");
   }

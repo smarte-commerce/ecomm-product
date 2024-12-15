@@ -31,8 +31,8 @@ public class EVariation extends EBaseAudit {
   String sku;
 
   @Type(JsonType.class)
-  @Column(columnDefinition = "jsonb")
-  private JsonNode detail;
+  @Column(columnDefinition = "jsonb", name = "feature_values")
+  private JsonNode featureValues;
 
   @ManyToOne
   @JoinColumn(name = "product_id")
