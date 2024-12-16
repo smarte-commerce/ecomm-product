@@ -18,6 +18,7 @@ public record AddProductRequest(
     String slug,
     String thumb,
     Brand brand,
+    Object features,
     Category category,
     String description,
     @Nonnull String name,

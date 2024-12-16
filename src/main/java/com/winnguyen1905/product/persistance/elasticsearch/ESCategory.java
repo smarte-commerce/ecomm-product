@@ -4,14 +4,12 @@ import java.util.UUID;
 
 import com.winnguyen1905.product.persistance.entity.EBaseAudit;
 
-import lombok.Getter;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 @Getter
 @Setter
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
+@SuperBuilder 
 public class ESCategory extends EBaseAudit {
   private String name;
 

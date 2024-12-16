@@ -28,7 +28,6 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 public class S3ServiceImpl implements S3Service {
 
   private static S3Client s3Client = null;
-
   private static final String BUCKET_NAME = "product-images";
 
   private static S3Client getClient() {

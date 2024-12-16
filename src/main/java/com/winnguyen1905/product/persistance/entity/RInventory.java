@@ -5,10 +5,11 @@ import java.util.UUID;
 import org.springframework.data.redis.core.RedisHash;
 
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 @Getter
 @Setter
-@Builder
+@SuperBuilder
 @RedisHash(value = "inventory")
 public class RInventory extends EBase {
   private UUID productId;

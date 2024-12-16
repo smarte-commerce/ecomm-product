@@ -18,12 +18,14 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 @Getter
 @Setter
 @Entity
+@SuperBuilder
 @Table(name = "variations")
-public class EVariation extends EBaseAudit {
+public class EProductVariant extends EBaseAudit {
   @Column(name = "variation_price")
   private Double price;
 

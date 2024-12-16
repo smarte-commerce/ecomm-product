@@ -6,9 +6,11 @@ import java.util.UUID;
 import com.winnguyen1905.product.config.SecurityUtils;
 import com.winnguyen1905.product.exception.ResourceNotFoundException;
 
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
-public class OptionalExtractor {
+@Slf4j
+public class ExtractorUtils {
   public static <T> T fromOptional(Optional<T> optional, String errorMessage) {
     if (optional.isPresent() && optional.get() instanceof T t)
       return t;
@@ -18,8 +20,11 @@ public class OptionalExtractor {
   }
 
   public static UUID currentUserId() {
-    return SecurityUtils.getCurrentUserId()
+    return 
+        SecurityUtils.getCurrentUserId()
+        .onErrorResume(null)
         .switchIfEmpty(Mono.error(new ResourceNotFoundException("Current user ID not found")))
         .block();
   }
+
 }

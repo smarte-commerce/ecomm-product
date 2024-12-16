@@ -11,10 +11,12 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 @Getter
 @Setter
-@Entity
+@Entity@SuperBuilder
+
 @Table(name = "categories")
 public class ECategory extends EBaseAudit {
   @Column(name = "category_name", nullable = false)
@@ -26,8 +28,8 @@ public class ECategory extends EBaseAudit {
   @Column(name = "category_right")
   private Long right;
 
-  @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
-  private List<EProduct> products = new ArrayList<>();
+  // @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
+  // private List<EProduct> products;
 
   @Column(name = "category_description")
   private String description;

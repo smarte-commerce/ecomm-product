@@ -12,15 +12,13 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public interface CategoryService {
-  Mono<Category> addCategory(UUID shopId, Category category);
-
   Flux<Category> findAllCategory(UUID shopId);
+  Mono<Category> addCategory(UUID shopId, Category category);
+  // PagedResponse<Category> findAllCategoryWithPageable(UUID shopId, Pageable pageable);
 
-  PagedResponse<Category> findAllCategoryWithPageable(UUID shopId, Pageable pageable);
+  // Mono<Category> findCategoryById(UUID shopId, UUID categoryId);
 
-  Mono<Category> findCategoryById(UUID shopId, UUID categoryId);
+  // Mono<Void> updateCategory(UUID shopId, Category category);
 
-  Mono<Void> updateCategory(UUID shopId, Category category);
-
-  Mono<Void> deleteManyById(UUID shopId, final List<UUID> ids);
+  // Mono<Void> deleteManyById(UUID shopId, final List<UUID> ids);
 }

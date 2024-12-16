@@ -1,6 +1,7 @@
 package com.winnguyen1905.product.core.controller;
 
 import lombok.RequiredArgsConstructor;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Set;
@@ -18,7 +19,7 @@ import com.winnguyen1905.product.core.model.request.AddProductRequest;
 import com.winnguyen1905.product.core.model.request.SearchProductRequest;
 import com.winnguyen1905.product.core.service.ProductService;
 import com.winnguyen1905.product.util.MetaMessage;
-import com.winnguyen1905.product.util.OptionalExtractor;
+import com.winnguyen1905.product.util.ExtractorUtils;
 
 @RestController
 @RequiredArgsConstructor
@@ -51,10 +52,10 @@ public class ProductController {
 
   @PostMapping
   @MetaMessage(message = "add new product success")
-  public ResponseEntity<Product> addProduct(@RequestBody AddProductRequest productRequest) {
-    UUID userId = OptionalExtractor.currentUserId();
-    return ResponseEntity.status(HttpStatus.CREATED.value())
-        .body(this.productService.addProduct(userId, productRequest));
+  public Mono<ResponseEntity<Product>> addProduct(@RequestBody AddProductRequest productRequest) {
+    UUID userId = ExtractorUtils.currentUserId();
+    return this.productService.addProduct(userId, productRequest)
+        .map(ResponseEntity.status(HttpStatus.CREATED.value())::body);
   }
 
   // @GetMapping("/my-product")
@@ -83,16 +84,19 @@ public class ProductController {
 
   // @PatchMapping("/change-status/{ids}")
   // @MetaMessage(message = "Change visible products status success")
-  // public ResponseEntity<List<Product>> publishProducts(@PathVariable List<UUID> ids) {
-  //   UUID shopId = OptionalExtractor.currentUserId();
-  //   return ResponseEntity.ok(this.productService.handleChangeProductStatus(shopId, ids));
+  // public ResponseEntity<List<Product>> publishProducts(@PathVariable List<UUID>
+  // ids) {
+  // UUID shopId = OptionalExtractor.currentUserId();
+  // return
+  // ResponseEntity.ok(this.productService.handleChangeProductStatus(shopId,
+  // ids));
   // }
 
   // @DeleteMapping("/{ids}")
   // public ResponseEntity<Void> deleteProducts(@PathVariable Set<UUID> ids) {
-  //   UUID shopId = OptionalExtractor.currentUserId();
-  //   this.productService.handleDeleteProducts(shopId, List.copyOf(ids));
-  //   return ResponseEntity.noContent().build();
+  // UUID shopId = OptionalExtractor.currentUserId();
+  // this.productService.handleDeleteProducts(shopId, List.copyOf(ids));
+  // return ResponseEntity.noContent().build();
   // }
 
   // API FOR SHOP ADMIN---------------------------------------------------------

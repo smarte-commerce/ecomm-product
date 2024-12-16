@@ -16,7 +16,7 @@ import com.winnguyen1905.product.persistance.elasticsearch.ESCategory;
 import com.winnguyen1905.product.persistance.elasticsearch.ESInventory;
 import com.winnguyen1905.product.persistance.elasticsearch.ESProductVariant;
 import com.winnguyen1905.product.persistance.entity.EProduct;
-import com.winnguyen1905.product.persistance.entity.EVariation;
+import com.winnguyen1905.product.persistance.entity.EProductVariant;
 import com.winnguyen1905.product.util.CommonUtils;
 
 import lombok.RequiredArgsConstructor;
@@ -66,7 +66,7 @@ public class ProductESMapper {
     return mergedFeatures;
   }
 
-  private ESInventory getVariantInventory(EProduct product, EVariation item) {
+  private ESInventory getVariantInventory(EProduct product, EProductVariant item) {
     return product.getInventories().stream()
         .filter(inventory -> inventory.getSku().equals(item.getSku()))
         .map(this.inventoryMapper::toESInventory)
@@ -74,7 +74,7 @@ public class ProductESMapper {
         .orElseThrow();
   }
 
-  private StringBuilder generateVariantName(EProduct product, EVariation item) {
+  private StringBuilder generateVariantName(EProduct product, EProductVariant item) {
     var fieldIterator = item.getFeatureValues().fieldNames();
 
     var variantName = new StringBuilder(product.getName());
@@ -86,7 +86,7 @@ public class ProductESMapper {
     return variantName;
   }
 
-  private ObjectNode mergeProductFeatures(EProduct product, EVariation item) {
+  private ObjectNode mergeProductFeatures(EProduct product, EProductVariant item) {
     var baseFields = product.getFeatures();
     var variantFields = item.getFeatureValues();
 
@@ -94,28 +94,5 @@ public class ProductESMapper {
     allFeatures.setAll((ObjectNode) variantFields);
     return allFeatures;
   }
-
-  private ProductVariant with(ESProductVariant esProductVariant) {
-    return ProductVariant.builder()
-        .id(esProductVariant.getId())
-        .productId(esProductVariant.getProductId())
-        .features(esProductVariant.getFeatures())
-        .brand(Brand.builder().name(esProductVariant.getBrand()).build())
-        .price(esProductVariant.getPrice())
-        .name(esProductVariant.getName())
-        .description(esProductVariant.getDescription())
-        .category(
-            Category.builder()
-                .name(esProductVariant.getCategory().getName())
-                .id(esProductVariant.getCategory().getId())
-                .build())
-        .inventory(this.inventoryMapper.toInventory(esProductVariant.getInventory()))
-        .build();
-  }
-
-  private List<ProductVariant> with(List<ESProductVariant> esProductVariants) {
-    return CommonUtils.stream(esProductVariants)
-        .map(this::with)
-        .toList();
-  }
+  
 }

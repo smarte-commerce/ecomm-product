@@ -11,10 +11,12 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 @Getter
 @Setter
-@Entity
+@Entity@SuperBuilder
+
 @Table(name = "inventories")
 public class EInventory extends EBaseAudit {
 

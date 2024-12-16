@@ -1,8 +1,11 @@
 package com.winnguyen1905.product.persistance.entity;
 
+import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
@@ -22,14 +25,18 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 @Getter
 @Setter
 @Entity
+@SuperBuilder
 @Table(name = "products")
 @SQLRestriction("is_deleted <> true")
 @SQLDelete(sql = "UPDATE products SET is_deleted = TRUE WHERE ID=? and VERSION=?")
@@ -54,13 +61,13 @@ public class EProduct extends EBaseAudit {
   private UUID shopId;
 
   @OneToMany(mappedBy = "product", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
-  private List<EVariation> variations = new ArrayList<>();
+  private List<EProductVariant> variations;
 
   @OneToMany(mappedBy = "product", fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST })
-  private List<EInventory> inventories = new ArrayList<>();
+  private List<EInventory> inventories;
 
   @OneToMany(mappedBy = "product", fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST })
-  private List<EProductImage> images = new ArrayList<>();
+  private List<EProductImage> images;
 
   @ManyToOne
   @JoinColumn(name = "brand_id")
@@ -78,12 +85,26 @@ public class EProduct extends EBaseAudit {
   @Column(columnDefinition = "jsonb", name = "product_features")
   private JsonNode features;
 
-  // @PrePersist
-  // protected void prePersist() {
-  // this.isDraft = false;
-  // this.isPublished = true;
-  // super.prePersist();
-  // }
+  @Column(name = "is_verified_by_brand")
+  private boolean isVerifiedByBrand;
+
+  @PrePersist
+  protected void prePersist() {
+    this.isVerifiedByBrand = false;
+    this.isDraft = false;
+    this.isPublished = true;
+  }
+
+  public String generateSlug() {
+    final Pattern NONLATIN = Pattern.compile("[^\\w-]");
+    final Pattern WHITESPACE = Pattern.compile("[\\s]");
+
+    String nowhitespace = WHITESPACE.matcher(this.name).replaceAll("-"),
+        normalized = Normalizer.normalize(nowhitespace, Normalizer.Form.NFD),
+        slug = NONLATIN.matcher(normalized).replaceAll("") + '-';
+
+    return slug.toLowerCase(Locale.ENGLISH) + System.currentTimeMillis();
+  }
 
   // @PreUpdate
   // protected void preUpdate() {

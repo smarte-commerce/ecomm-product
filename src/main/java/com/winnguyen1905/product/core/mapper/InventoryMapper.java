@@ -10,6 +10,7 @@ import org.mapstruct.MappingConstants;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface InventoryMapper {
+  EInventory toInventoryEntity(Inventory inventory);
   Inventory toInventory(ESInventory inventory);
   ESInventory toESInventory(EInventory inventory);
   Inventory toInventory(EInventory inventory);

@@ -5,9 +5,10 @@ import com.winnguyen1905.product.core.model.response.PagedResponse;
 import com.winnguyen1905.product.persistance.entity.EProduct;
 
 import co.elastic.clients.elasticsearch.core.SearchRequest;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public interface ElasticSearchService {
-  Mono<Void> persistProduct(EProduct product);
+  Flux<Void> persistProductVariants(EProduct product);
   Mono<PagedResponse<ProductVariant>> searchProducts(SearchRequest request);
 }

@@ -1,6 +1,7 @@
 package com.winnguyen1905.product.persistance.repository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
@@ -27,6 +28,8 @@ public interface ProductRepository
       inner join discounts as d on d.id = dp.discount_id where d.id = :discountId and is_published = true
       """, nativeQuery = true, queryRewriter = ProductQueryRewriter.class)
   Page<EProduct> findByDiscountIdAndIsPublishedTrue(UUID discountId, Pageable pageable);
+
+  Optional<EProduct> findByIdAndIsPublishedTrue(UUID id);
 
   List<EProduct> findByIdInAndShopId(List<UUID> ids, UUID shopId); // REAL
 

@@ -1,18 +1,15 @@
 package com.winnguyen1905.product.core.service;
 
-import java.util.List;
 import java.util.UUID;
-
-import org.springframework.data.domain.Pageable;
 
 import com.winnguyen1905.product.core.model.Product;
 import com.winnguyen1905.product.core.model.request.AddProductRequest;
 
+import reactor.core.publisher.Mono;
+
 public interface ProductService {
-
-  Product getProduct(UUID id);
-
-  Product addProduct(UUID shopId, AddProductRequest productRequest);
+  Mono<Product> findProductById(UUID id);
+  Mono<Product> addProduct(UUID shopId, AddProductRequest productRequest);
 
   // List<Product> handleChangeProductStatus(UUID shopId, List<UUID> ids);
 

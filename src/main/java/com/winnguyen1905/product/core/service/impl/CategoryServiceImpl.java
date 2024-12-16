@@ -1,70 +1,117 @@
 package com.winnguyen1905.product.core.service.impl;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.UUID;
 
-import org.modelmapper.ModelMapper;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import com.winnguyen1905.product.core.mapper.CategoryMapper;
 import com.winnguyen1905.product.core.model.response.Category;
-import com.winnguyen1905.product.core.model.response.PagedResponse;
 import com.winnguyen1905.product.core.service.CategoryService;
 import com.winnguyen1905.product.persistance.entity.ECategory;
 import com.winnguyen1905.product.persistance.repository.CategoryRepository;
+import com.winnguyen1905.product.util.ExtractorUtils;
 
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import lombok.RequiredArgsConstructor;
+import reactor.core.scheduler.Schedulers;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class CategoryServiceImpl implements CategoryService {
 
-  private final ModelMapper mapper;
+  private final CategoryMapper categoryMapper;
   private final CategoryRepository categoryRepository;
+
+  private static final int NODE_SPACING = 2;
 
   @Override
   public Flux<Category> findAllCategory(UUID shopId) {
     return Flux.fromIterable(this.categoryRepository.findAllByShopId(shopId))
-        .map(category -> this.mapper.map(category, Category.class))
-        .onErrorResume(throwable -> {
-          log.error("Some error happed: " + throwable.getMessage());
-          return Flux.empty();
-        });
+        .subscribeOn(Schedulers.boundedElastic())
+        .publishOn(Schedulers.parallel())
+        .map(this.categoryMapper::toCategory)
+        .onErrorResume(throwable -> handleError(throwable, "finding all categories"));
   }
 
   @Override
-  public PagedResponse<Category> findAllCategoryWithPageable(UUID shopId, Pageable pageable) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'findAllCategoryWithPageable'");
+  public Mono<Category> addCategory(UUID shopId, Category categoryDto) {
+    ECategory newCategory = ECategory.builder()
+        .name(categoryDto.name())
+        .shopId(shopId)
+        .description(categoryDto.description())
+        .build();
+
+    return (newCategory.getParentId() == null)
+        ? createRootCategory(shopId, newCategory)
+        : createChildCategory(shopId, newCategory);
   }
 
-  @Override
-  public Mono<Category> findCategoryById(UUID shopId, UUID categoryId) {
-    return Mono.fromCallable(() -> this.categoryRepository.findByIdAndShopId(categoryId, shopId))
-        .map(category -> this.mapper.map(categoryId, Category.class));
+  /**
+   * Creates a new root category node for a given shop
+   * @param shopId Shop identifier
+   * @param category Category to be created
+   * @return Created category
+   */
+  private Mono<Category> createRootCategory(UUID shopId, ECategory category) {
+    return Mono.fromCallable(() -> categoryRepository.countByShopId(shopId))
+        .map(count -> calculateRootNodePositions(category, count))
+        .flatMap(this::saveAndMapCategory)
+        .onErrorResume(throwable -> handleError(throwable, "creating root category"));
   }
 
-  @Override
-  public Mono<Void> updateCategory(UUID shopId, Category category) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'updateCategory'");
+  /**
+   * Creates a new child category node under a parent category
+   * @param shopId Shop identifier
+   * @param category Category to be created
+   * @return Created category
+   */
+  private Mono<Category> createChildCategory(UUID shopId, ECategory category) {
+    return findParentCategory(shopId, category.getParentId())
+        .map(parent -> calculateChildNodePositions(category, parent))
+        .flatMap(this::updateTreeAndSaveCategory)
+        .onErrorResume(throwable -> handleError(throwable, "creating child category"));
   }
 
-  @Override
-  public Mono<Void> deleteManyById(UUID shopId, List<UUID> ids) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'deleteManyById'");
+  private ECategory calculateRootNodePositions(ECategory category, long count) {
+    category.setLeft(count * NODE_SPACING + 1);
+    category.setRight(count * NODE_SPACING + 2);
+    return category;
   }
 
-  @Override
-  public Mono<Category> addCategory(UUID shopId, Category category) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'addCategory'");
+  private Mono<ECategory> findParentCategory(UUID shopId, UUID parentId) {
+    return Mono.fromCallable(() -> ExtractorUtils.fromOptional(
+        categoryRepository.findByIdAndShopId(parentId, shopId),
+        String.format("Parent category not found: %s", parentId)
+    ));
+  }
+
+  private ECategory calculateChildNodePositions(ECategory child, ECategory parent) {
+    child.setLeft(parent.getRight());
+    child.setRight(parent.getRight() + 1);
+    return child;
+  }
+
+  private Mono<Category> saveAndMapCategory(ECategory category) {
+    return Mono.fromCallable(() -> categoryRepository.save(category))
+        .subscribeOn(Schedulers.boundedElastic())
+        .map(categoryMapper::toCategory);
+  }
+
+  private Mono<Category> updateTreeAndSaveCategory(ECategory category) {
+    return Mono.fromCallable(() -> {
+        categoryRepository.updateCategoryTreeOfShop(category.getRight(), category.getShopId());
+        return categoryRepository.save(category);
+    })
+    .subscribeOn(Schedulers.boundedElastic())
+    .map(categoryMapper::toCategory);
+  }
+
+  private <T> Mono<T> handleError(Throwable throwable, String operation) {
+    log.error("Error during {}: {}", operation, throwable.getMessage());
+    return Mono.error(throwable);
   }
 
 }
