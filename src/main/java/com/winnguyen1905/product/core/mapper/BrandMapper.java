@@ -1,6 +1,7 @@
 package com.winnguyen1905.product.core.mapper;
 
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
 
 import com.winnguyen1905.product.core.model.Brand;
@@ -10,4 +11,7 @@ import com.winnguyen1905.product.persistance.entity.EBrand;
 public interface BrandMapper {
   EBrand toBrandEntity(Brand brand);
   Brand toBrand(EBrand ebrand);
+
+  @Mapping(source = "brandName", target = "brand.name")
+  Brand toBrand(String brandName);
 }

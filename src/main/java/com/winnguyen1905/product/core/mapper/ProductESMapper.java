@@ -10,6 +10,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.winnguyen1905.product.core.model.Brand;
+import com.winnguyen1905.product.core.model.Inventory;
 import com.winnguyen1905.product.core.model.ProductVariant;
 import com.winnguyen1905.product.core.model.response.Category;
 import com.winnguyen1905.product.persistance.elasticsearch.ESCategory;
@@ -27,6 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class ProductESMapper {
 
+  private final BrandMapper brandMapper;
   private final CategoryMapper categoryMapper;
   private final InventoryMapper inventoryMapper;
 
@@ -94,5 +96,25 @@ public class ProductESMapper {
     allFeatures.setAll((ObjectNode) variantFields);
     return allFeatures;
   }
-  
+
+  public ProductVariant with(ESProductVariant esProductVariant) {
+    return ProductVariant.builder()
+        .id(esProductVariant.getId())
+        .productId(esProductVariant.getProductId())
+        .features(esProductVariant.getFeatures())
+        .brand(this.brandMapper.toBrand(esProductVariant.getBrand()))
+        .price(esProductVariant.getPrice())
+        .name(esProductVariant.getName())
+        .description(esProductVariant.getDescription())
+        .category(this.categoryMapper.toCategory(esProductVariant.getCategory()))
+        .inventory(this.inventoryMapper.toInventory(esProductVariant.getInventory()))
+        .build();
+  }
+
+  public List<ProductVariant> with(List<ESProductVariant> esProductVariants) {
+    return CommonUtils.stream(esProductVariants)
+        .map(this::with)
+        .collect(Collectors.toList());
+  }
+
 }

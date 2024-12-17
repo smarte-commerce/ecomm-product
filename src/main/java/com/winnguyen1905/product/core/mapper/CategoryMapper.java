@@ -9,6 +9,7 @@ import com.winnguyen1905.product.persistance.entity.ECategory;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface CategoryMapper {
-  ESCategory toESCategory(ECategory category);
   Category toCategory(ECategory category);
+  Category toCategory(ESCategory category);
+  ESCategory toESCategory(ECategory category);
 }

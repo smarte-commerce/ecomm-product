@@ -3,13 +3,17 @@ package com.winnguyen1905.product.core.model.response;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.winnguyen1905.product.core.model.AbstractModel; 
+import com.winnguyen1905.product.core.model.AbstractModel;
 
-public record PagedResponse<T>(Integer maxPageItems,
-    Integer page,
-    Integer size,
+import lombok.Builder; 
+
+@Builder
+public record PagedResponse<T>(
+    int page,
+    int size,
+    int maxPageItems,
     @JsonProperty("results") List<T> results,
-    Integer totalElements,
-    Integer totalPages)
+    int totalElements,
+    int totalPages)
     implements AbstractModel {
 }
