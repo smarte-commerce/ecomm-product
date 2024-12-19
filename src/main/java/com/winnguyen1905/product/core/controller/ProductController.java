@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +18,7 @@ import com.winnguyen1905.product.config.SecurityUtils;
 import com.winnguyen1905.product.core.model.Product;
 import com.winnguyen1905.product.core.model.request.AddProductRequest;
 import com.winnguyen1905.product.core.model.request.SearchProductRequest;
-import com.winnguyen1905.product.core.service.ProductService;
+import com.winnguyen1905.product.core.service.vendor.VendorProductService;
 import com.winnguyen1905.product.util.MetaMessage;
 import com.winnguyen1905.product.util.ExtractorUtils;
 
@@ -26,7 +27,7 @@ import com.winnguyen1905.product.util.ExtractorUtils;
 @RequestMapping("products")
 public class ProductController {
 
-  private final ProductService productService;
+  // private final VendorProductService vendorProductService;
 
   // PUBLIC API----------------------------------------------------------------
 
@@ -48,15 +49,13 @@ public class ProductController {
   // return ResponseEntity.ok(this.productService.handleGetProduct(id));
   // }
 
-  // API FOR SHOP OWNER---------------------------------------------------------
-
-  @PostMapping
-  @MetaMessage(message = "add new product success")
-  public Mono<ResponseEntity<Product>> addProduct(@RequestBody AddProductRequest productRequest) {
-    UUID userId = ExtractorUtils.currentUserId();
-    return this.productService.addProduct(userId, productRequest)
-        .map(ResponseEntity.status(HttpStatus.CREATED.value())::body);
-  }
+  // @PostMapping
+  // @MetaMessage(message = "Add new product success")
+  // public Mono<ResponseEntity<Product>> addProduct(@RequestBody AddProductRequest productRequest) {
+  //   return ExtractorUtils.currentUserId()
+  //       .flatMap(userId -> this.vendorProductService.addProduct(userId, productRequest))
+  //       .map(ResponseEntity.status(HttpStatus.CREATED.value())::body);
+  // }
 
   // @GetMapping("/my-product")
   // @MetaMessage(message = "get all my product with filter success")

@@ -36,7 +36,7 @@ import lombok.experimental.SuperBuilder;
 @Getter
 @Setter
 @Entity
-@SuperBuilder
+@Builder
 @Table(name = "products")
 @SQLRestriction("is_deleted <> true")
 @SQLDelete(sql = "UPDATE products SET is_deleted = TRUE WHERE ID=? and VERSION=?")

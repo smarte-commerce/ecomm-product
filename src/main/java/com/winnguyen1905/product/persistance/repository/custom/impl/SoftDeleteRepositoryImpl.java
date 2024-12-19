@@ -1,4 +1,4 @@
-package com.winnguyen1905.product.persistance.repository.custom;
+package com.winnguyen1905.product.persistance.repository.custom.impl;
 
 import java.util.List;
 
@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.winnguyen1905.product.persistance.entity.EBase;
+import com.winnguyen1905.product.persistance.repository.custom.SoftDeleteRepository;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -14,7 +15,6 @@ import jakarta.persistence.PersistenceContextType;
 import lombok.RequiredArgsConstructor;
 
 @Repository
-@Transactional
 @RequiredArgsConstructor
 public class SoftDeleteRepositoryImpl<T extends EBase, ID> implements SoftDeleteRepository<T, ID> {
 

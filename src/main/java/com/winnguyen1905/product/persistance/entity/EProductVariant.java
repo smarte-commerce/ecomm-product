@@ -16,6 +16,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
@@ -23,7 +24,7 @@ import lombok.experimental.SuperBuilder;
 @Getter
 @Setter
 @Entity
-@SuperBuilder
+@Builder
 @Table(name = "variations")
 public class EProductVariant extends EBaseAudit {
   @Column(name = "variation_price")

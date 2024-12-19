@@ -8,6 +8,7 @@ import org.springframework.security.authentication.ReactiveAuthenticationManager
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
@@ -20,6 +21,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 @EnableWebSecurity
+@EnableWebFluxSecurity
 @EnableMethodSecurity(securedEnabled = true)
 public class SecurityConfig implements WebMvcConfigurer {
 
@@ -40,12 +42,11 @@ public class SecurityConfig implements WebMvcConfigurer {
   SecurityWebFilterChain springWebFilterChain(
       ServerHttpSecurity http,
       PermissionCheckFilter permissionCheckFilter,
-      ModifyResponseContentFilter modifyResponseContentFilter,
-      ReactiveAuthenticationManager reactiveAuthenticationManager) {
+      ModifyResponseContentFilter modifyResponseContentFilter
+      ) {
     return http
         .csrf(ServerHttpSecurity.CsrfSpec::disable)
         .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
-        .authenticationManager(reactiveAuthenticationManager)
         .securityContextRepository(NoOpServerSecurityContextRepository.getInstance())
         .authorizeExchange(authorize -> authorize
             .pathMatchers(SecurityConfig.whiteList).permitAll()

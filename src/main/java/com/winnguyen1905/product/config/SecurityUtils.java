@@ -5,9 +5,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.Future;
-import java.util.concurrent.StructuredTaskScope;
-import java.util.concurrent.StructuredTaskScope.Subtask;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -48,8 +45,7 @@ public final class SecurityUtils {
         });
   }
 
-  @Cacheable(value = "users", key = "#userId")
-  public static Flux<Permission> getCurrentUsersPermissions(UUID userId) {
+  public static Flux<Permission> getCurrentUsersPermissions() {
     return ReactiveSecurityContextHolder.getContext()
         .map(SecurityContext::getAuthentication)
         .flatMapMany(authentication -> extractPermissionsFromAuthentication(authentication))

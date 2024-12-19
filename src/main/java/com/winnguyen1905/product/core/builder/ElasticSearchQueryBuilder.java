@@ -17,25 +17,25 @@ import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.elasticsearch._types.query_dsl.TermsQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.TermsQueryField;
+
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class ElasticSearchQueryBuilder {
 
   public static NativeQuery createSearchQuery(SearchProductRequest searchProductRequest) {
-
     BoolQuery.Builder boolQueryBuilder = new BoolQuery.Builder();
-
+    
     setFilters(searchProductRequest, boolQueryBuilder);
-
+    
     setMatchQuery(searchProductRequest, boolQueryBuilder);
-
+    
     Query finalQuery = Query.of(bool -> bool.bool(boolQueryBuilder.build()));
-
+    
     SortOptions sortOptions = getSortOptions(searchProductRequest);
-
+    
     NativeQuery nativeQuery = NativeQuery.builder().withQuery(finalQuery).withSort(List.of(sortOptions)).build();
-
+    
     setPagination(searchProductRequest, nativeQuery);
 
     return nativeQuery;

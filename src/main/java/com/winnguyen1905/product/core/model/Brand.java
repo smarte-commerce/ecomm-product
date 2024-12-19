@@ -9,7 +9,7 @@ public record Brand(
     UUID id,
     String name,
     String description,
-    boolean isVerified,
+    Boolean isVerified,
     String createdDate,
     String updatedDate) implements AbstractModel {
 }

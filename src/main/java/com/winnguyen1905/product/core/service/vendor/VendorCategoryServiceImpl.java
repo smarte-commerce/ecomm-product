@@ -1,4 +1,4 @@
-package com.winnguyen1905.product.core.service.impl;
+package com.winnguyen1905.product.core.service.vendor;
 
 import java.util.UUID;
 
@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 
 import com.winnguyen1905.product.core.mapper.CategoryMapper;
 import com.winnguyen1905.product.core.model.response.Category;
-import com.winnguyen1905.product.core.service.CategoryService;
+import com.winnguyen1905.product.core.service.ServiceParamFormat;
 import com.winnguyen1905.product.persistance.entity.ECategory;
 import com.winnguyen1905.product.persistance.repository.CategoryRepository;
 import com.winnguyen1905.product.util.ExtractorUtils;
@@ -20,7 +20,7 @@ import reactor.core.scheduler.Schedulers;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class CategoryServiceImpl implements CategoryService {
+public class VendorCategoryServiceImpl implements VendorCategoryService {
 
   private final CategoryMapper categoryMapper;
   private final CategoryRepository categoryRepository;
@@ -38,6 +38,7 @@ public class CategoryServiceImpl implements CategoryService {
 
   @Override
   public Mono<Category> addCategory(UUID shopId, Category categoryDto) {
+
     ECategory newCategory = ECategory.builder()
         .name(categoryDto.name())
         .shopId(shopId)

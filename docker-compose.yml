@@ -1,0 +1,52 @@
+version: '3.8'
+services:
+  elasticsearch:
+    image: elasticsearch:8.10.1
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - validate_after_inactivity=0
+      - max_open_files=65536
+      - max_content_length_in_bytes=100000000
+      - transport.host=elasticsearch
+      - xpack.security.enabled=false
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - $HOME/app:/var/app
+      - es_data:/usr/share/elasticsearch/data
+    networks:
+      - my-network
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+
+  redis:
+    image: redis:7.2.1
+    container_name: redis
+    ports:
+      - "6379:6379"
+    command: ["redis-server", "--appendonly", "yes"]
+
+  rabbitmq:
+    image: rabbitmq:management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: secret
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+
+volumes:
+  es_data:
+    driver: local
+  rabbitmq-data:
+
+networks:
+  my-network:
+    driver: bridge

@@ -22,7 +22,6 @@ import com.winnguyen1905.product.exception.BadRequestException;
 import com.winnguyen1905.product.exception.BaseException;
 
 @Configuration
-@SuppressWarnings("unused")
 public class JwtConfig {
 
   @Value("${jwt.base64-secret}")
@@ -35,7 +34,7 @@ public class JwtConfig {
   }
 
   @Bean
-  ReactiveJwtDecoder jwtDecoder() {
+  ReactiveJwtDecoder reactiveJwtDecoder() {
     NimbusReactiveJwtDecoder nimbusJwtDecoder = NimbusReactiveJwtDecoder
         .withSecretKey(secretKey())
         .macAlgorithm(SecurityUtils.JWT_ALGORITHM)

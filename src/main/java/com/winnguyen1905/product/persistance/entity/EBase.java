@@ -9,19 +9,16 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
 
 @Setter
 @Getter
-@SuperBuilder
 @MappedSuperclass
 public abstract class EBase implements Serializable {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  protected UUID id;
+  private UUID id;
 
   @Column(name = "is_deleted", updatable = true)
   private Boolean isDeleted;

@@ -1,4 +1,4 @@
-package com.winnguyen1905.product.core.service.impl;
+package com.winnguyen1905.product.core.service.vendor;
 
 import java.util.List;
 import java.util.Objects;
@@ -6,7 +6,6 @@ import java.util.stream.Collectors;
 
 import org.springframework.web.multipart.MultipartFile;
 
-import com.winnguyen1905.product.core.service.S3Service;
 import com.winnguyen1905.product.exception.S3FileException;
 
 import java.io.IOException;
@@ -25,21 +24,19 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 @Slf4j
 @Service
-public class S3ServiceImpl implements S3Service {
+public class VendorS3ServiceImpl implements VendorS3Service {
 
   private static S3Client s3Client = null;
   private static final String BUCKET_NAME = "product-images";
 
   private static S3Client getClient() {
     if (Objects.isNull(s3Client)) {
-
       Region region = Region.CA_CENTRAL_1;
       s3Client = S3Client.builder()
           .credentialsProvider(DefaultCredentialsProvider.create())
           .region(region)
           .build();
     }
-
     return s3Client;
   }
 

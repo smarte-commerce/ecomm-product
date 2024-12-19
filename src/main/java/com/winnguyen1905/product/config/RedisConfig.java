@@ -22,27 +22,31 @@ import org.springframework.data.redis.serializer.RedisSerializer;
 public class RedisConfig {
 
   @Bean
-  public ReactiveRedisConnectionFactory jedisConnectionFactory() {
+  public ReactiveRedisConnectionFactory reactiveRedisConnectionFactory() {
     return new LettuceConnectionFactory("localhost", 6379);
   }
 
   @Bean
-  public ReactiveRedisTemplate<String, Object> reactiveRedisTemplate(ReactiveRedisConnectionFactory factory) {
+  public ReactiveRedisTemplate<String, Object> reactiveRedisTemplate(
+      ReactiveRedisConnectionFactory reactiveRedisConnectionFactory) {
     Jackson2JsonRedisSerializer<Object> serializer = new Jackson2JsonRedisSerializer<>(Object.class);
     RedisSerializationContext.RedisSerializationContextBuilder<String, Object> builder = RedisSerializationContext
         .newSerializationContext(new Jackson2JsonRedisSerializer<>(String.class));
     RedisSerializationContext<String, Object> context = builder.value(serializer).hashValue(serializer)
         .hashKey(serializer).build();
-    return new ReactiveRedisTemplate<>(factory, context);
+    return new ReactiveRedisTemplate<>(reactiveRedisConnectionFactory, context);
   }
 
-  @Bean
-  public CacheManager cacheManager(RedisConnectionFactory redisConnectionFactory) {
-    RedisCacheConfiguration cacheConfig = RedisCacheConfiguration.defaultCacheConfig()
-        .entryTtl(Duration.ofSeconds(60))
-        .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(RedisSerializer.json()))
-        .disableCachingNullValues();
-    return RedisCacheManager.builder(redisConnectionFactory)
-        .cacheDefaults(cacheConfig).build();
-  }
+  // @Bean
+  // public CacheManager cacheManager(LettuceConnectionFactory
+  // redisConnectionFactory) {
+  // RedisCacheConfiguration cacheConfig =
+  // RedisCacheConfiguration.defaultCacheConfig()
+  // .entryTtl(Duration.ofSeconds(60))
+  // .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(RedisSerializer.json()))
+  // .disableCachingNullValues();
+  // return RedisCacheManager.builder(redisConnectionFactory)
+  // .cacheDefaults(cacheConfig).build();
+  // }
+
 }

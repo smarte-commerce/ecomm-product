@@ -18,7 +18,7 @@ import lombok.experimental.SuperBuilder;
 @Entity
 @Getter
 @Setter
-@SuperBuilder
+@Builder
 @Table(name = "brand")
 public class EBrand extends EBaseAudit {
   @Column(name = "brand_name", unique = true, nullable = false)
@@ -28,7 +28,7 @@ public class EBrand extends EBaseAudit {
   private String description;
 
   @Column(name = "brand_is_verified")
-  private boolean isVerified;
+  private Boolean isVerified;
 
   // @OneToMany(mappedBy = "brand", fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST })
   // private List<EProduct> products = new ArrayList<>();

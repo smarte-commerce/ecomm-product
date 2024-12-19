@@ -15,27 +15,23 @@ import com.winnguyen1905.product.persistance.entity.ECategory;
 @Repository
 public interface CategoryRepository extends JpaRepository<ECategory, UUID> {
   List<ECategory> findAllByShopId(UUID shopId);
-  List<ECategory> findAllByShopIdAndPageable(UUID shopId);
   Optional<ECategory> findByIdAndShopId(UUID id, UUID shopId);
 
-  @Modifying
-  @Query("""
-      update categories as c
-      set 
-          c.category_left = CASE 
-              WHEN c.category_left > :start THEN c.category_left + 2
-              ELSE c.category_left
-          END,
-          c.category_right = CASE 
-              WHEN c.category_right >= :start THEN c.category_right + 2
-              ELSE c.category_right
-          END
-      where ((c.category_left > :start and c.category_right > :start) 
-         or (c.category_left < :start and c.category_right >= :start))
-         and c.shop_id = :shopId
-      """)
-  @Transactional
-  Long updateCategoryTreeOfShop(Long start, UUID shopId);
+  @Query(value = "update categories c " +
+      "set c.category_left = case " +
+          "when c.category_left > :start then c.category_left + 2 " +
+          "else c.category_left " +
+      "end, " +
+      "c.category_right = case " +
+          "when c.category_right >= :start then c.category_right + 2 " +
+          "else c.category_right " +
+      "end " +
+      "where c.shop_id = :shopId " +
+      "and ( " +
+          "(c.category_left > :start and c.category_right > :start) or " +
+          "(c.category_left < :start and c.category_right >= :start) " +
+      ")", nativeQuery = true)
+  Long updateCategoryTreeOfShop(long start, UUID shopId);
 
   Optional<ECategory> findTopByShopIdOrderByRightDesc(UUID shopId);
 

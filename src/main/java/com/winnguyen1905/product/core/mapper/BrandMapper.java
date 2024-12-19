@@ -10,8 +10,10 @@ import com.winnguyen1905.product.persistance.entity.EBrand;
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface BrandMapper {
   EBrand toBrandEntity(Brand brand);
+
   Brand toBrand(EBrand ebrand);
 
-  @Mapping(source = "brandName", target = "brand.name")
+  @Mapping(source = "brandName", target = "name")
+  
   Brand toBrand(String brandName);
 }

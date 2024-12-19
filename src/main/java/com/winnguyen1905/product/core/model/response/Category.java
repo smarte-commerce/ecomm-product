@@ -14,5 +14,6 @@ public record Category(
     Integer left,
     Integer right,
     UUID shopId,
+    boolean isPublished,
     String description) implements AbstractModel {
 }

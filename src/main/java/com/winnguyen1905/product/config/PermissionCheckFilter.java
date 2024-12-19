@@ -6,8 +6,6 @@ import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 
-import com.winnguyen1905.product.util.ExtractorUtils;
-
 import reactor.core.publisher.Mono;
 
 @Component
@@ -20,7 +18,7 @@ public class PermissionCheckFilter implements WebFilter {
   
       if (isWhitelisted(requestPath)) return chain.filter(exchange);  
   
-      return SecurityUtils.getCurrentUsersPermissions(ExtractorUtils.currentUserId())
+      return SecurityUtils.getCurrentUsersPermissions()
           .filter(permission -> 
               permission.apiPath().equals(requestPath) && permission.method().equals(requestMethod)
               || permission.apiPath().equals("/api/**"))

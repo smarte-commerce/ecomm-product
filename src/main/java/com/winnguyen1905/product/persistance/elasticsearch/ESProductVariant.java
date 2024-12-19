@@ -1,27 +1,19 @@
 package com.winnguyen1905.product.persistance.elasticsearch;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.GeneratedValue;
 import lombok.*;
-import lombok.experimental.SuperBuilder;
-
 import java.time.Instant;
 import java.util.UUID;
 
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.*;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.winnguyen1905.product.persistance.entity.EBase;
-import com.winnguyen1905.product.persistance.entity.EBaseAudit;
-
 @Getter
 @Setter
-@SuperBuilder
-@Document(indexName = "productv1", writeTypeHint = WriteTypeHint.FALSE, storeIdInSource = true)
-public class ESProductVariant extends EBase {
+@Builder
+@Document(indexName = "product", writeTypeHint = WriteTypeHint.FALSE, storeIdInSource = true)
+public class ESProductVariant {
+  @Id
+  private UUID id;
 
   @Field(type = FieldType.Integer, name = "product_id")
   private UUID productId;

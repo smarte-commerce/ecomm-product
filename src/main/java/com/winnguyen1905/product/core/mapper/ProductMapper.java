@@ -6,6 +6,7 @@ import org.mapstruct.Named;
 
 import com.winnguyen1905.product.core.model.Product;
 import com.winnguyen1905.product.persistance.entity.EBrand;
+import com.winnguyen1905.product.persistance.entity.ECategory;
 import com.winnguyen1905.product.persistance.entity.EProduct;
 
 import org.mapstruct.MappingConstants;
@@ -13,6 +14,7 @@ import org.mapstruct.MappingConstants;
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface ProductMapper {
   @Mapping(source = "brand", target = "brand", qualifiedByName = "stringToBrand")
+  @Mapping(source = "category", target = "category.name")
   EProduct toProductEntity(Product product);
 
   @Named("stringToBrand")
@@ -22,5 +24,10 @@ public interface ProductMapper {
   }
 
   @Mapping(source = "brand.name", target = "brand")
+  @Mapping(target = "category", source = "category.name")
   Product toProductDto(EProduct product);
+
+  default String map(ECategory value) {
+    return value != null ? value.getName() : null;
+  }
 }

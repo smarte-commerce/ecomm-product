@@ -12,16 +12,15 @@ import lombok.Builder;
 
 @Builder
 public record ProductVariant(
-  UUID id,
-  UUID productId,
-  String name,
-  String description,
-  Brand brand,
-  double price,
-  Category category,
-  String categoryTree,
-  Object features,
-  List<ProductImage> images,
-  Inventory inventory
-) implements AbstractModel {
+    UUID id,
+    UUID productId,
+    String name,
+    String description,
+    Brand brand,
+    double price,
+    Category category,
+    String categoryTree,
+    Object features,
+    List<ProductImage> images,
+    Inventory inventory) implements AbstractModel {
 }

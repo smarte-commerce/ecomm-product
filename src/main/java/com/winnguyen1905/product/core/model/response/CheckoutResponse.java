@@ -8,10 +8,12 @@ import com.winnguyen1905.product.core.model.AbstractModel;
 import lombok.Builder;
 
 @Builder
-public record CheckoutResponse(PriceStatisticsResponse priceStatistics,
+public record CheckoutResponse(
+    PriceStatisticsResponse priceStatistics,
     List<CheckoutItemReponse> checkoutItems) implements AbstractModel {
 
-  public record CheckoutItemReponse(UUID cartId, PriceStatisticsResponse priceStatistics)
-      implements AbstractModel {
+  public record CheckoutItemReponse(
+    UUID cartId, 
+    PriceStatisticsResponse priceStatistics) {
   }
 }

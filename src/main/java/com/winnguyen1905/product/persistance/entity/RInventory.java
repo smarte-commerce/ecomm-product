@@ -9,7 +9,7 @@ import lombok.experimental.SuperBuilder;
 
 @Getter
 @Setter
-@SuperBuilder
+@Builder
 @RedisHash(value = "inventory")
 public class RInventory extends EBase {
   private UUID productId;

@@ -1,5 +1,8 @@
 package com.winnguyen1905.product.persistance.elasticsearch;
 
+import java.util.UUID;
+
+import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Field;
 
 import com.winnguyen1905.product.persistance.entity.EBaseAudit;
@@ -13,10 +16,13 @@ import lombok.experimental.SuperBuilder;
 
 @Getter
 @Setter
-@SuperBuilder
-public class ESInventory extends EBaseAudit {
+@Builder
+public class ESInventory {
+  @Id
+  private UUID id;
+
   @Field(name = "sku")
-  String sku;
+  private String sku;
 
   @Field(name = "quantity_available")
   private int quantityAvailable;
