@@ -9,40 +9,61 @@ import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
 
 @Component
-public class PermissionCheckFilter implements WebFilter {
+public class PermissionCheckFilter 
+// implements WebFilter
+ {
 
-  @Override
-  public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
-      String requestPath = exchange.getRequest().getPath().toString();
-      String requestMethod = exchange.getRequest().getMethod().toString();
-  
-      if (isWhitelisted(requestPath)) return chain.filter(exchange);  
-  
-      return SecurityUtils.getCurrentUsersPermissions()
-          .filter(permission -> 
-              permission.apiPath().equals(requestPath) && permission.method().equals(requestMethod)
-              || permission.apiPath().equals("/api/**"))
-          .hasElements()
-          .flatMap(hasPermission -> {
-              if (hasPermission) {
-                  return chain.filter(exchange);
-              }
-              exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-              return exchange.getResponse().setComplete();
-          });
-  }
+  // @Override
+  // public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
+  //   String requestPath = exchange.getRequest().getPath().toString();
+  //   String requestMethod = exchange.getRequest().getMethod().toString();
 
-  private boolean isWhitelisted(String path) {
-    for (String pattern : SecurityConfig.whiteList) {
-      if (pathMatches(pattern, path)) {
-        return true;
-      }
-    }
-    return false;
-  }
+  //   if (isWhitelisted(requestPath))
+  //     return chain
+  //         .filter(
+  //             exchange.mutate().request(
+  //                 exchange.getRequest().mutate().header("x-auth0-user-email", "").build())
+  //                 .build());
 
-  private boolean pathMatches(String pattern, String path) {
-    String regexPattern = pattern.replace("**", ".*");
-    return path.matches(regexPattern);
-  }
+  //   return SecurityUtils.getCurrentUsersPermissions()
+  //       .filter(permission -> permission.apiPath().equals(requestPath) && permission.method().equals(requestMethod)
+  //           || permission.apiPath().equals("/api/**"))
+  //       .hasElements()
+  //       .flatMap(hasPermission -> {
+  //         if (hasPermission) {
+  //           return chain
+  //               .filter(
+  //                   exchange.mutate().request(
+  //                       exchange.getRequest().mutate().header("x-auth0-user-email", "").build())
+  //                       .build());
+  //         }
+  //         exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
+  //         return exchange.getResponse().setComplete();
+  //       }).then(
+  //           Mono.fromRunnable(
+  //               () -> {
+  //                 // postsWebSocketHandler.broadcast(
+  //                 // WSEvent.builder()
+  //                 // .message(
+  //                 // String.format(
+  //                 // "%s is trying the API %s",
+  //                 // userInfo.getEmail(),
+  //                 // request.getURI()))
+  //                 // .build());
+  //               }));
+  // }
+
+  // private boolean isWhitelisted(String path) {
+  //   for (String pattern : SecurityConfig.whiteList) {
+  //     if (pathMatches(pattern, path)) {
+  //       return true;
+  //     }
+  //   }
+  //   return false;
+  // }
+
+  // private boolean pathMatches(String pattern, String path) {
+  //   String regexPattern = pattern.replace("**", ".*");
+  //   return path.matches(regexPattern);
+  // }
 }

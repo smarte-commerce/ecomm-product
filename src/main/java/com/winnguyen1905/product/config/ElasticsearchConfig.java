@@ -10,16 +10,18 @@ import org.springframework.data.elasticsearch.repository.config.EnableElasticsea
 @Configuration
 @EnableElasticsearchRepositories(basePackages = "com.winnguyen1905.promotion.persistance.repository")
 @ComponentScan(basePackages = { "com.winnguyen1905.product.core.service" })
-public class ElasticsearchConfig extends ElasticsearchConfiguration {
+public class ElasticsearchConfig
+//  extends ElasticsearchConfiguration 
+ {
 
-  @Value("${spring.elasticsearch.uris}")
-  private String elasticsearchUrl;
+  // @Value("${spring.elasticsearch.uris}")
+  // private String elasticsearchUrl;
 
-  @Override
-  public ClientConfiguration clientConfiguration() {
-      return ClientConfiguration.builder()
-              .connectedTo(elasticsearchUrl)
-              .build();
-  }
+  // @Override
+  // public ClientConfiguration clientConfiguration() {
+  //     return ClientConfiguration.builder()
+  //             .connectedTo(elasticsearchUrl)
+  //             .build();
+  // }
   
 }

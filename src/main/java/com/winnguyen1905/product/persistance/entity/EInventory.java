@@ -16,8 +16,8 @@ import lombok.experimental.SuperBuilder;
 
 @Getter
 @Setter
-@Entity@Builder
-
+@Entity
+@Builder
 @Table(name = "inventories")
 public class EInventory extends EBaseAudit {
 

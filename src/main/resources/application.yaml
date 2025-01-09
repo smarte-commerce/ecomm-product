@@ -45,8 +45,8 @@ spring:
         acknowledge-mode: auto # Auto acknowledgment of messages
   elasticsearch:
     uris: http://localhost:9200
-    # password: changeme
-    # username: elastic
+    password: guest
+    username: elastic
     connection-timeout: 5s
 
   servlet:
@@ -79,8 +79,6 @@ spring:
         page-parameter: page
       sort:
         sort-parameter: sort
-    elasticsearch:
-      uris: http://localhost:9200
 
   sql:
     init:

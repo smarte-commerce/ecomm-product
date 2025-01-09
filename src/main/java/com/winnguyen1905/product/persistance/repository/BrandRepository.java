@@ -11,4 +11,5 @@ import com.winnguyen1905.product.persistance.entity.EBrand;
 @Repository
 public interface BrandRepository extends JpaRepository<EBrand, UUID> {
   Optional<EBrand> findByName(String name);
+  Optional<EBrand> findByCode(String code);
 }

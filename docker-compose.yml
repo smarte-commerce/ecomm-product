@@ -1,52 +1,52 @@
 version: '3.8'
+
 services:
+  # Elasticsearch Service
   elasticsearch:
-    image: elasticsearch:8.10.1
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.17.0
     container_name: elasticsearch
     environment:
       - discovery.type=single-node
-      - validate_after_inactivity=0
-      - max_open_files=65536
-      - max_content_length_in_bytes=100000000
-      - transport.host=elasticsearch
       - xpack.security.enabled=false
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-    volumes:
-      - $HOME/app:/var/app
-      - es_data:/usr/share/elasticsearch/data
-    networks:
-      - my-network
+      - ELASTIC_PASSWORD=guest
     ports:
       - "9200:9200"
-      - "9300:9300"
+    networks:
+      - product-network
 
+  # Kibana Service
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.17.0
+    container_name: kibana
+    ports:
+      - "5601:5601"
+    depends_on:
+      - elasticsearch
+    networks:
+      - product-network
+
+  # Redis Service
   redis:
-    image: redis:7.2.1
+    image: redis:7.2
     container_name: redis
     ports:
       - "6379:6379"
-    command: ["redis-server", "--appendonly", "yes"]
+    networks:
+      - product-network
 
+  # RabbitMQ Service
   rabbitmq:
-    image: rabbitmq:management
+    image: rabbitmq:3.12-management
     container_name: rabbitmq
-    ports:
-      - "5672:5672"
-      - "15672:15672"
     environment:
-      RABBITMQ_DEFAULT_USER: admin
-      RABBITMQ_DEFAULT_PASS: secret
-    volumes:
-      - rabbitmq-data:/var/lib/rabbitmq
-
-volumes:
-  es_data:
-    driver: local
-  rabbitmq-data:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    ports:
+      - "5672:5672"   # AMQP protocol port
+      - "15672:15672" # Management console
+    networks:
+      - product-network
 
 networks:
-  my-network:
+  product-network:
     driver: bridge

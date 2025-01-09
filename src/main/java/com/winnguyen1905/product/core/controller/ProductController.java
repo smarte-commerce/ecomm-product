@@ -14,8 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.winnguyen1905.product.common.SystemConstant;
-import com.winnguyen1905.product.config.SecurityUtils;
-import com.winnguyen1905.product.core.model.Product;
+import com.winnguyen1905.product.core.model.ProductDetail;
 import com.winnguyen1905.product.core.model.request.AddProductRequest;
 import com.winnguyen1905.product.core.model.request.SearchProductRequest;
 import com.winnguyen1905.product.core.service.vendor.VendorProductService;
@@ -27,7 +26,7 @@ import com.winnguyen1905.product.util.ExtractorUtils;
 @RequestMapping("products")
 public class ProductController {
 
-  // private final VendorProductService vendorProductService;
+  private final VendorProductService vendorProductService;
 
   // PUBLIC API----------------------------------------------------------------
 
@@ -49,13 +48,13 @@ public class ProductController {
   // return ResponseEntity.ok(this.productService.handleGetProduct(id));
   // }
 
-  // @PostMapping
-  // @MetaMessage(message = "Add new product success")
-  // public Mono<ResponseEntity<Product>> addProduct(@RequestBody AddProductRequest productRequest) {
-  //   return ExtractorUtils.currentUserId()
-  //       .flatMap(userId -> this.vendorProductService.addProduct(userId, productRequest))
-  //       .map(ResponseEntity.status(HttpStatus.CREATED.value())::body);
-  // }
+  @PostMapping
+  @MetaMessage(message = "Add new product success")
+  public Mono<ResponseEntity<ProductDetail>> addProduct(@RequestBody AddProductRequest productRequest) {
+    return ExtractorUtils.currentUserId()
+        .flatMap(userId -> this.vendorProductService.addProduct(userId, productRequest))
+        .map(ResponseEntity.status(HttpStatus.CREATED.value())::body);
+  }
 
   // @GetMapping("/my-product")
   // @MetaMessage(message = "get all my product with filter success")

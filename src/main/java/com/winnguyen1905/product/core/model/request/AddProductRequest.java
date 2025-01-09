@@ -3,28 +3,26 @@ package com.winnguyen1905.product.core.model.request;
 import java.util.List;
 import java.util.UUID;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.winnguyen1905.product.common.ProductType;
 import com.winnguyen1905.product.core.model.AbstractModel;
 import com.winnguyen1905.product.core.model.Brand;
 import com.winnguyen1905.product.core.model.Inventory;
 import com.winnguyen1905.product.core.model.ProductImage;
-import com.winnguyen1905.product.core.model.ProductVariant;
-import com.winnguyen1905.product.core.model.response.Category;
+import com.winnguyen1905.product.core.model.Variant;
 
-import jakarta.annotation.Nonnull;
 
 public record AddProductRequest(
     UUID id,
     String slug,
     String thumb,
-    Brand brand,
-    Object features,
-    Category category,
+    String categoryCode,
+    JsonNode features,
+    String brandCode,
     String description,
-    @Nonnull String name,
-    @Nonnull Double price,
-    @Nonnull ProductType productType,
-    @Nonnull List<ProductVariant> variations,
+    String name,
+    String productType,
+    List<Variant> variations,
     List<Inventory> inventories,
-    List<ProductImage> images) implements AbstractModel {
+    List<ProductImage> images) {
 }

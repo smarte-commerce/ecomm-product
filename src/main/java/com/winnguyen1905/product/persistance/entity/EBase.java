@@ -15,9 +15,10 @@ import lombok.Setter;
 @Setter
 @Getter
 @MappedSuperclass
-public abstract class EBase implements Serializable {
+public class EBase implements Serializable {
   @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @GeneratedValue(strategy = GenerationType.AUTO)
+  @Column(name = "id", updatable = false, nullable = false)
   private UUID id;
 
   @Column(name = "is_deleted", updatable = true)

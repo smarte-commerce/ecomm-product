@@ -1,4 +1,4 @@
-package com.winnguyen1905.product.core.service.impl;
+package com.winnguyen1905.product.core.service.vendor;
 
 import java.time.Duration;
 import java.util.List;
@@ -11,7 +11,6 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.stereotype.Service;
 
-import com.winnguyen1905.product.core.service.InventoryService;
 import com.winnguyen1905.product.persistance.entity.EInventory;
 import com.winnguyen1905.product.persistance.repository.InventoryRepository;
 

@@ -1,4 +1,4 @@
-package com.winnguyen1905.product.core.service;
+package com.winnguyen1905.product.core.service.vendor;
 
 import java.util.UUID;
 

@@ -17,7 +17,7 @@ import com.winnguyen1905.product.persistance.elasticsearch.ESCategory;
 import com.winnguyen1905.product.persistance.elasticsearch.ESInventory;
 import com.winnguyen1905.product.persistance.elasticsearch.ESProductVariant;
 import com.winnguyen1905.product.persistance.entity.EProduct;
-import com.winnguyen1905.product.persistance.entity.EProductVariant;
+import com.winnguyen1905.product.persistance.entity.EVariation;
 import com.winnguyen1905.product.util.CommonUtils;
 
 import lombok.RequiredArgsConstructor;
@@ -33,7 +33,6 @@ public class ProductESMapper {
   private final InventoryMapper inventoryMapper;
 
   public List<ESProductVariant> toESProductVariants(EProduct product) {
-
     return CommonUtils.stream(product.getVariations())
         .map(
             item -> {
@@ -68,7 +67,7 @@ public class ProductESMapper {
     return mergedFeatures;
   }
 
-  private ESInventory getVariantInventory(EProduct product, EProductVariant item) {
+  private ESInventory getVariantInventory(EProduct product, EVariation item) {
     return product.getInventories().stream()
         .filter(inventory -> inventory.getSku().equals(item.getSku()))
         .map(this.inventoryMapper::toESInventory)
@@ -76,21 +75,20 @@ public class ProductESMapper {
         .orElseThrow();
   }
 
-  private StringBuilder generateVariantName(EProduct product, EProductVariant item) {
-    var fieldIterator = item.getFeatureValues().fieldNames();
-
+  private StringBuilder generateVariantName(EProduct product, EVariation item) {
+    var fieldIterator = item.getFeatures().fieldNames();
     var variantName = new StringBuilder(product.getName());
     while (fieldIterator.hasNext()) {
       var fieldName = fieldIterator.next();
-      var value = item.getFeatureValues().get(fieldName).textValue();
+      var value = item.getFeatures().get(fieldName).textValue();
       variantName.append(" ").append(value).append(" ").append(fieldName);
     }
     return variantName;
   }
 
-  private ObjectNode mergeProductFeatures(EProduct product, EProductVariant item) {
+  private ObjectNode mergeProductFeatures(EProduct product, EVariation item) {
     var baseFields = product.getFeatures();
-    var variantFields = item.getFeatureValues();
+    var variantFields = item.getFeatures();
 
     ObjectNode allFeatures = baseFields.deepCopy();
     allFeatures.setAll((ObjectNode) variantFields);

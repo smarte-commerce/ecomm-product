@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import lombok.Builder;
 
 @Builder
-public record Product(
+public record ProductDetail(
     UUID id,
     String name,
     String slug,
@@ -21,7 +21,7 @@ public record Product(
     String productType,
     String description,
     String createdDate,
-    List<ProductVariant> variations,
+    List<Variant> variations,
     List<Inventory> inventories,
     String updatedDate) implements AbstractModel {
 }

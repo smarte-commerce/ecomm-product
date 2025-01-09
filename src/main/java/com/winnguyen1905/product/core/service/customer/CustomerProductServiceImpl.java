@@ -2,23 +2,25 @@ package com.winnguyen1905.product.core.service.customer;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.data.elasticsearch.core.SearchHit;
 import org.springframework.stereotype.Service;
 
-import com.winnguyen1905.product.core.builder.ElasticSearchQueryBuilder;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.winnguyen1905.product.core.mapper.ProductESMapper;
 import com.winnguyen1905.product.core.mapper.ProductMapper;
-import com.winnguyen1905.product.core.model.Product;
+import com.winnguyen1905.product.core.model.ProductDetail;
 import com.winnguyen1905.product.core.model.ProductVariant;
 import com.winnguyen1905.product.core.model.request.SearchProductRequest;
 import com.winnguyen1905.product.core.model.response.PagedResponse;
-import com.winnguyen1905.product.persistance.elasticsearch.ESProductVariant;
-import com.winnguyen1905.product.persistance.repository.ProductESRepository;
+import com.winnguyen1905.product.persistance.elasticsearch.ESProductVariant; 
 import com.winnguyen1905.product.persistance.repository.ProductRepository;
 import com.winnguyen1905.product.persistance.repository.custom.ProductESCustomRepository;
 import com.winnguyen1905.product.util.CommonUtils;
 
+import co.elastic.clients.elasticsearch._types.query_dsl.QueryBuilders;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,7 +38,7 @@ public class CustomerProductServiceImpl implements CustomerProductService {
   private final ProductESCustomRepository productESRepository;
 
   @Override
-  public Mono<Product> findProductById(UUID id) {
+  public Mono<ProductDetail> getProductDetail(UUID id) {
     return Mono.fromCallable(() -> this.productRepository.findByIdAndIsPublishedTrue(id))
         .flatMap(CommonUtils::toMono)
         .switchIfEmpty(Mono.error(new EntityNotFoundException("Product not found with id: " + id)))
@@ -59,6 +61,13 @@ public class CustomerProductServiceImpl implements CustomerProductService {
               .totalElements((int) searchHits.getTotalHits())
               .build();
         });
+  }
+
+  @Override
+  public List<ProductVariant> getProductVariantDetails(List<String> productVariantIds) {
+    return this.productESRepository.findByIds(productVariantIds).stream()
+        .map(productESMapper::with)
+        .toList();
   }
 
 }

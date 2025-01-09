@@ -16,6 +16,7 @@ import com.winnguyen1905.product.persistance.entity.ECategory;
 public interface CategoryRepository extends JpaRepository<ECategory, UUID> {
   List<ECategory> findAllByShopId(UUID shopId);
   Optional<ECategory> findByIdAndShopId(UUID id, UUID shopId);
+  Optional<ECategory> findByCodeAndShopId(String code, UUID shopId);
 
   @Query(value = "update categories c " +
       "set c.category_left = case " +

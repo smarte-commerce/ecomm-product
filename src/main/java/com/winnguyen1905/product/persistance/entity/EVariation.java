@@ -26,7 +26,7 @@ import lombok.experimental.SuperBuilder;
 @Entity
 @Builder
 @Table(name = "variations")
-public class EProductVariant extends EBaseAudit {
+public class EVariation extends EBaseAudit {
   @Column(name = "variation_price")
   private Double price;
 
@@ -34,8 +34,8 @@ public class EProductVariant extends EBaseAudit {
   String sku;
 
   @Type(JsonType.class)
-  @Column(columnDefinition = "jsonb", name = "feature_values")
-  private JsonNode featureValues;
+  @Column(columnDefinition = "JSON", name = "feature_values")
+  private JsonNode features;
 
   @ManyToOne
   @JoinColumn(name = "product_id")

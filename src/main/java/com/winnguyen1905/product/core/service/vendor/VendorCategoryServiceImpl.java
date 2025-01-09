@@ -21,7 +21,7 @@ import reactor.core.scheduler.Schedulers;
 @Service
 @RequiredArgsConstructor
 public class VendorCategoryServiceImpl implements VendorCategoryService {
-
+  
   private final CategoryMapper categoryMapper;
   private final CategoryRepository categoryRepository;
 
@@ -29,8 +29,7 @@ public class VendorCategoryServiceImpl implements VendorCategoryService {
 
   @Override
   public Flux<Category> findAllCategory(UUID shopId) {
-    return Flux.fromIterable(this.categoryRepository.findAllByShopId(shopId))
-        .subscribeOn(Schedulers.boundedElastic())
+    return Flux.fromIterable(this.categoryRepository.findAllByShopId(shopId)).subscribeOn(Schedulers.boundedElastic())
         .publishOn(Schedulers.parallel())
         .map(this.categoryMapper::toCategory)
         .onErrorResume(throwable -> handleError(throwable, "finding all categories"));

@@ -41,32 +41,28 @@
       <artifactId>spring-cloud-starter-openfeign</artifactId>
     </dependency>
 
-    <dependency>
+
+    <!-- <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-security</artifactId>
-    </dependency>
+    </dependency> -->
 
-    <dependency>
+    <!-- <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-oauth2-authorization-server</artifactId>
-    </dependency>
+    </dependency> -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-webflux</artifactId>
     </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
-    </dependency>
-
     <!-- <dependency>
       <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-oauth2-client</artifactId>
+      <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
     </dependency> -->
-    <dependency>
+    <!-- <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-web</artifactId>
-    </dependency>
+    </dependency> -->
     <dependency>
       <groupId>org.modelmapper</groupId>
       <artifactId>modelmapper</artifactId>
@@ -125,20 +121,12 @@
       <artifactId>mysql-connector-java</artifactId>
       <version>8.0.32</version>
     </dependency>
-    <dependency>
-      <groupId>org.springframework.data</groupId>
-      <artifactId>spring-data-redis</artifactId>
-    </dependency>
+    
 
     <dependency>
       <groupId>com.vladmihalcea</groupId>
       <artifactId>hibernate-types-60</artifactId>
       <version>2.21.1</version>
-    </dependency>
-    <dependency>
-      <groupId>redis.clients</groupId>
-      <artifactId>jedis</artifactId>
-      <version>5.0.0-beta2</version>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
@@ -152,12 +140,14 @@
     <dependency>
       <groupId>org.springframework.data</groupId>
       <artifactId>spring-data-elasticsearch</artifactId>
+      <version>5.2.0</version>
     </dependency>
 
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-data-elasticsearch</artifactId>
     </dependency>
+     
     <dependency>
       <groupId>org.springframework.data</groupId>
       <artifactId>spring-data-redis</artifactId>
@@ -166,12 +156,6 @@
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-data-redis-reactive</artifactId>
     </dependency>
-    <dependency>
-      <groupId>redis.clients</groupId>
-      <artifactId>jedis</artifactId>
-      <version>5.0.0-beta2</version>
-    </dependency><!--
-    https://mvnrepository.com/artifact/org.mapstruct/mapstruct -->
     <dependency>
       <groupId>org.mapstruct</groupId>
       <artifactId>mapstruct</artifactId>
@@ -184,7 +168,6 @@
       <version>1.5.5.Final</version>
       <scope>provided</scope>
     </dependency>
-
 
   </dependencies>
   <dependencyManagement>

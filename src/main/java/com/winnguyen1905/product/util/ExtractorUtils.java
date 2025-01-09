@@ -3,7 +3,6 @@ package com.winnguyen1905.product.util;
 import java.util.Optional;
 import java.util.UUID;
 
-import com.winnguyen1905.product.config.SecurityUtils;
 import com.winnguyen1905.product.exception.ResourceNotFoundException;
 
 import lombok.extern.slf4j.Slf4j;
@@ -17,8 +16,9 @@ public class ExtractorUtils {
   }
 
   public static Mono<UUID> currentUserId() {
-    return SecurityUtils.getCurrentUserId()
-        .switchIfEmpty(Mono.just(UUID.randomUUID()));
+    return Mono.just(UUID.fromString("550e8400-e29b-41d4-a716-446655440000"));
+    // return SecurityUtils.getCurrentUserId()
+    //     .switchIfEmpty(Mono.just(UUID.randomUUID()));
   }
 
 }

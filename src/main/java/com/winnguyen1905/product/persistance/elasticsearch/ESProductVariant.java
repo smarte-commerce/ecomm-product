@@ -12,6 +12,7 @@ import org.springframework.data.elasticsearch.annotations.*;
 @Builder
 @Document(indexName = "product", writeTypeHint = WriteTypeHint.FALSE, storeIdInSource = true)
 public class ESProductVariant {
+  
   @Id
   private UUID id;
 

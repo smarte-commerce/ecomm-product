@@ -61,7 +61,7 @@ public class EProduct extends EBaseAudit {
   private UUID shopId;
 
   @OneToMany(mappedBy = "product", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
-  private List<EProductVariant> variations;
+  private List<EVariation> variations;
 
   @OneToMany(mappedBy = "product", fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST })
   private List<EInventory> inventories;
@@ -82,7 +82,7 @@ public class EProduct extends EBaseAudit {
   private ProductType productType;
 
   @Type(JsonType.class)
-  @Column(columnDefinition = "jsonb", name = "product_features")
+  @Column(columnDefinition = "JSON", name = "product_features")
   private JsonNode features;
 
   @Column(name = "is_verified_by_brand")

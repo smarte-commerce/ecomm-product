@@ -8,9 +8,12 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
@@ -18,11 +21,14 @@ import lombok.experimental.SuperBuilder;
 @Setter
 @Entity
 @Builder
-
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "categories")
 public class ECategory extends EBaseAudit {
   @Column(name = "category_name", nullable = false)
   private String name;
+
+  private String code;
 
   @Column(name = "category_left")
   private Long left;
@@ -30,8 +36,8 @@ public class ECategory extends EBaseAudit {
   @Column(name = "category_right")
   private Long right;
 
-  // @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
-  // private List<EProduct> products;
+  @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
+  private List<EProduct> products;
 
   @Column(name = "category_description")
   private String description;
@@ -44,4 +50,14 @@ public class ECategory extends EBaseAudit {
   
   @Column(name = "shop_id")
   private UUID shopId;
+
+  @PrePersist
+  private void prePersist() {
+    if (this.isPublished == null) {
+      this.isPublished = true;
+    }
+    if (this.products == null) {
+      this.products = new ArrayList<>();
+    }
+  }
 }
