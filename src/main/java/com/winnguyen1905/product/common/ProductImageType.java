@@ -1,8 +1,9 @@
 package com.winnguyen1905.product.common;
 
 public enum ProductImageType {
-  PRODUCT_IMAGE("product_image"),
-  MANUFACTURER_IMAGE("manufacturer_image");
+  PRODUCT_VARIANT_IMAGE("product_variant_image"),
+  PRODUCT_PREVIEW_IMAGE("product_preview_image"),
+  PRODUCT_MANUFACTURER_IMAGE("manufacturer_image");
 
   private final String type;
 

@@ -1,9 +1,12 @@
-package com.winnguyen1905.product.core.model;
+package com.winnguyen1905.product.core.model.response;
 
 import java.util.List;
 import java.util.UUID;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.winnguyen1905.product.core.model.AbstractModel;
+import com.winnguyen1905.product.core.model.ProductImage;
+import com.winnguyen1905.product.core.model.ProductVariantDetail;
 
 import lombok.Builder;
 
@@ -13,7 +16,7 @@ public record ProductDetail(
     String name,
     String slug,
     String brand,
-    String thumb,
+    List<ProductImage> images,
     Double price,
     String category,
     JsonNode features,
@@ -21,7 +24,6 @@ public record ProductDetail(
     String productType,
     String description,
     String createdDate,
-    List<Variant> variations,
-    List<Inventory> inventories,
+    List<ProductVariantDetail> variations,
     String updatedDate) implements AbstractModel {
 }

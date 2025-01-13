@@ -4,7 +4,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 
-import com.winnguyen1905.product.core.model.ProductDetail;
+import com.winnguyen1905.product.core.model.response.ProductDetail;
 import com.winnguyen1905.product.persistance.entity.EBrand;
 import com.winnguyen1905.product.persistance.entity.ECategory;
 import com.winnguyen1905.product.persistance.entity.EProduct;

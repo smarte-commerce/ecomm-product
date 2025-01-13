@@ -14,9 +14,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.winnguyen1905.product.common.SystemConstant;
-import com.winnguyen1905.product.core.model.ProductDetail;
 import com.winnguyen1905.product.core.model.request.AddProductRequest;
 import com.winnguyen1905.product.core.model.request.SearchProductRequest;
+import com.winnguyen1905.product.core.model.response.ProductDetail;
 import com.winnguyen1905.product.core.service.vendor.VendorProductService;
 import com.winnguyen1905.product.util.MetaMessage;
 import com.winnguyen1905.product.util.ExtractorUtils;

@@ -9,7 +9,7 @@ import com.winnguyen1905.product.core.model.AbstractModel;
 import com.winnguyen1905.product.core.model.Brand;
 import com.winnguyen1905.product.core.model.Inventory;
 import com.winnguyen1905.product.core.model.ProductImage;
-import com.winnguyen1905.product.core.model.Variant;
+import com.winnguyen1905.product.core.model.ProductVariantDetail;
 
 
 public record AddProductRequest(
@@ -22,7 +22,7 @@ public record AddProductRequest(
     String description,
     String name,
     String productType,
-    List<Variant> variations,
+    List<ProductVariantDetail> variations,
     List<Inventory> inventories,
     List<ProductImage> images) {
 }

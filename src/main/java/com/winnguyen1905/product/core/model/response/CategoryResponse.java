@@ -7,7 +7,7 @@ import com.winnguyen1905.product.core.model.AbstractModel;
 import lombok.Builder;
 
 @Builder
-public record Category(
+public record CategoryResponse(
     UUID id,
     UUID parentId,
     String name,

@@ -11,16 +11,16 @@ import com.winnguyen1905.product.core.mapper.InventoryMapper;
 import com.winnguyen1905.product.core.mapper.ProductESMapper;
 import com.winnguyen1905.product.core.mapper.ProductImageMapper;
 import com.winnguyen1905.product.core.mapper.ProductMapper;
-import com.winnguyen1905.product.core.mapper.VariantMapper;
-import com.winnguyen1905.product.core.model.ProductDetail;
+import com.winnguyen1905.product.core.mapper.ProductVariantMapper;
 import com.winnguyen1905.product.core.model.request.AddProductRequest;
+import com.winnguyen1905.product.core.model.response.ProductDetail;
 import com.winnguyen1905.product.persistance.elasticsearch.ESProductVariant;
 import com.winnguyen1905.product.persistance.entity.EBrand;
 import com.winnguyen1905.product.persistance.entity.ECategory;
 import com.winnguyen1905.product.persistance.entity.EInventory;
 import com.winnguyen1905.product.persistance.entity.EProduct;
 import com.winnguyen1905.product.persistance.entity.EProductImage;
-import com.winnguyen1905.product.persistance.entity.EVariation;
+import com.winnguyen1905.product.persistance.entity.EProductVariant;
 import com.winnguyen1905.product.persistance.repository.BrandRepository;
 import com.winnguyen1905.product.persistance.repository.CategoryRepository;
 import com.winnguyen1905.product.persistance.repository.ProductESRepository;
@@ -48,7 +48,7 @@ public class VendorProductServiceImpl implements VendorProductService {
   private final CategoryRepository categoryRepository;
   private final ProductESMapper productESMapper;
   private final ProductESCustomRepository productESRepository;
-  private final VariantMapper productVariantMapper;
+  private final ProductVariantMapper productVariantMapper;
 
   @Override
   @Transactional
@@ -57,7 +57,7 @@ public class VendorProductServiceImpl implements VendorProductService {
     List<EProductImage> images = CommonUtils.stream(request.images())
         .map(productImageMapper::toProductImageEntity)
         .toList();
-    List<EVariation> variants = CommonUtils.stream(request.variations())
+    List<EProductVariant> variants = CommonUtils.stream(request.variations())
         .map(productVariantMapper::toVariantEntity)
         .toList();
     List<EInventory> inventories = CommonUtils.stream(request.inventories())

@@ -7,20 +7,27 @@ import java.util.UUID;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.*;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 @Getter
 @Setter
 @Builder
 @Document(indexName = "product", writeTypeHint = WriteTypeHint.FALSE, storeIdInSource = true)
 public class ESProductVariant {
-  
   @Id
   private UUID id;
 
-  @Field(type = FieldType.Integer, name = "product_id")
+  @Field(type = FieldType.Keyword, name = "product_id")
   private UUID productId;
+
+  @Field(type = FieldType.Keyword, name = "shop_id")
+  private UUID shopId;
 
   @Field(type = FieldType.Text, name = "name")
   private String name;
+
+  @Field(type = FieldType.Text, name = "image_url")
+  private String imageUrl;
 
   @Field(type = FieldType.Text, name = "description")
   private String description;
@@ -36,9 +43,9 @@ public class ESProductVariant {
 
   @Field(type = FieldType.Object, name = "category")
   private ESCategory category;
-
+ 
   @Field(type = FieldType.Object, name = "feature")
-  private Object features;
+  private JsonNode features;
 
   @Field(type = FieldType.Object, name = "inventory")
   private ESInventory inventory;
@@ -54,5 +61,4 @@ public class ESProductVariant {
 
   @Field(type = FieldType.Date, name = "updated_date")
   private Instant updatedDate;
-
 }

@@ -36,7 +36,7 @@ import lombok.experimental.SuperBuilder;
 @Getter
 @Setter
 @Entity
-@Builder
+@SuperBuilder
 @Table(name = "products")
 @SQLRestriction("is_deleted <> true")
 @SQLDelete(sql = "UPDATE products SET is_deleted = TRUE WHERE ID=? and VERSION=?")
@@ -61,7 +61,7 @@ public class EProduct extends EBaseAudit {
   private UUID shopId;
 
   @OneToMany(mappedBy = "product", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
-  private List<EVariation> variations;
+  private List<EProductVariant> variations;
 
   @OneToMany(mappedBy = "product", fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST })
   private List<EInventory> inventories;

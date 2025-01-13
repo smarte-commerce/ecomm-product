@@ -20,9 +20,7 @@ import lombok.experimental.SuperBuilder;
 @Getter
 @Setter
 @Entity
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
+@SuperBuilder
 @Table(name = "categories")
 public class ECategory extends EBaseAudit {
   @Column(name = "category_name", nullable = false)

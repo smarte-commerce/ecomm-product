@@ -1,5 +1,7 @@
 package com.winnguyen1905.product.persistance.entity;
 
+import java.util.UUID;
+
 import com.winnguyen1905.product.common.ProductImageType;
 
 import jakarta.persistence.Column;
@@ -18,12 +20,14 @@ import lombok.experimental.SuperBuilder;
 @Getter
 @Setter
 @Entity
-@Builder
-
+@SuperBuilder
 @Table(name = "product_images")
 public class EProductImage extends EBaseAudit {
+  @Column(name = "product_variant_id")
+  private UUID productVariantId;
+
   @Column(name = "image_url")
-  String imageUrl;
+  private String url;
 
   @Column(name = "image_type")
   @Enumerated(value = EnumType.STRING)

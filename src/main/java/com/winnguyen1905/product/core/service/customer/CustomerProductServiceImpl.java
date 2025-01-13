@@ -9,13 +9,15 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.winnguyen1905.product.core.mapper.ProductESMapper;
-import com.winnguyen1905.product.core.mapper.ProductMapper;
-import com.winnguyen1905.product.core.model.ProductDetail;
-import com.winnguyen1905.product.core.model.ProductVariant;
+import com.winnguyen1905.product.core.mapper.ProductVariantMapper;
+import com.winnguyen1905.product.core.mapper_v2.ProductESMapper;
+import com.winnguyen1905.product.core.mapper_v2.ProductMapper;
 import com.winnguyen1905.product.core.model.request.SearchProductRequest;
+import com.winnguyen1905.product.core.model.response.CartByShopProductResponse;
 import com.winnguyen1905.product.core.model.response.PagedResponse;
-import com.winnguyen1905.product.persistance.elasticsearch.ESProductVariant; 
+import com.winnguyen1905.product.core.model.response.ProductDetail;
+import com.winnguyen1905.product.core.model.response.ProductVariantReview;
+import com.winnguyen1905.product.persistance.elasticsearch.ESProductVariant;
 import com.winnguyen1905.product.persistance.repository.ProductRepository;
 import com.winnguyen1905.product.persistance.repository.custom.ProductESCustomRepository;
 import com.winnguyen1905.product.util.CommonUtils;
@@ -32,8 +34,6 @@ import reactor.core.scheduler.Schedulers;
 @RequiredArgsConstructor
 public class CustomerProductServiceImpl implements CustomerProductService {
 
-  private final ProductMapper productMapper;
-  private final ProductESMapper productESMapper;
   private final ProductRepository productRepository;
   private final ProductESCustomRepository productESRepository;
 
@@ -42,32 +42,42 @@ public class CustomerProductServiceImpl implements CustomerProductService {
     return Mono.fromCallable(() -> this.productRepository.findByIdAndIsPublishedTrue(id))
         .flatMap(CommonUtils::toMono)
         .switchIfEmpty(Mono.error(new EntityNotFoundException("Product not found with id: " + id)))
-        .map(productMapper::toProductDto);
+        .map(ProductMapper::toProductDetail);
   }
 
   @Override
-  public Mono<PagedResponse<ProductVariant>> searchProducts(SearchProductRequest request) {
+  public Mono<PagedResponse<ProductVariantReview>> searchProducts(SearchProductRequest request) {
     return Mono.fromCallable(() -> this.productESRepository.searchProducts(request, ESProductVariant.class))
         .subscribeOn(Schedulers.boundedElastic())
         .map(searchHits -> {
           List<ESProductVariant> esProductVariants = searchHits.getSearchHits()
               .stream().map(SearchHit::getContent).toList();
-          List<ProductVariant> products = this.productESMapper.with(esProductVariants);
-
-          return PagedResponse.<ProductVariant>builder()
+          List<ProductVariantReview> productVariantResponses = ProductESMapper
+              .toProductVariantReviews(esProductVariants);
+          return PagedResponse.<ProductVariantReview>builder()
               .page(request.getPage().pageNum())
               .size(request.getPage().pageSize())
-              .results(products)
+              .results(productVariantResponses)
               .totalElements((int) searchHits.getTotalHits())
               .build();
         });
   }
 
   @Override
-  public List<ProductVariant> getProductVariantDetails(List<String> productVariantIds) {
-    return this.productESRepository.findByIds(productVariantIds).stream()
-        .map(productESMapper::with)
-        .toList();
-  }
+public CartByShopProductResponse getProductVariantDetails(List<String> productVariantIds) {
+    List<CartByShopProductResponse.CartByShopProductItem> cartByShopProductItems = 
+        this.productESRepository.findByIds(productVariantIds).stream()
+            .collect(Collectors.groupingBy(ESProductVariant::getShopId)) 
+            .entrySet().stream()
+            .map(entry -> new CartByShopProductResponse.CartByShopProductItem(
+                entry.getKey(),  
+                entry.getValue().stream()
+                    .map(ProductMapper::toProductVariantReview)  
+                    .collect(Collectors.toList())))  
+            .collect(Collectors.toList());  
+
+    return new CartByShopProductResponse(cartByShopProductItems);
+}
+
 
 }

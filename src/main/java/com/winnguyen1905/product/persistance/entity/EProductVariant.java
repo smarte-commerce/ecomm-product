@@ -24,14 +24,14 @@ import lombok.experimental.SuperBuilder;
 @Getter
 @Setter
 @Entity
-@Builder
+@SuperBuilder
 @Table(name = "variations")
-public class EVariation extends EBaseAudit {
-  @Column(name = "variation_price")
-  private Double price;
-
+public class EProductVariant extends EBaseAudit {
   @Column(name = "sku")
   String sku;
+
+  @Column(name = "variation_price")
+  private Double price;
 
   @Type(JsonType.class)
   @Column(columnDefinition = "JSON", name = "feature_values")

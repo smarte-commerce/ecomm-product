@@ -11,13 +11,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.winnguyen1905.product.core.model.Brand;
 import com.winnguyen1905.product.core.model.Inventory;
-import com.winnguyen1905.product.core.model.ProductVariant;
-import com.winnguyen1905.product.core.model.response.Category;
+import com.winnguyen1905.product.core.model.response.CategoryResponse;
+import com.winnguyen1905.product.core.model.response.ProductVariantReview;
 import com.winnguyen1905.product.persistance.elasticsearch.ESCategory;
 import com.winnguyen1905.product.persistance.elasticsearch.ESInventory;
 import com.winnguyen1905.product.persistance.elasticsearch.ESProductVariant;
 import com.winnguyen1905.product.persistance.entity.EProduct;
-import com.winnguyen1905.product.persistance.entity.EVariation;
+import com.winnguyen1905.product.persistance.entity.EProductVariant;
 import com.winnguyen1905.product.util.CommonUtils;
 
 import lombok.RequiredArgsConstructor;
@@ -28,91 +28,91 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class ProductESMapper {
 
-  private final BrandMapper brandMapper;
-  private final CategoryMapper categoryMapper;
-  private final InventoryMapper inventoryMapper;
+  // private final BrandMapper brandMapper;
+  // private final CategoryMapper categoryMapper;
+  // private final InventoryMapper inventoryMapper;
 
-  public List<ESProductVariant> toESProductVariants(EProduct product) {
-    return CommonUtils.stream(product.getVariations())
-        .map(
-            item -> {
-              ObjectNode allFeatures = mergeProductFeatures(product, item);
-              StringBuilder variantName = generateVariantName(product, item);
-              ESInventory inventory = getVariantInventory(product, item);
-              Object mergedFeatures = transformFeaturesToObject(allFeatures);
+  // public List<ESProductVariant> toESProductVariants(EProduct product) {
+  //   return CommonUtils.stream(product.getVariations())
+  //       .map(
+  //           item -> {
+  //             ObjectNode allFeatures = mergeProductFeatures(product, item);
+  //             StringBuilder variantName = generateVariantName(product, item);
+  //             ESInventory inventory = getVariantInventory(product, item);
+  //             Object mergedFeatures = transformFeaturesToObject(allFeatures);
 
-              return ESProductVariant.builder()
-                  .id(item.getId())
-                  .productId(product.getId())
-                  .features(mergedFeatures)
-                  .brand(product.getBrand().getName())
-                  .price(item.getPrice())
-                  .name(variantName.toString())
-                  .description(product.getDescription())
-                  .category(this.categoryMapper.toESCategory(product.getCategory()))
-                  .inventory(inventory)
-                  .build();
-            })
-        .collect(Collectors.toList());
-  }
+  //             return ESProductVariant.builder()
+  //                 .id(item.getId())
+  //                 .productId(product.getId())
+  //                 .features(mergedFeatures)
+  //                 .brand(product.getBrand().getName())
+  //                 .price(item.getPrice())
+  //                 .name(variantName.toString())
+  //                 .description(product.getDescription())
+  //                 .category(this.categoryMapper.toESCategory(product.getCategory()))
+  //                 .inventory(inventory)
+  //                 .build();
+  //           })
+  //       .collect(Collectors.toList());
+  // }
 
-  private Object transformFeaturesToObject(ObjectNode allFeatures) {
-    Object mergedFeatures;
-    var mapper = new ObjectMapper();
-    try {
-      mergedFeatures = mapper.treeToValue(allFeatures, Object.class);
-    } catch (JsonProcessingException e) {
-      throw new RuntimeException(e);
-    }
-    return mergedFeatures;
-  }
+  // private Object transformFeaturesToObject(ObjectNode allFeatures) {
+  //   Object mergedFeatures;
+  //   var mapper = new ObjectMapper();
+  //   try {
+  //     mergedFeatures = mapper.treeToValue(allFeatures, Object.class);
+  //   } catch (JsonProcessingException e) {
+  //     throw new RuntimeException(e);
+  //   }
+  //   return mergedFeatures;
+  // }
 
-  private ESInventory getVariantInventory(EProduct product, EVariation item) {
-    return product.getInventories().stream()
-        .filter(inventory -> inventory.getSku().equals(item.getSku()))
-        .map(this.inventoryMapper::toESInventory)
-        .findFirst()
-        .orElseThrow();
-  }
+  // private ESInventory getVariantInventory(EProduct product, EProductVariant item) {
+  //   return product.getInventories().stream()
+  //       .filter(inventory -> inventory.getSku().equals(item.getSku()))
+  //       .map(this.inventoryMapper::toESInventory)
+  //       .findFirst()
+  //       .orElseThrow();
+  // }
 
-  private StringBuilder generateVariantName(EProduct product, EVariation item) {
-    var fieldIterator = item.getFeatures().fieldNames();
-    var variantName = new StringBuilder(product.getName());
-    while (fieldIterator.hasNext()) {
-      var fieldName = fieldIterator.next();
-      var value = item.getFeatures().get(fieldName).textValue();
-      variantName.append(" ").append(value).append(" ").append(fieldName);
-    }
-    return variantName;
-  }
+  // private StringBuilder generateVariantName(EProduct product, EProductVariant item) {
+  //   var fieldIterator = item.getFeatures().fieldNames();
+  //   var variantName = new StringBuilder(product.getName());
+  //   while (fieldIterator.hasNext()) {
+  //     var fieldName = fieldIterator.next();
+  //     var value = item.getFeatures().get(fieldName).textValue();
+  //     variantName.append(" ").append(value).append(" ").append(fieldName);
+  //   }
+  //   return variantName;
+  // }
 
-  private ObjectNode mergeProductFeatures(EProduct product, EVariation item) {
-    var baseFields = product.getFeatures();
-    var variantFields = item.getFeatures();
+  // private ObjectNode mergeProductFeatures(EProduct product, EProductVariant item) {
+  //   var baseFields = product.getFeatures();
+  //   var variantFields = item.getFeatures();
 
-    ObjectNode allFeatures = baseFields.deepCopy();
-    allFeatures.setAll((ObjectNode) variantFields);
-    return allFeatures;
-  }
+  //   ObjectNode allFeatures = baseFields.deepCopy();
+  //   allFeatures.setAll((ObjectNode) variantFields);
+  //   return allFeatures;
+  // }
 
-  public ProductVariant with(ESProductVariant esProductVariant) {
-    return ProductVariant.builder()
-        .id(esProductVariant.getId())
-        .productId(esProductVariant.getProductId())
-        .features(esProductVariant.getFeatures())
-        .brand(this.brandMapper.toBrand(esProductVariant.getBrand()))
-        .price(esProductVariant.getPrice())
-        .name(esProductVariant.getName())
-        .description(esProductVariant.getDescription())
-        .category(this.categoryMapper.toCategory(esProductVariant.getCategory()))
-        .inventory(this.inventoryMapper.toInventory(esProductVariant.getInventory()))
-        .build();
-  }
+  // public ProductVariantReview with(ESProductVariant esProductVariant) {
+  //   return ProductVariantReview.builder()
+  //       .id(esProductVariant.getId())
+  //       .productId(esProductVariant.getProductId())
+  //       .features(esProductVariant.getFeatures())
+  //       .brand(this.brandMapper.toBrand(esProductVariant.getBrand()))
+  //       .price(esProductVariant.getPrice())
+  //       .name(esProductVariant.getName())
+  //       .description(esProductVariant.getDescription())
+  //       .category(this.categoryMapper.toCategory(esProductVariant.getCategory()))
+  //       .inventory(this.inventoryMapper.toInventory(esProductVariant.getInventory()))
+  //       .build();
+  // }
 
-  public List<ProductVariant> with(List<ESProductVariant> esProductVariants) {
-    return CommonUtils.stream(esProductVariants)
-        .map(this::with)
-        .collect(Collectors.toList());
-  }
+  // public List<ProductVariantReview> with(List<ESProductVariant> esProductVariants) {
+  //   return CommonUtils.stream(esProductVariants)
+  //       .map(this::with)
+  //       .collect(Collectors.toList());
+  // }
 
 }

@@ -1,3 +1,8 @@
 package com.winnguyen1905.product.core.model;
 
-public record ProductImage(String url, int order, String type) implements AbstractModel {}
+import java.util.UUID;
+
+import lombok.Builder;
+
+@Builder
+public record ProductImage(UUID id, String url, UUID productVariantId, String type) implements AbstractModel {}

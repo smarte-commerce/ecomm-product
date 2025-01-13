@@ -20,9 +20,7 @@ import lombok.experimental.SuperBuilder;
 @Entity
 @Getter
 @Setter
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
+@SuperBuilder
 @Table(name = "brands")
 public class EBrand extends EBaseAudit {
   @Column(name = "brand_name", unique = true, nullable = false)
