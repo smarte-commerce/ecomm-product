@@ -7,11 +7,10 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.winnguyen1905.product.core.mapper.InventoryMapper;
-import com.winnguyen1905.product.core.mapper.ProductESMapper;
-import com.winnguyen1905.product.core.mapper.ProductImageMapper;
-import com.winnguyen1905.product.core.mapper.ProductMapper;
-import com.winnguyen1905.product.core.mapper.ProductVariantMapper;
+import com.winnguyen1905.product.core.mapper_v2.InventoryMapper;
+import com.winnguyen1905.product.core.mapper_v2.ProductESMapper;
+import com.winnguyen1905.product.core.mapper_v2.ProductImageMapper;
+import com.winnguyen1905.product.core.mapper_v2.ProductMapper;
 import com.winnguyen1905.product.core.model.request.AddProductRequest;
 import com.winnguyen1905.product.core.model.response.ProductDetail;
 import com.winnguyen1905.product.persistance.elasticsearch.ESProductVariant;
@@ -40,71 +39,64 @@ import reactor.core.scheduler.Schedulers;
 @RequiredArgsConstructor
 public class VendorProductServiceImpl implements VendorProductService {
 
-  private final ProductMapper productMapper;
-  private final InventoryMapper inventoryMapper;
-  private final ProductImageMapper productImageMapper;
   private final BrandRepository brandRepository;
   private final ProductRepository productRepository;
   private final CategoryRepository categoryRepository;
-  private final ProductESMapper productESMapper;
   private final ProductESCustomRepository productESRepository;
-  private final ProductVariantMapper productVariantMapper;
 
   @Override
   @Transactional
   public Mono<ProductDetail> addProduct(UUID shopId, AddProductRequest request) {
-
     List<EProductImage> images = CommonUtils.stream(request.images())
-        .map(productImageMapper::toProductImageEntity)
-        .toList();
+      .map(ProductImageMapper::toProductImageEntity)
+      .toList();
     List<EProductVariant> variants = CommonUtils.stream(request.variations())
-        .map(productVariantMapper::toVariantEntity)
-        .toList();
+      .map(ProductMapper::toProductVariantEntity)
+      .toList();
     List<EInventory> inventories = CommonUtils.stream(request.inventories())
-        .map(inventoryMapper::toInventoryEntity)
-        .toList();
+      .map(InventoryMapper::toInventoryEntity)
+      .toList();
 
     Mono<EBrand> brand = Mono.fromCallable(() -> brandRepository.findByCode(request.brandCode())
-        .orElseThrow(() -> new EntityNotFoundException("Not found brand"))).subscribeOn(Schedulers.boundedElastic());
+      .orElseThrow(() -> new EntityNotFoundException("Not found brand")))
+      .subscribeOn(Schedulers.boundedElastic());
 
     Mono<ECategory> category = Mono
-        .fromCallable(() -> categoryRepository.findByCodeAndShopId(request.categoryCode(), shopId)
-            .orElseThrow(() -> new EntityNotFoundException("Not found category")))
-        .subscribeOn(Schedulers.boundedElastic());
+      .fromCallable(() -> categoryRepository.findByCodeAndShopId(request.categoryCode(), shopId)
+        .orElseThrow(() -> new EntityNotFoundException("Not found category")))
+      .subscribeOn(Schedulers.boundedElastic());
 
     return Mono.zip(brand, category)
-        .map((Tuple2<EBrand, ECategory> tuple) -> {
-          final EProduct product = EProduct.builder()
-              .name(request.name())
-              .description(request.description())
-              .features(CommonUtils.fromObject(request.features()))
-              .isDraft(true)
-              .isPublished(false)
-              .brand(tuple.getT1())
-              .shopId(shopId)
-              .category(tuple.getT2())
-              .images(images)
-              .variations(variants)
-              .inventories(inventories)
-              .build();
+      .flatMap(tuple -> {
+        final EProduct product = EProduct.builder()
+          .name(request.name())
+          .description(request.description())
+          .features(CommonUtils.fromObject(request.features()))
+          .isDraft(true)
+          .isPublished(false)
+          .brand(tuple.getT1())
+          .shopId(shopId)
+          .category(tuple.getT2())
+          .images(images)
+          .variations(variants)
+          .inventories(inventories)
+          .build();
 
-          images.forEach(image -> image.setProduct(product));
-          variants.forEach(variant -> variant.setProduct(product));
-          inventories.forEach(inventory -> inventory.setProduct(product));
+        images.forEach(image -> image.setProduct(product));
+        variants.forEach(variant -> variant.setProduct(product));
+        inventories.forEach(inventory -> inventory.setProduct(product));
 
-          return product;
-        })
-        .flatMap(product -> Mono.fromCallable(() -> productRepository.save(product)))
-        .map(product -> {
-          this.persistProductVariants(product);
-          return productMapper.toProductDto(product);
-        }).subscribeOn(Schedulers.boundedElastic());
+        return Mono.fromCallable(() -> productRepository.save(product))
+          .flatMap(savedProduct -> this.persistProductVariants(savedProduct)
+            .thenReturn(ProductMapper.toProductDetail(savedProduct)));
+      })
+      .subscribeOn(Schedulers.boundedElastic());
             
   }
 
   @Override
   public Mono<Void> persistProductVariants(EProduct product) {
-    return Mono.just(this.productESMapper.toESProductVariants(product))
+    return Mono.just(ProductESMapper.toESProductVariants(product))
         .publishOn(Schedulers.boundedElastic())
         .map(esProductVariant -> this.productESRepository.persistAllProductVariants(esProductVariant))
         .flatMap(__ -> Mono.empty());

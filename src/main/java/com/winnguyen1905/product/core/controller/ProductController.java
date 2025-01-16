@@ -16,7 +16,9 @@ import org.springframework.web.bind.annotation.*;
 import com.winnguyen1905.product.common.SystemConstant;
 import com.winnguyen1905.product.core.model.request.AddProductRequest;
 import com.winnguyen1905.product.core.model.request.SearchProductRequest;
+import com.winnguyen1905.product.core.model.response.ProductVariantByShopResponse;
 import com.winnguyen1905.product.core.model.response.ProductDetail;
+import com.winnguyen1905.product.core.service.customer.CustomerProductService;
 import com.winnguyen1905.product.core.service.vendor.VendorProductService;
 import com.winnguyen1905.product.util.MetaMessage;
 import com.winnguyen1905.product.util.ExtractorUtils;
@@ -27,6 +29,7 @@ import com.winnguyen1905.product.util.ExtractorUtils;
 public class ProductController {
 
   private final VendorProductService vendorProductService;
+  private final CustomerProductService customerProductService;
 
   // PUBLIC API----------------------------------------------------------------
 
@@ -54,6 +57,11 @@ public class ProductController {
     return ExtractorUtils.currentUserId()
         .flatMap(userId -> this.vendorProductService.addProduct(userId, productRequest))
         .map(ResponseEntity.status(HttpStatus.CREATED.value())::body);
+  }
+
+  @GetMapping("/variant-details/{ids}")
+  public ResponseEntity<ProductVariantByShopResponse> getProductVariantDetail(@PathVariable List<String> ids) {
+    return ResponseEntity.ok(this.customerProductService.getProductVariantDetails(ids));
   }
 
   // @GetMapping("/my-product")

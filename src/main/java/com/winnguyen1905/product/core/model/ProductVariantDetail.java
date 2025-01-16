@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.winnguyen1905.product.core.model.request.ProductImageRequest;
 
 import lombok.Builder;
 
@@ -15,6 +16,6 @@ public record ProductVariantDetail(
     double price,
     UUID productId,
     JsonNode features,
-    List<ProductImage> images
+    List<ProductImageRequest> images
     ) implements AbstractModel {
 }

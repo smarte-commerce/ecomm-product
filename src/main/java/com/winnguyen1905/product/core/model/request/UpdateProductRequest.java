@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.UUID;
 
 import com.winnguyen1905.product.core.model.AbstractModel;
-import com.winnguyen1905.product.core.model.ProductImage;
 import com.winnguyen1905.product.core.model.response.ProductVariantReview;
 
 public record UpdateProductRequest(
@@ -16,8 +15,9 @@ public record UpdateProductRequest(
     Double price,
     String productType,
     String description,
-    List<ProductVariantReview> variations,
-    List<ProductImage> images,
     Boolean isDraft, 
-    Boolean isPublished) implements AbstractModel {
+    Boolean isPublished,
+    List<ProductVariantReview> variations,
+    List<ProductImageRequest> images) implements AbstractModel {
 }
+    

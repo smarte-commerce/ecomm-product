@@ -4,8 +4,9 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
-import com.winnguyen1905.product.core.mapper.CategoryMapper;
-import com.winnguyen1905.product.core.model.response.CategoryResponse;
+import com.winnguyen1905.product.core.mapper_v2.CategoryMapper;
+import com.winnguyen1905.product.core.model.request.AddCateogryRequest;
+import com.winnguyen1905.product.core.model.response.CategoryTreeResponse;
 import com.winnguyen1905.product.core.service.ServiceParamFormat;
 import com.winnguyen1905.product.persistance.entity.ECategory;
 import com.winnguyen1905.product.persistance.repository.CategoryRepository;
@@ -22,21 +23,21 @@ import reactor.core.scheduler.Schedulers;
 @RequiredArgsConstructor
 public class VendorCategoryServiceImpl implements VendorCategoryService {
   
-  private final CategoryMapper categoryMapper;
+  // private final CategoryMapper categoryMapper;
   private final CategoryRepository categoryRepository;
 
   private static final int NODE_SPACING = 2;
 
   @Override
-  public Flux<CategoryResponse> findAllCategory(UUID shopId) {
-    return Flux.fromIterable(this.categoryRepository.findAllByShopId(shopId)).subscribeOn(Schedulers.boundedElastic())
+  public Mono<CategoryTreeResponse> findAllCategory(UUID shopId) {
+    return Mono.fromCallable(() -> this.categoryRepository.findAllByShopId(shopId)).subscribeOn(Schedulers.boundedElastic())
         .publishOn(Schedulers.parallel())
-        .map(this.categoryMapper::toCategory)
+        .map(CategoryMapper::toCategoryTree)
         .onErrorResume(throwable -> handleError(throwable, "finding all categories"));
   }
 
   @Override
-  public Mono<CategoryResponse> addCategory(UUID shopId, CategoryResponse categoryDto) {
+  public Mono<Void> addCategory(UUID shopId, AddCateogryRequest categoryDto) {
 
     ECategory newCategory = ECategory.builder()
         .name(categoryDto.name())
@@ -55,7 +56,7 @@ public class VendorCategoryServiceImpl implements VendorCategoryService {
    * @param category Category to be created
    * @return Created category
    */
-  private Mono<CategoryResponse> createRootCategory(UUID shopId, ECategory category) {
+  private Mono<Void> createRootCategory(UUID shopId, ECategory category) {
     return Mono.fromCallable(() -> categoryRepository.countByShopId(shopId))
         .map(count -> calculateRootNodePositions(category, count))
         .flatMap(this::saveAndMapCategory)
@@ -68,7 +69,7 @@ public class VendorCategoryServiceImpl implements VendorCategoryService {
    * @param category Category to be created
    * @return Created category
    */
-  private Mono<CategoryResponse> createChildCategory(UUID shopId, ECategory category) {
+  private Mono<Void> createChildCategory(UUID shopId, ECategory category) {
     return findParentCategory(shopId, category.getParentId())
         .map(parent -> calculateChildNodePositions(category, parent))
         .flatMap(this::updateTreeAndSaveCategory)
@@ -94,19 +95,17 @@ public class VendorCategoryServiceImpl implements VendorCategoryService {
     return child;
   }
 
-  private Mono<CategoryResponse> saveAndMapCategory(ECategory category) {
+  private Mono<Void> saveAndMapCategory(ECategory category) {
     return Mono.fromCallable(() -> categoryRepository.save(category))
-        .subscribeOn(Schedulers.boundedElastic())
-        .map(categoryMapper::toCategory);
+        .then()
+        .subscribeOn(Schedulers.boundedElastic());
   }
 
-  private Mono<CategoryResponse> updateTreeAndSaveCategory(ECategory category) {
+  private Mono<Void> updateTreeAndSaveCategory(ECategory category) {
     return Mono.fromCallable(() -> {
         categoryRepository.updateCategoryTreeOfShop(category.getRight(), category.getShopId());
         return categoryRepository.save(category);
-    })
-    .subscribeOn(Schedulers.boundedElastic())
-    .map(categoryMapper::toCategory);
+    }).then().subscribeOn(Schedulers.boundedElastic());
   }
 
   private <T> Mono<T> handleError(Throwable throwable, String operation) {

@@ -2,14 +2,15 @@ package com.winnguyen1905.product.core.service.vendor;
 
 import java.util.UUID;
 
-import com.winnguyen1905.product.core.model.response.CategoryResponse;
+import com.winnguyen1905.product.core.model.request.AddCateogryRequest;
+import com.winnguyen1905.product.core.model.response.CategoryTreeResponse;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public interface VendorCategoryService {
-  Flux<CategoryResponse> findAllCategory(UUID shopId);
-  Mono<CategoryResponse> addCategory(UUID shopId, CategoryResponse categoryDto);
+  Mono<CategoryTreeResponse> findAllCategory(UUID shopId);
+  Mono<Void> addCategory(UUID shopId, AddCateogryRequest categoryDto);
 
   // PagedResponse<Category> findAllCategoryWithPageable(UUID shopId, Pageable pageable);
 

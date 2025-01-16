@@ -1,20 +1,27 @@
 package com.winnguyen1905.product.core.mapper_v2;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import com.winnguyen1905.product.core.model.ProductImage;
+import com.winnguyen1905.product.common.ProductImageType;
+import com.winnguyen1905.product.core.model.request.ProductImageRequest;
 import com.winnguyen1905.product.persistance.entity.EProductImage;
 
 public class ProductImageMapper {
-  public static ProductImage toProductImage(EProductImage image) {
+  public static ProductImageRequest toProductImage(EProductImage image) {
     if (image == null) return null;
-    return ProductImage.builder()
+    return ProductImageRequest.builder()
         .id(image.getId())
         .url(image.getUrl())
         .type(image.getType().name())
         .productVariantId(image.getProductVariantId())
+        .build();
+  }
+
+  public static EProductImage toProductImageEntity(ProductImageRequest productImageRequest) {
+    if (productImageRequest == null) return null;
+    return EProductImage.builder()
+        .id(productImageRequest.id())
+        .url(productImageRequest.url())
+        .type(ProductImageType.valueOf(productImageRequest.type()))
+        .productVariantId(productImageRequest.productVariantId())
         .build();
   }
 }

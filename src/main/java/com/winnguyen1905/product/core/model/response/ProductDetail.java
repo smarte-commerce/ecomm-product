@@ -5,8 +5,8 @@ import java.util.UUID;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.winnguyen1905.product.core.model.AbstractModel;
-import com.winnguyen1905.product.core.model.ProductImage;
 import com.winnguyen1905.product.core.model.ProductVariantDetail;
+import com.winnguyen1905.product.core.model.request.ProductImageRequest;
 
 import lombok.Builder;
 
@@ -16,7 +16,7 @@ public record ProductDetail(
     String name,
     String slug,
     String brand,
-    List<ProductImage> images,
+    List<ProductImageRequest> images,
     Double price,
     String category,
     JsonNode features,

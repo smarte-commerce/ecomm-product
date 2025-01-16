@@ -1,13 +1,13 @@
 package com.winnguyen1905.product.core.mapper_v2;
 
 import com.winnguyen1905.product.core.model.ProductVariantDetail;
+import com.winnguyen1905.product.core.model.request.ProductImageRequest;
 import com.winnguyen1905.product.core.model.response.ProductDetail;
 import com.winnguyen1905.product.core.model.response.ProductVariantReview;
 import com.winnguyen1905.product.persistance.entity.EProduct;
 import com.winnguyen1905.product.persistance.entity.EProductVariant;
 import com.winnguyen1905.product.persistance.elasticsearch.ESProductVariant;
 import com.winnguyen1905.product.persistance.entity.EInventory;
-import com.winnguyen1905.product.core.model.ProductImage;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,7 +23,7 @@ public class ProductMapper {
             stockMapBySku.get(productVariant.getSku())))
         .collect(Collectors.toList());
 
-    List<ProductImage> images = product.getImages().stream().map(ProductImageMapper::toProductImage)
+    List<ProductImageRequest> images = product.getImages().stream().map(ProductImageMapper::toProductImage)
         .collect(Collectors.toList());
 
     return ProductDetail.builder()
@@ -43,6 +43,14 @@ public class ProductMapper {
         .price(productVariant.getPrice())
         .productId(productVariant.getProduct().getId())
         .features(productVariant.getFeatures())
+        .build();
+  }
+
+  public static EProductVariant toProductVariantEntity(ProductVariantDetail productVariantDetail) {
+    return EProductVariant.builder()
+        .price(productVariantDetail.price())
+        .sku(productVariantDetail.sku())
+        .features(productVariantDetail.features())
         .build();
   }
 

@@ -8,7 +8,6 @@ import com.winnguyen1905.product.common.ProductType;
 import com.winnguyen1905.product.core.model.AbstractModel;
 import com.winnguyen1905.product.core.model.Brand;
 import com.winnguyen1905.product.core.model.Inventory;
-import com.winnguyen1905.product.core.model.ProductImage;
 import com.winnguyen1905.product.core.model.ProductVariantDetail;
 
 
@@ -24,5 +23,5 @@ public record AddProductRequest(
     String productType,
     List<ProductVariantDetail> variations,
     List<Inventory> inventories,
-    List<ProductImage> images) {
+    List<ProductImageRequest> images) {
 }

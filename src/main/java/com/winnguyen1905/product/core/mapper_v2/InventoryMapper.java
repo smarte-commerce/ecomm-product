@@ -30,4 +30,13 @@ public class InventoryMapper {
         .quantityAvailable(inventory.getQuantityAvailable())
         .build();
   }
+
+  public static EInventory toInventoryEntity(Inventory inventory) {
+    if (inventory == null) return null;
+    return EInventory.builder()
+        .quantitySold(inventory.quantitySold())
+        .quantityReserved(inventory.quantityReserved())
+        .quantityAvailable(inventory.quantityAvailable())
+        .build();
+  }
 }

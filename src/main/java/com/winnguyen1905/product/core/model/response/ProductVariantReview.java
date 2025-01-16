@@ -10,10 +10,9 @@ import lombok.Builder;
 public record ProductVariantReview(
     UUID id,
     int stock,
-    String imageUrl,
     String name,
     String sku,
     double price,
     UUID productId,
-    Object features) implements AbstractModel {
+    Object features, String imageUrl) implements AbstractModel {
 }

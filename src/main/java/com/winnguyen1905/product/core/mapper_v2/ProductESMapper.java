@@ -5,20 +5,13 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.winnguyen1905.product.core.mapper.BrandMapper;
-import com.winnguyen1905.product.core.mapper.CategoryMapper;
-import com.winnguyen1905.product.core.model.Brand;
-import com.winnguyen1905.product.core.model.Inventory;
-import com.winnguyen1905.product.core.model.response.CategoryResponse;
+import com.fasterxml.jackson.databind.node.ObjectNode; 
 import com.winnguyen1905.product.core.model.response.ProductVariantReview;
-import com.winnguyen1905.product.persistance.elasticsearch.ESCategory;
 import com.winnguyen1905.product.persistance.elasticsearch.ESInventory;
 import com.winnguyen1905.product.persistance.elasticsearch.ESProductVariant;
 import com.winnguyen1905.product.persistance.entity.EInventory;
