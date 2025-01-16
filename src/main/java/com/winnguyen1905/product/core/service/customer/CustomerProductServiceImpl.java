@@ -9,11 +9,10 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.winnguyen1905.product.core.mapper.ProductVariantMapper;
 import com.winnguyen1905.product.core.mapper_v2.ProductESMapper;
 import com.winnguyen1905.product.core.mapper_v2.ProductMapper;
 import com.winnguyen1905.product.core.model.request.SearchProductRequest;
-import com.winnguyen1905.product.core.model.response.CartByShopProductResponse;
+import com.winnguyen1905.product.core.model.response.ProductVariantByShopResponse;
 import com.winnguyen1905.product.core.model.response.PagedResponse;
 import com.winnguyen1905.product.core.model.response.ProductDetail;
 import com.winnguyen1905.product.core.model.response.ProductVariantReview;
@@ -64,19 +63,19 @@ public class CustomerProductServiceImpl implements CustomerProductService {
   }
 
   @Override
-public CartByShopProductResponse getProductVariantDetails(List<String> productVariantIds) {
-    List<CartByShopProductResponse.CartByShopProductItem> cartByShopProductItems = 
+public ProductVariantByShopResponse getProductVariantDetails(List<String> productVariantIds) {
+    List<ProductVariantByShopResponse.CartByShopProductItem> cartByShopProductItems = 
         this.productESRepository.findByIds(productVariantIds).stream()
             .collect(Collectors.groupingBy(ESProductVariant::getShopId)) 
             .entrySet().stream()
-            .map(entry -> new CartByShopProductResponse.CartByShopProductItem(
+            .map(entry -> new ProductVariantByShopResponse.CartByShopProductItem(
                 entry.getKey(),  
                 entry.getValue().stream()
                     .map(ProductMapper::toProductVariantReview)  
                     .collect(Collectors.toList())))  
             .collect(Collectors.toList());  
 
-    return new CartByShopProductResponse(cartByShopProductItems);
+    return new ProductVariantByShopResponse(cartByShopProductItems);
 }
 
 
