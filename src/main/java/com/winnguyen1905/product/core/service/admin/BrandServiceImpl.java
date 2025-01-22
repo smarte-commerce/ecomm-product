@@ -4,7 +4,6 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
-import com.winnguyen1905.product.core.mapper.BrandMapper;
 import com.winnguyen1905.product.core.model.Brand;
 import com.winnguyen1905.product.persistance.entity.EBrand;
 import com.winnguyen1905.product.persistance.repository.BrandRepository;
@@ -16,14 +15,14 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class BrandServiceImpl implements BrandService {
 
-  private final BrandMapper brandMapper;
   private final BrandRepository brandRepository;
 
   @Override
   public Brand addBrand(UUID userId, Brand brand) {
-    return Mono.just(this.brandMapper.toBrandEntity(brand))
-        .map(eBrand -> this.brandRepository.save(eBrand))
-        .map(this.brandMapper::toBrand).block();
+    // return Mono.just(this.brandMapper.toBrandEntity(brand))
+    //     .map(eBrand -> this.brandRepository.save(eBrand))
+    //     .map(this.brandMapper::toBrand).block();
+    return null;
   }
 
 }

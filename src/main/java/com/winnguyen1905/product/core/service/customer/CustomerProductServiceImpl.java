@@ -7,8 +7,6 @@ import java.util.stream.Collectors;
 import org.springframework.data.elasticsearch.core.SearchHit;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.winnguyen1905.product.core.mapper_v2.ProductESMapper;
 import com.winnguyen1905.product.core.mapper_v2.ProductMapper;
 import com.winnguyen1905.product.core.model.request.SearchProductRequest;
@@ -21,7 +19,6 @@ import com.winnguyen1905.product.persistance.repository.ProductRepository;
 import com.winnguyen1905.product.persistance.repository.custom.ProductESCustomRepository;
 import com.winnguyen1905.product.util.CommonUtils;
 
-import co.elastic.clients.elasticsearch._types.query_dsl.QueryBuilders;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -45,8 +42,8 @@ public class CustomerProductServiceImpl implements CustomerProductService {
   }
 
   @Override
-  public Mono<PagedResponse<ProductVariantReview>> searchProducts(SearchProductRequest request) {
-    return Mono.fromCallable(() -> this.productESRepository.searchProducts(request, ESProductVariant.class))
+  public Mono<PagedResponse<ProductVariantReview>> searchProducts(SearchProductRequest searchProductRequest) {
+    return Mono.fromCallable(() -> this.productESRepository.searchProducts(searchProductRequest, ESProductVariant.class))
         .subscribeOn(Schedulers.boundedElastic())
         .map(searchHits -> {
           List<ESProductVariant> esProductVariants = searchHits.getSearchHits()
@@ -54,29 +51,28 @@ public class CustomerProductServiceImpl implements CustomerProductService {
           List<ProductVariantReview> productVariantResponses = ProductESMapper
               .toProductVariantReviews(esProductVariants);
           return PagedResponse.<ProductVariantReview>builder()
-              .page(request.getPage().pageNum())
-              .size(request.getPage().pageSize())
               .results(productVariantResponses)
+              .page(searchProductRequest.getPage().pageNum())
+              .size(searchProductRequest.getPage().pageSize())
               .totalElements((int) searchHits.getTotalHits())
               .build();
         });
   }
 
   @Override
-public ProductVariantByShopResponse getProductVariantDetails(List<String> productVariantIds) {
-    List<ProductVariantByShopResponse.CartByShopProductItem> cartByShopProductItems = 
-        this.productESRepository.findByIds(productVariantIds).stream()
-            .collect(Collectors.groupingBy(ESProductVariant::getShopId)) 
-            .entrySet().stream()
-            .map(entry -> new ProductVariantByShopResponse.CartByShopProductItem(
-                entry.getKey(),  
-                entry.getValue().stream()
-                    .map(ProductMapper::toProductVariantReview)  
-                    .collect(Collectors.toList())))  
-            .collect(Collectors.toList());  
+  public ProductVariantByShopResponse getProductVariantDetails(List<String> productVariantIds) {
+    List<ProductVariantByShopResponse.ShopProductVariant> cartByShopProductItems = this.productESRepository
+        .findByIds(productVariantIds).stream()
+        .collect(Collectors.groupingBy(ESProductVariant::getShopId))
+        .entrySet().stream()
+        .map(entry -> new ProductVariantByShopResponse.ShopProductVariant(
+            entry.getKey(),
+            entry.getValue().stream()
+                .map(ProductMapper::toProductVariantReview)
+                .collect(Collectors.toList())))
+        .collect(Collectors.toList());
 
     return new ProductVariantByShopResponse(cartByShopProductItems);
-}
-
+  }
 
 }
