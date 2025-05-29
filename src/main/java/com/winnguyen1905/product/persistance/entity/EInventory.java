@@ -1,40 +1,68 @@
 package com.winnguyen1905.product.persistance.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import jakarta.persistence.Version;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import java.io.Serializable;
+import java.time.Instant;
+import java.util.UUID;
 
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
-@SuperBuilder
-@Table(name = "inventories")
-public class EInventory extends EBaseAudit {
+@Builder
+@Table(name = "inventory", schema = "ecommerce")
+public class EInventory implements Serializable {
+  @Id
+  @GeneratedValue(strategy = GenerationType.AUTO)
+  @Column(name = "id", columnDefinition = "BINARY(16)", updatable = false, nullable = false)
+  private UUID id;
+
+  @Version
+  @Column(nullable = false)
+  private long version;
+
+  @Column(name = "is_deleted", columnDefinition = "BIT(1)")
+  private Boolean isDeleted;
+
+  // @Column(name = "created_by")
+  // private String createdBy;
+
+  // @Column(name = "updated_by")
+  // private String updatedBy;
+
+  // @CreationTimestamp
+  // @Column(name = "created_date")
+  // private Instant createdDate;
+
+  // @UpdateTimestamp
+  // @Column(name = "updated_date")
+  // private Instant updatedDate;
 
   @Column(name = "sku")
-  String sku;
+  private String sku;
 
   @ManyToOne
-  @JoinColumn(name = "product_id")
+  @JoinColumn(name = "product_id", columnDefinition = "BINARY(16)")
   private EProduct product;
 
   @Column(name = "quantity_available")
-  private int quantityAvailable;
+  private Integer quantityAvailable;
 
   @Column(name = "quantity_reserved")
-  private int quantityReserved;
+  private Integer quantityReserved;
 
   @Column(name = "quantity_sold")
-  private int quantitySold;
+  private Integer quantitySold;
   
+  @Column(name = "address")
+  private String address;
 }

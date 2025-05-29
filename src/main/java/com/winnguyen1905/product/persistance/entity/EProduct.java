@@ -1,97 +1,98 @@
 package com.winnguyen1905.product.persistance.entity;
 
+import java.io.Serializable;
 import java.text.Normalizer;
-import java.util.ArrayList;
+import java.time.Instant;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.SQLRestriction;
-import org.hibernate.annotations.Type;
+import io.hypersistence.utils.hibernate.type.json.JsonType;
+import org.hibernate.annotations.*;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.vladmihalcea.hibernate.type.json.JsonType;
-import com.winnguyen1905.product.common.ProductImageType;
-import com.winnguyen1905.product.common.ProductType;
+import com.winnguyen1905.product.secure.RegionPartition;
 
+import jakarta.persistence.*;
 import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.experimental.SuperBuilder;
+import lombok.*;
 
 @Getter
 @Setter
 @Entity
-@SuperBuilder
-@Table(name = "products")
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@Table(name = "product", schema = "ecommerce")
+@FilterDef(name = "regionFilter", parameters = @ParamDef(name = "region", type = String.class))
+@Filter(name = "regionFilter", condition = "region = :region")
 @SQLRestriction("is_deleted <> true")
-@SQLDelete(sql = "UPDATE products SET is_deleted = TRUE WHERE ID=? and VERSION=?")
-public class EProduct extends EBaseAudit {
+@SQLDelete(sql = "UPDATE ecommerce.product SET is_deleted = TRUE WHERE id=? and version=?")
+public class EProduct implements Serializable {
 
-  @Column(name = "p_name", nullable = false)
+  @Id
+  @GeneratedValue(strategy = GenerationType.AUTO)
+  @Column(name = "id", columnDefinition = "BINARY(16)", updatable = false, nullable = false)
+  private UUID id;
+
+  @Version
+  @Column(nullable = false)
+  private long version;
+
+  @Column(name = "is_deleted", columnDefinition = "BIT(1)")
+  private Boolean isDeleted;
+
+  @CreationTimestamp
+  @Column(name = "created_date", nullable = false)
+  private Instant createdDate;
+
+  @UpdateTimestamp
+  @Column(name = "updated_date")
+  private Instant updatedDate;
+
+  @Column(name = "name", nullable = false)
   private String name;
 
-  @Column(name = "p_description", nullable = true)
+  @Column(name = "description")
   private String description;
 
-  @Column(name = "p_slug", nullable = true, unique = true)
+  @Column(name = "slug", unique = true)
   private String slug;
 
-  @Column(name = "is_draft")
-  private boolean isDraft;
-
-  @Column(name = "is_published")
+  @Column(name = "is_published", columnDefinition = "BIT(1)")
   private boolean isPublished;
 
-  @Column(name = "shop_id")
+  @Column(name = "shop_id", columnDefinition = "BINARY(16)", nullable = false)
   private UUID shopId;
 
-  @OneToMany(mappedBy = "product", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+  @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
   private List<EProductVariant> variations;
 
-  @OneToMany(mappedBy = "product", fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST })
+  @OneToMany(mappedBy = "product", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
   private List<EInventory> inventories;
 
-  @OneToMany(mappedBy = "product", fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST })
+  @OneToMany(mappedBy = "product", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
   private List<EProductImage> images;
 
   @ManyToOne
-  @JoinColumn(name = "brand_id")
+  @JoinColumn(name = "brand_id", columnDefinition = "BINARY(16)")
   private EBrand brand;
 
   @ManyToOne
-  @JoinColumn(name = "category_id")
+  @JoinColumn(name = "category_id", columnDefinition = "BINARY(16)")
   private ECategory category;
 
-  @Column(name = "p_type")
-  @Enumerated(EnumType.STRING)
-  private ProductType productType;
-
   @Type(JsonType.class)
-  @Column(columnDefinition = "JSON", name = "product_features")
-  private JsonNode features;
+  @Column(columnDefinition = "json", name = "product_features")
+  private Object features;
 
-  @Column(name = "is_verified_by_brand")
-  private boolean isVerifiedByBrand;
+  // @Column(name = "is_verified_by_brand", columnDefinition = "BIT(1)")
+  // private boolean isVerifiedByBrand;
 
   @PrePersist
   protected void prePersist() {
-    this.isVerifiedByBrand = false;
-    this.isDraft = false;
+    // this.isVerifiedByBrand = false;
     this.isPublished = true;
   }
 
@@ -105,10 +106,4 @@ public class EProduct extends EBaseAudit {
 
     return slug.toLowerCase(Locale.ENGLISH) + System.currentTimeMillis();
   }
-
-  // @PreUpdate
-  // protected void preUpdate() {
-  // super.preUpdate();
-  // }
-
 }

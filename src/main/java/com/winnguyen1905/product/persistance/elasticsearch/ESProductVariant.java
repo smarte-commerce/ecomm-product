@@ -4,15 +4,19 @@ import lombok.*;
 import java.time.Instant;
 import java.util.UUID;
 
+import org.hibernate.annotations.Type;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.*;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
+import io.hypersistence.utils.hibernate.type.json.JsonType;
+import jakarta.persistence.Column;
+
 @Getter
 @Setter
 @Builder
-@Document(indexName = "product", writeTypeHint = WriteTypeHint.FALSE, storeIdInSource = true)
+@Document(indexName = "products", writeTypeHint = WriteTypeHint.FALSE, storeIdInSource = true)
 public class ESProductVariant {
   @Id
   private UUID id;
@@ -43,9 +47,10 @@ public class ESProductVariant {
 
   @Field(type = FieldType.Object, name = "category")
   private ESCategory category;
- 
+
+  @Type(JsonType.class)
   @Field(type = FieldType.Object, name = "feature")
-  private JsonNode features;
+  private Object features;
 
   @Field(type = FieldType.Object, name = "inventory")
   private ESInventory inventory;

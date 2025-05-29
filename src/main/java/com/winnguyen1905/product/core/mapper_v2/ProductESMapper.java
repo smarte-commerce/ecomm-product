@@ -10,8 +10,8 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode; 
-import com.winnguyen1905.product.core.model.response.ProductVariantReview;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.winnguyen1905.product.core.model.viewmodel.ProductVariantReviewVm;
 import com.winnguyen1905.product.persistance.elasticsearch.ESInventory;
 import com.winnguyen1905.product.persistance.elasticsearch.ESProductVariant;
 import com.winnguyen1905.product.persistance.entity.EInventory;
@@ -30,9 +30,11 @@ public class ProductESMapper {
 
   public static List<ESProductVariant> toESProductVariants(EProduct product) {
     HashMap<String, EInventory> inventoryMapBySku = product.getInventories().stream()
-        .collect(Collectors.toMap(EInventory::getSku, inventory -> inventory, (sku, inventory) -> inventory, HashMap::new));
+        .collect(
+            Collectors.toMap(EInventory::getSku, inventory -> inventory, (sku, inventory) -> inventory, HashMap::new));
     HashMap<UUID, String> imageMapByProductVariantId = product.getImages().stream()
-        .collect(Collectors.toMap(EProductImage::getProductVariantId, EProductImage::getUrl, (a, b) -> b, HashMap::new));
+        .collect(
+            Collectors.toMap(EProductImage::getProductVariantId, EProductImage::getUrl, (a, b) -> b, HashMap::new));
 
     return CommonUtils.stream(product.getVariations())
         .map(
@@ -69,11 +71,11 @@ public class ProductESMapper {
   }
 
   private static StringBuilder generateVariantName(EProduct product, EProductVariant productVariant) {
-    var fieldIterator = productVariant.getFeatures().fieldNames();
+    var fieldIterator = ((JsonNode) productVariant.getFeatures()).fieldNames();
     var variantName = new StringBuilder(product.getName());
     while (fieldIterator.hasNext()) {
       var fieldName = fieldIterator.next();
-      var value = productVariant.getFeatures().get(fieldName).textValue();
+      var value = ((JsonNode) productVariant.getFeatures()).get(fieldName).textValue();
       variantName.append(" ").append(value).append(" ").append(fieldName);
     }
     return variantName;
@@ -83,14 +85,13 @@ public class ProductESMapper {
     var baseFields = product.getFeatures();
     var variantFields = productVariant.getFeatures();
 
-    ObjectNode allFeatures = baseFields.deepCopy();
+    ObjectNode allFeatures = ((JsonNode) baseFields).deepCopy();
     allFeatures.setAll((ObjectNode) variantFields);
     return allFeatures;
   }
 
-  public static ProductVariantReview toProductVariantReview(ESProductVariant esProductVariant) {
-    return
-      ProductVariantReview.builder()
+  public static ProductVariantReviewVm toProductVariantReview(ESProductVariant esProductVariant) {
+    return ProductVariantReviewVm.builder()
         .id(esProductVariant.getId())
         .imageUrl(esProductVariant.getImageUrl())
         .productId(esProductVariant.getProductId())
@@ -101,10 +102,9 @@ public class ProductESMapper {
         .build();
   }
 
-  public static List<ProductVariantReview> toProductVariantReviews(List<ESProductVariant> esProductVariants) {
+  public static List<ProductVariantReviewVm> toProductVariantReviews(List<ESProductVariant> esProductVariants) {
     return CommonUtils.stream(esProductVariants)
         .map(ProductESMapper::toProductVariantReview)
         .collect(Collectors.toList());
   }
-
 }

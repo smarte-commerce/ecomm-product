@@ -1,12 +1,15 @@
 package com.winnguyen1905.product.persistance.entity;
 
-import java.util.ArrayList;
+import java.io.Serializable;
 import java.util.List;
 import java.util.UUID;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
@@ -15,47 +18,42 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
 
 @Getter
 @Setter
 @Entity
-@SuperBuilder
-@Table(name = "categories")
-public class ECategory extends EBaseAudit {
-  @Column(name = "category_name", nullable = false)
-  private String name;
+@NoArgsConstructor
+@Builder
+@AllArgsConstructor
+@Table(name = "category", schema = "ecommerce")
+public class ECategory implements Serializable {
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "id", columnDefinition = "BINARY(16)", nullable = false)
+    private UUID id;
 
-  private String code;
+    @Column(name = "is_deleted", columnDefinition = "BIT(1)")
+    private Boolean isDeleted;
 
-  @Column(name = "category_left")
-  private Long left;
+    @Column(name = "name", nullable = false)
+    private String name;
 
-  @Column(name = "category_right")
-  private Long right;
+    @Column(name = "description")
+    private String description;
 
-  @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
-  private List<EProduct> products;
+    @Column(name = "code")
+    private String code;
 
-  @Column(name = "category_description")
-  private String description;
+    @Column(name = "is_published", columnDefinition = "BIT(1)")
+    private Boolean isPublished;
 
-  @Column(name = "category_parent_id")
-  private UUID parentId;
+    @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
+    private List<EProduct> products;
 
-  @Column(name = "is_published")
-  private Boolean isPublished;
-  
-  @Column(name = "shop_id")
-  private UUID shopId;
-
-  @PrePersist
-  private void prePersist() {
-    if (this.isPublished == null) {
-      this.isPublished = true;
+    @PrePersist
+    private void prePersist() {
+        if (this.isPublished == null) {
+            this.isPublished = true;
+        }
     }
-    if (this.products == null) {
-      this.products = new ArrayList<>();
-    }
-  }
 }

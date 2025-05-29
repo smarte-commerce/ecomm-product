@@ -7,5 +7,5 @@ public record AddCateogryRequest(
     Integer right,
     Boolean isPublished,
     String parentId,
-    String shopId
-) {}
+    String shopId) implements AbstractModel {
+}

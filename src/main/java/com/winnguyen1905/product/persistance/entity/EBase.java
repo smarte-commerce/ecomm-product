@@ -35,5 +35,6 @@ public class EBase implements Serializable {
     return id.equals(that.id);
   }
 
-  @Serial private static final long serialVersionUID = -863164858986274318L;
+  @Serial
+  private static final long serialVersionUID = -863164858986274318L;
 }

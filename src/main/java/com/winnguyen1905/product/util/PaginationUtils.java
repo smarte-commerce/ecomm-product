@@ -6,7 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
-import com.winnguyen1905.product.core.model.response.PagedResponse;
+import com.winnguyen1905.product.core.model.viewmodel.PagedResponse;
 
 public class PaginationUtils {
 
@@ -15,7 +15,6 @@ public class PaginationUtils {
     Integer currentPage = pageable.getPageNumber();
     Integer startItem = currentPage * pageSize;
     List<T> paginatedList;
-
     if (list.size() < startItem)
       paginatedList = List.of();
     else {

@@ -5,6 +5,7 @@ import java.util.Objects;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.elasticsearch.client.elc.NativeQuery;
+import org.springframework.data.elasticsearch.client.elc.NativeQueryBuilder;
 import org.springframework.util.StringUtils;
 
 import com.winnguyen1905.product.core.model.request.SearchProductRequest;
@@ -25,17 +26,23 @@ public class ElasticSearchQueryBuilder {
 
   public static NativeQuery createSearchQuery(SearchProductRequest searchProductRequest) {
     BoolQuery.Builder boolQueryBuilder = new BoolQuery.Builder();
-    
+
     setFilters(searchProductRequest, boolQueryBuilder);
-    
+
     setMatchQuery(searchProductRequest, boolQueryBuilder);
-    
+
     Query finalQuery = Query.of(bool -> bool.bool(boolQueryBuilder.build()));
-    
-    SortOptions sortOptions = getSortOptions(searchProductRequest);
-    
-    NativeQuery nativeQuery = NativeQuery.builder().withQuery(finalQuery).withSort(List.of(sortOptions)).build();
-    
+
+    List<SortOptions> sortOptions = getSortOptions(searchProductRequest);
+
+    NativeQueryBuilder nativeQueryBuilder = NativeQuery.builder().withQuery(finalQuery);
+
+    if (sortOptions != null && !sortOptions.isEmpty()) {
+      nativeQueryBuilder.withSort(sortOptions);
+    }
+
+    NativeQuery nativeQuery = nativeQueryBuilder.build();
+
     setPagination(searchProductRequest, nativeQuery);
 
     return nativeQuery;
@@ -49,17 +56,14 @@ public class ElasticSearchQueryBuilder {
     }
   }
 
-  private static SortOptions getSortOptions(SearchProductRequest searchProductRequest) {
-    SortOptions.Builder sortOptionsBuilder = new SortOptions.Builder();
-
-    CommonUtils.stream(searchProductRequest.sorts())
-        .forEach(
-            sort -> sortOptionsBuilder.field(
-                f -> f.field(sort.field())
-                    .order(
-                        sort.order().equals("asc") ? SortOrder.Asc : SortOrder.Desc)));
-
-    return sortOptionsBuilder.build();
+  private static List<SortOptions> getSortOptions(SearchProductRequest searchProductRequest) {
+    return CommonUtils.stream(searchProductRequest.sorts())
+        .map(sort -> new SortOptions.Builder()
+            .field(f -> f
+                .field(sort.field())
+                .order("asc".equalsIgnoreCase(sort.order()) ? SortOrder.Asc : SortOrder.Desc))
+            .build())
+        .toList();
   }
 
   private static void setMatchQuery(SearchProductRequest searchProductRequest, BoolQuery.Builder bq) {

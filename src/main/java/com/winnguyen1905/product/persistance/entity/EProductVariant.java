@@ -1,43 +1,58 @@
 package com.winnguyen1905.product.persistance.entity;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.hibernate.annotations.Type;
+import java.io.Serializable;
+import java.util.UUID;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.vladmihalcea.hibernate.type.json.JsonType;
+import com.winnguyen1905.product.config.JsonNodeConverter;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
 
 @Getter
 @Setter
 @Entity
-@SuperBuilder
-@Table(name = "variations")
-public class EProductVariant extends EBaseAudit {
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@Table(name = "product_variant", schema = "ecommerce")
+public class EProductVariant implements Serializable {
+  @Id
+  @GeneratedValue(strategy = GenerationType.AUTO)
+  @Column(name = "id", columnDefinition = "BINARY(16)", updatable = false, nullable = false)
+  private UUID id;
+
+  @Version
+  @Column(nullable = false)
+  private long version;
+
+  @Column(name = "is_deleted", columnDefinition = "BIT(1)")
+  private Boolean isDeleted;
+
   @Column(name = "sku")
-  String sku;
+  private String sku;
 
   @Column(name = "variation_price")
   private Double price;
 
-  @Type(JsonType.class)
-  @Column(columnDefinition = "JSON", name = "feature_values")
+  @Column(columnDefinition = "jsonbb", name = "features")
+  @Convert(converter = JsonNodeConverter.class)
   private JsonNode features;
 
   @ManyToOne
-  @JoinColumn(name = "product_id")
+  @JoinColumn(name = "product_id", columnDefinition = "BINARY(16)")
   private EProduct product;
 }

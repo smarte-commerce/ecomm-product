@@ -1,9 +1,10 @@
 package com.winnguyen1905.product.core.mapper_v2;
 
-import com.winnguyen1905.product.core.model.ProductVariantDetail;
+import com.winnguyen1905.product.core.model.ProductVariantDetailVm;
 import com.winnguyen1905.product.core.model.request.ProductImageRequest;
-import com.winnguyen1905.product.core.model.response.ProductDetail;
-import com.winnguyen1905.product.core.model.response.ProductVariantReview;
+import com.winnguyen1905.product.core.model.request.ProductVariantDto;
+import com.winnguyen1905.product.core.model.viewmodel.ProductDetailVm;
+import com.winnguyen1905.product.core.model.viewmodel.ProductVariantReviewVm;
 import com.winnguyen1905.product.persistance.entity.EProduct;
 import com.winnguyen1905.product.persistance.entity.EProductVariant;
 import com.winnguyen1905.product.persistance.elasticsearch.ESProductVariant;
@@ -14,11 +15,11 @@ import java.util.stream.Collectors;
 
 public class ProductMapper {
 
-  public static ProductDetail toProductDetail(EProduct product) {
+  public static ProductDetailVm toProductDetail(EProduct product) {
     HashMap<String, Integer> stockMapBySku = product.getInventories().stream()
         .collect(Collectors.toMap(EInventory::getSku, EInventory::getQuantityAvailable, (a, b) -> b, HashMap::new));
 
-    List<ProductVariantDetail> variations = product.getVariations().stream()
+    List<ProductVariantDetailVm> variations = product.getVariations().stream()
         .map(productVariant -> ProductMapper.productVariantDetailBuilder(productVariant,
             stockMapBySku.get(productVariant.getSku())))
         .collect(Collectors.toList());
@@ -26,7 +27,7 @@ public class ProductMapper {
     List<ProductImageRequest> images = product.getImages().stream().map(ProductImageMapper::toProductImage)
         .collect(Collectors.toList());
 
-    return ProductDetail.builder()
+    return ProductDetailVm.builder()
         .id(product.getId())
         .name(product.getName())
         .images(images)
@@ -35,8 +36,8 @@ public class ProductMapper {
         .build();
   }
 
-  private static ProductVariantDetail productVariantDetailBuilder(EProductVariant productVariant, int stock) {
-    return ProductVariantDetail.builder()
+  private static ProductVariantDetailVm productVariantDetailBuilder(EProductVariant productVariant, int stock) {
+    return ProductVariantDetailVm.builder()
         .stock(stock)
         .id(productVariant.getId())
         .sku(productVariant.getSku())
@@ -46,7 +47,7 @@ public class ProductMapper {
         .build();
   }
 
-  public static EProductVariant toProductVariantEntity(ProductVariantDetail productVariantDetail) {
+  public static EProductVariant toProductVariantEntity(ProductVariantDto productVariantDetail) {
     return EProductVariant.builder()
         .price(productVariantDetail.price())
         .sku(productVariantDetail.sku())
@@ -54,8 +55,8 @@ public class ProductMapper {
         .build();
   }
 
-  public static ProductVariantReview toProductVariantReview(ESProductVariant esProductVariant) {
-    return ProductVariantReview.builder()
+  public static ProductVariantReviewVm toProductVariantReview(ESProductVariant esProductVariant) {
+    return ProductVariantReviewVm.builder()
         .stock(esProductVariant.getInventory().getQuantityAvailable())
         .id(esProductVariant.getId())
         .sku(esProductVariant.getInventory().getSku())

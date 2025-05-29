@@ -14,11 +14,10 @@ import org.springframework.stereotype.Repository;
 
 import com.winnguyen1905.product.persistance.entity.EProduct;
 import com.winnguyen1905.product.persistance.repository.custom.ProductQueryRewriter;
-import com.winnguyen1905.product.persistance.repository.custom.SoftDeleteRepository;
 
 @Repository
 public interface ProductRepository
-    extends SoftDeleteRepository<EProduct, UUID>, JpaRepository<EProduct, UUID>, JpaSpecificationExecutor<EProduct> {
+    extends JpaRepository<EProduct, UUID>, JpaSpecificationExecutor<EProduct> {
   void deleteByIdIn(List<UUID> ids);
 
   Page<EProduct> findAll(Specification<EProduct> specification, Pageable pageable);

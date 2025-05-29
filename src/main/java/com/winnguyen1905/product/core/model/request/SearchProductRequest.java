@@ -5,17 +5,12 @@ import java.util.Objects;
 
 import org.springframework.integration.annotation.Default;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.winnguyen1905.product.core.model.AbstractModel;
-
-@JsonInclude(JsonInclude.Include.NON_EMPTY)
-@JsonIgnoreProperties(ignoreUnknown = true)
 public record SearchProductRequest(
     List<Sort> sorts,
     String searchTerm,
     List<Filter> filters,
     Pagination pagination) implements AbstractModel {
+
   public Pagination getPage() {
     if (Objects.isNull(pagination)) {
       return new SearchProductRequest.Pagination(0, 0);
@@ -24,22 +19,22 @@ public record SearchProductRequest(
   }
 
   public static record Pagination(
-      @Default int pageSize,
-      @Default int pageNum) {
+      int pageSize,
+      int pageNum) implements AbstractModel {
     public Pagination {
-      pageSize = pageSize == 0 ? Integer.MAX_VALUE : pageSize;
+      pageSize = pageSize == 0 ? 15 : pageSize;
       pageNum = pageNum == 0 ? 0 : pageNum;
     }
   }
 
   public static record Filter(
       String field,
-      List<String> values) {
+      List<String> values) implements AbstractModel {
   }
 
   public static record Sort(
       String order,
-      String field) {
+      String field) implements AbstractModel {
   }
 
 }

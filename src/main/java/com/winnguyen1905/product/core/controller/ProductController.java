@@ -13,19 +13,27 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.winnguyen1905.product.common.SystemConstant;
+import com.winnguyen1905.product.common.annotation.ResponseMessage;
+import com.winnguyen1905.product.common.constant.SystemConstant;
+import com.winnguyen1905.product.core.model.ProductVariantDetailVm;
 import com.winnguyen1905.product.core.model.request.AddProductRequest;
 import com.winnguyen1905.product.core.model.request.SearchProductRequest;
-import com.winnguyen1905.product.core.model.response.ProductVariantByShopResponse;
-import com.winnguyen1905.product.core.model.response.ProductDetail;
-import com.winnguyen1905.product.core.service.customer.CustomerProductService;
-import com.winnguyen1905.product.core.service.vendor.VendorProductService;
-import com.winnguyen1905.product.util.MetaMessage;
-import com.winnguyen1905.product.util.ExtractorUtils;
+import com.winnguyen1905.product.core.model.request.UpdateProductRequest;
+import com.winnguyen1905.product.core.model.viewmodel.PagedResponse;
+import com.winnguyen1905.product.core.model.viewmodel.ProductDetailVm;
+import com.winnguyen1905.product.core.model.viewmodel.ProductImageVm;
+import com.winnguyen1905.product.core.model.viewmodel.ProductVariantByShopVm;
+import com.winnguyen1905.product.core.model.viewmodel.ProductVariantReviewVm;
+import com.winnguyen1905.product.core.service.CustomerProductService;
+import com.winnguyen1905.product.core.service.VendorProductService;
+import com.winnguyen1905.product.secure.AccountRequest;
+import com.winnguyen1905.product.secure.TAccountRequest;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("products")
+@RequestMapping("api/products")
 public class ProductController {
 
   private final VendorProductService vendorProductService;
@@ -33,36 +41,64 @@ public class ProductController {
 
   // PUBLIC API----------------------------------------------------------------
 
-  // @GetMapping("/")
-  // @MetaMessage(message = "Get all product with filter success")
-  // public ResponseEntity<Product> getAllProducts(
-  // Pageable pageable,
-  // @ModelAttribute(SystemConstant.MODEL) SearchProductRequest
-  // productSearchRequest) {
-  // productSearchRequest.setIsDraft(false);
-  // productSearchRequest.setIsPublished(true);
-  // return ResponseEntity.ok(this.productService.handle(productSearchRequest,
-  // pageable));
-  // }
-
-  // @GetMapping("/{id}")
-  // @MetaMessage(message = "get product with by id success")
-  // public ResponseEntity<Product> getProductById(@PathVariable UUID id) {
-  // return ResponseEntity.ok(this.productService.handleGetProduct(id));
-  // }
-
-  @PostMapping
-  @MetaMessage(message = "Add new product success")
-  public Mono<ResponseEntity<ProductDetail>> addProduct(@RequestBody AddProductRequest productRequest) {
-    return ExtractorUtils.currentUserId()
-        .flatMap(userId -> this.vendorProductService.addProduct(userId, productRequest))
-        .map(ResponseEntity.status(HttpStatus.CREATED.value())::body);
+  @GetMapping("/search")
+  @ResponseMessage(message = "Get all product with filter success")
+  public ResponseEntity<PagedResponse<ProductVariantReviewVm>> searchProducts(
+      @RequestBody SearchProductRequest productSearchRequest) {
+    return ResponseEntity.ok(this.customerProductService.searchProducts(productSearchRequest));
   }
 
-  @GetMapping("/variant-details/{ids}")
-  public ResponseEntity<ProductVariantByShopResponse> getProductVariantDetail(@PathVariable List<String> ids) {
-    return ResponseEntity.ok(this.customerProductService.getProductVariantDetails(ids));
+  @GetMapping("/{id}")
+  @ResponseMessage(message = "get product with by id success")
+  public ResponseEntity<ProductDetailVm> getProductById(@PathVariable UUID id) {
+    return ResponseEntity.ok(this.customerProductService.getProductDetail(id));
   }
+
+  @GetMapping("/{productId}/images")
+  @ResponseMessage(message = "Get product images success")
+  public ResponseEntity<PagedResponse<ProductImageVm>> getProductImages(
+      @PathVariable UUID productId,
+      Pageable pageable) {
+    return ResponseEntity.ok(null);
+  }
+
+  @GetMapping("/{productId}/variants")
+  @ResponseMessage(message = "Get product variations success")
+  public ResponseEntity<List<ProductVariantDetailVm>> getProductVariations(
+      @PathVariable UUID productId,
+      Pageable pageable) {
+    return ResponseEntity.ok(customerProductService.getProductVariantDetails(productId));
+  }
+
+  // Vendor API-------------------------------------------------------------
+
+  @PostMapping("/create")
+  @ResponseMessage(message = "Add new product success")
+  public ResponseEntity<Void> addProduct(@RequestBody AddProductRequest productRequest,
+      @AccountRequest TAccountRequest accountRequest) {
+    this.vendorProductService.addProduct(accountRequest, productRequest);
+    return ResponseEntity.status(HttpStatus.CREATED.value()).build();
+  }
+
+  @PostMapping("/update")
+  @ResponseMessage(message = "Update product success")
+  public ResponseEntity<Void> updateProduct(@RequestBody UpdateProductRequest updateProductRequest,
+      @AccountRequest TAccountRequest accountRequest) {
+    this.vendorProductService.updateProduct(accountRequest, updateProductRequest);
+    return ResponseEntity.status(HttpStatus.OK.value()).build();
+  }
+
+  @PostMapping("/{id}/delete")
+  public String postMethodName(@RequestBody String entity) {
+    return entity;
+  }
+
+  // @GetMapping("/variant-details/{ids}")
+  // public ResponseEntity<ProductVariantByShopVm>
+  // getProductVariantDetail(@PathVariable List<String> ids) {
+  // return
+  // ResponseEntity.ok(this.customerProductService.getProductVariantDetails(ids));
+  // }
 
   // @GetMapping("/my-product")
   // @MetaMessage(message = "get all my product with filter success")

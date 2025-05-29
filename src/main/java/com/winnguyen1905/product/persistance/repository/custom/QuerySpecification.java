@@ -6,7 +6,7 @@ import java.util.UUID;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.util.Pair;
 
-import com.winnguyen1905.product.common.SystemConstant;
+import com.winnguyen1905.product.common.constant.SystemConstant;
 
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Path;

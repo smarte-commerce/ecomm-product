@@ -17,6 +17,7 @@ public interface CategoryRepository extends JpaRepository<ECategory, UUID> {
   List<ECategory> findAllByShopId(UUID shopId);
   Optional<ECategory> findByIdAndShopId(UUID id, UUID shopId);
   Optional<ECategory> findByCodeAndShopId(String code, UUID shopId);
+  Optional<ECategory> findByCode(String code);
 
   @Query(value = "update categories c " +
       "set c.category_left = case " +

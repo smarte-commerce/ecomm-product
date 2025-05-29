@@ -4,8 +4,6 @@ import java.util.UUID;
 
 import org.springframework.data.annotation.Id;
 
-import com.winnguyen1905.product.persistance.entity.EBaseAudit;
-
 import lombok.*;
 
 @Getter

@@ -8,7 +8,7 @@ import org.springframework.web.server.WebFilterChain;
 
 import reactor.core.publisher.Mono;
 
-@Component
+// @Component
 public class PermissionCheckFilter 
 // implements WebFilter
  {

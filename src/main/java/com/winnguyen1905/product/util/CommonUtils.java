@@ -10,6 +10,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import jakarta.json.JsonValue;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
@@ -24,7 +25,7 @@ public class CommonUtils {
   }
 
   public static Object convertKeyValueToObject(Object keyValueObject) {
-    ObjectMapper objectMapper = new ObjectMapper();
+    ObjectMapper objectMapper = new ObjectMapper(); 
     String jsonString = keyValueObject.toString();
     try {
       return objectMapper.readValue(jsonString, Object.class);
@@ -33,7 +34,7 @@ public class CommonUtils {
     }
   }
 
-  public static JsonNode fromObject(Object object) {
+  public static JsonValue fromObject(Object object) {
     ObjectMapper objectMapper = new ObjectMapper();
     return objectMapper.valueToTree(object);
   }
@@ -56,5 +57,4 @@ public class CommonUtils {
     log.error("Error during {} - {}: {}", operation, customMessage, throwable.getMessage());
     return Mono.error(throwable);
   }
-
 }
