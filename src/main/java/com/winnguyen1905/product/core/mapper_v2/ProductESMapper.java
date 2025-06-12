@@ -16,8 +16,9 @@ import com.winnguyen1905.product.persistance.elasticsearch.ESInventory;
 import com.winnguyen1905.product.persistance.elasticsearch.ESProductVariant;
 import com.winnguyen1905.product.persistance.entity.EInventory;
 import com.winnguyen1905.product.persistance.entity.EProduct;
-import com.winnguyen1905.product.persistance.entity.EProductImage;
 import com.winnguyen1905.product.persistance.entity.EProductVariant;
+import com.winnguyen1905.product.persistance.entity.garbage.EProductImage;
+import com.winnguyen1905.product.secure.TAccountRequest;
 import com.winnguyen1905.product.util.CommonUtils;
 
 import lombok.RequiredArgsConstructor;
@@ -32,9 +33,11 @@ public class ProductESMapper {
     HashMap<String, EInventory> inventoryMapBySku = product.getInventories().stream()
         .collect(
             Collectors.toMap(EInventory::getSku, inventory -> inventory, (sku, inventory) -> inventory, HashMap::new));
-    HashMap<UUID, String> imageMapByProductVariantId = product.getImages().stream()
-        .collect(
-            Collectors.toMap(EProductImage::getProductVariantId, EProductImage::getUrl, (a, b) -> b, HashMap::new));
+    // HashMap<UUID, String> imageMapByProductVariantId =
+    // product.getImages().stream()
+    // .collect(
+    // Collectors.toMap(EProductImage::getProductVariantId, EProductImage::getUrl,
+    // (a, b) -> b, HashMap::new));
 
     return CommonUtils.stream(product.getVariations())
         .map(
@@ -45,11 +48,12 @@ public class ProductESMapper {
               JsonNode mergedFeatures = transformFeaturesToObject(allFeatures);
 
               return ESProductVariant.builder()
+                  .region(product.getRegion())
                   .id(productVariant.getId())
                   .productId(product.getId())
                   .features(mergedFeatures)
-                  .imageUrl(imageMapByProductVariantId.get(productVariant.getId()))
-                  .brand(product.getBrand().getName())
+                  // .imageUrl(imageMapByProductVariantId.get(productVariant.getId()))
+                  // .brand(product.getBrand().getName())
                   .price(productVariant.getPrice())
                   .name(variantName.toString())
                   .description(product.getDescription())

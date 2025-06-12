@@ -45,7 +45,7 @@ public class AccountRequestArgumentResolver implements HandlerMethodArgumentReso
     String username = jwt.getClaimAsString(AccountRequestArgument.USERNAME.value);
     UUID id = UUID.fromString(jwt.getClaimAsString(AccountRequestArgument.ID.value));
     AccountType accountType = AccountType.valueOf(jwt.getClaimAsString(AccountRequestArgument.ROLE.value));
-    RegionPartition region = RegionPartition.valueOf(jwt.getClaimAsString(AccountRequestArgument.REGION.value));
+    RegionPartition region = RegionPartition.valueOf("US");
 
     return TAccountRequest.builder()
         .id(id)

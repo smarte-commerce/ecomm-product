@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Mono;
 
 import java.util.UUID;
 
@@ -56,17 +57,27 @@ public class InventoryController {
 
   @PatchMapping("/{id}/reserve")
   @ResponseMessage(message = "Reserve inventory success")
-  public ResponseEntity<InventoryVm> reserveInventory(
+  public Mono<ResponseEntity<InventoryVm>> reserveInventory(
       @PathVariable UUID id,
       @RequestParam Integer quantity) {
-    return ResponseEntity.ok(inventoryService.reserveInventory(id, quantity));
+    return inventoryService.reserveInventory(id, quantity)
+        .map(ResponseEntity::ok)
+        .onErrorResume(e -> {
+          // Handle specific exceptions if needed
+          return Mono.just(ResponseEntity.internalServerError().build());
+        });
   }
 
   @PatchMapping("/{id}/release")
   @ResponseMessage(message = "Release inventory success")
-  public ResponseEntity<InventoryVm> releaseInventory(
+  public Mono<ResponseEntity<InventoryVm>> releaseInventory(
       @PathVariable UUID id,
       @RequestParam Integer quantity) {
-    return ResponseEntity.ok(inventoryService.releaseInventory(id, quantity));
+    return inventoryService.releaseInventory(id, quantity)
+        .map(ResponseEntity::ok)
+        .onErrorResume(e -> {
+          // Handle specific exceptions if needed
+          return Mono.just(ResponseEntity.internalServerError().build());
+        });
   }
 }

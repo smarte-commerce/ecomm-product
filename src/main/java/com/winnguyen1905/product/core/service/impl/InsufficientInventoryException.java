@@ -7,6 +7,4 @@ public record InsufficientInventoryException(
     int quantityAvailable,
     int quantityReserved,
     int quantitySold) {
-
-  
 }

@@ -30,6 +30,8 @@ public interface ProductRepository
 
   Optional<EProduct> findByIdAndIsPublishedTrue(UUID id);
 
+  List<EProduct> findAllByIdIn(List<UUID> ids);
+
   List<EProduct> findByIdInAndShopId(List<UUID> ids, UUID shopId); // REAL
 
   List<EProduct> findByIdInAndShopIdOrderById(List<UUID> ids, UUID shopId);

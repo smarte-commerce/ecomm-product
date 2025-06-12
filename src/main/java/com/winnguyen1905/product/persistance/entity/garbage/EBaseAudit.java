@@ -1,4 +1,4 @@
-package com.winnguyen1905.product.persistance.entity;
+package com.winnguyen1905.product.persistance.entity.garbage;
 
 import java.time.Instant;
 import java.util.Objects;
@@ -14,7 +14,9 @@ import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.Version;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
@@ -22,8 +24,10 @@ import lombok.experimental.SuperBuilder;
 @Setter
 @SuperBuilder
 @MappedSuperclass
+@NoArgsConstructor
+@AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
-public class EBaseAudit extends EBase {
+public class EBaseAudit {
   @Version
   private long version;
 

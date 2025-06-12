@@ -1,4 +1,4 @@
-package com.winnguyen1905.product.persistance.entity;
+package com.winnguyen1905.product.persistance.entity.garbage;
 
 import java.io.Serial;
 import java.io.Serializable;

@@ -2,7 +2,7 @@ package com.winnguyen1905.product.core.mapper_v2;
 
 import com.winnguyen1905.product.common.constant.ProductImageType;
 import com.winnguyen1905.product.core.model.request.ProductImageRequest;
-import com.winnguyen1905.product.persistance.entity.EProductImage;
+import com.winnguyen1905.product.persistance.entity.garbage.EProductImage;
 
 public class ProductImageMapper {
   public static ProductImageRequest toProductImage(EProductImage image) {

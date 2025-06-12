@@ -23,17 +23,17 @@ import com.winnguyen1905.product.core.model.request.UpdateProductRequest;
 import com.winnguyen1905.product.core.model.viewmodel.ProductDetailVm;
 import com.winnguyen1905.product.core.service.VendorProductService;
 import com.winnguyen1905.product.persistance.elasticsearch.ESProductVariant;
-import com.winnguyen1905.product.persistance.entity.EBrand;
-import com.winnguyen1905.product.persistance.entity.ECategory;
 import com.winnguyen1905.product.persistance.entity.EInventory;
 import com.winnguyen1905.product.persistance.entity.EProduct;
-import com.winnguyen1905.product.persistance.entity.EProductImage;
 import com.winnguyen1905.product.persistance.entity.EProductVariant;
-import com.winnguyen1905.product.persistance.repository.BrandRepository;
-import com.winnguyen1905.product.persistance.repository.CategoryRepository;
+import com.winnguyen1905.product.persistance.entity.garbage.EBrand;
+import com.winnguyen1905.product.persistance.entity.garbage.ECategory;
+import com.winnguyen1905.product.persistance.entity.garbage.EProductImage;
 import com.winnguyen1905.product.persistance.repository.ProductESRepository;
 import com.winnguyen1905.product.persistance.repository.ProductRepository;
 import com.winnguyen1905.product.persistance.repository.custom.ProductESCustomRepository;
+import com.winnguyen1905.product.persistance.repository.garbage.BrandRepository;
+import com.winnguyen1905.product.persistance.repository.garbage.CategoryRepository;
 import com.winnguyen1905.product.util.CommonUtils;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
@@ -56,9 +56,9 @@ public class VendorProductServiceImpl implements VendorProductService {
   @Override
   @Transactional
   public void addProduct(TAccountRequest accountRequest, AddProductRequest request) {
-    List<EProductImage> images = CommonUtils.stream(request.images())
-        .map(ProductImageMapper::toProductImageEntity)
-        .toList();
+    // List<EProductImage> images = CommonUtils.stream(request.images())
+    // .map(ProductImageMapper::toProductImageEntity)
+    // .toList();
     List<EProductVariant> variants = CommonUtils.stream(request.variations())
         .map(ProductMapper::toProductVariantEntity)
         .toList();
@@ -66,8 +66,8 @@ public class VendorProductServiceImpl implements VendorProductService {
         .map(InventoryMapper::toInventoryEntity)
         .toList();
 
-    EBrand brand = brandRepository.findByCode(request.brandCode())
-        .orElseThrow(() -> new EntityNotFoundException("Not found brand"));
+    // EBrand brand = brandRepository.findByCode(request.brandCode())
+    // .orElseThrow(() -> new EntityNotFoundException("Not found brand"));
 
     // ECategory category =
     // categoryRepository.findByCodeAndShopId(request.categoryCode(),
@@ -76,18 +76,20 @@ public class VendorProductServiceImpl implements VendorProductService {
 
     EProduct product = EProduct.builder()
         .name(request.name())
+        .region(request.region())
         .description(request.description())
         .features(request.features())
         .isPublished(false)
-        .brand(brand)
+        // .brand(brand)
         .shopId(accountRequest.id())
+        .productType(request.type())
         // .category(category)
-        .images(images)
+        // .images(images)
         .variations(variants)
         .inventories(inventories)
         .build();
 
-    images.forEach(image -> image.setProduct(product));
+    // images.forEach(image -> image.setProduct(product));
     variants.forEach(variant -> variant.setProduct(product));
     inventories.forEach(inventory -> inventory.setProduct(product));
 
@@ -117,6 +119,7 @@ public class VendorProductServiceImpl implements VendorProductService {
 
   @Override
   public void updateProduct(TAccountRequest accountRequest, UpdateProductRequest updateProductRequest) {
+
     EProduct product = productRepository.findById(updateProductRequest.id())
         .orElseThrow(() -> new EntityNotFoundException("Not found product"));
     validateUpdatePermission(accountRequest, product);
@@ -124,23 +127,28 @@ public class VendorProductServiceImpl implements VendorProductService {
     if (updateProductRequest.name() != null) {
       product.setName(updateProductRequest.name());
     }
+
     if (updateProductRequest.description() != null) {
       product.setDescription(updateProductRequest.description());
     }
+
     if (updateProductRequest.slug() != null) {
       product.setSlug(updateProductRequest.slug());
     }
-    if (updateProductRequest.categoryCode() != null) {
-      ECategory category = categoryRepository.findByCode(updateProductRequest.categoryCode())
-          .orElseThrow(() -> new EntityNotFoundException("Not found category"));
-      product.setCategory(category);
-    } else if (updateProductRequest.categoryCode() == null) {
-    }
-    if (updateProductRequest.brandCode() != null) {
-      EBrand brand = brandRepository.findByCode(updateProductRequest.brandCode())
-          .orElseThrow(() -> new EntityNotFoundException("Not found brand"));
-      product.setBrand(brand);
-    }
+
+    // if (updateProductRequest.categoryCode() != null) {
+    // ECategory category =
+    // categoryRepository.findByCode(updateProductRequest.categoryCode())
+    // .orElseThrow(() -> new EntityNotFoundException("Not found category"));
+    // product.setCategory(category);
+    // } else if (updateProductRequest.categoryCode() == null) {
+    // }
+    // if (updateProductRequest.brandCode() != null) {
+    // EBrand brand = brandRepository.findByCode(updateProductRequest.brandCode())
+    // .orElseThrow(() -> new EntityNotFoundException("Not found brand"));
+    // product.setBrand(brand);
+    // }
+
     if (updateProductRequest.features() != null) {
       product.setFeatures(updateProductRequest.features());
     }

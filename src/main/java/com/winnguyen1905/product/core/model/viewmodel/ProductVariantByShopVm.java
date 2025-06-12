@@ -9,16 +9,25 @@ import lombok.Builder;
 
 @Builder
 public record ProductVariantByShopVm(
-    List<ShopProductVariant> ShopProductVariants) implements AbstractModel {
+    List<ShopProductVariant> shopProductVariants) implements AbstractModel {
   @Builder
   public ProductVariantByShopVm(
-      List<ShopProductVariant> ShopProductVariants) {
-    this.ShopProductVariants = ShopProductVariants;
+      List<ShopProductVariant> shopProductVariants) {
+    this.shopProductVariants = shopProductVariants;
   }
 
-  public static record ShopProductVariant(
+  public record ShopProductVariant(
       UUID shopId,
-      List<ProductVariantReviewVm> productVariantReviews) {
+      List<ProductVariantReviewVm> productVariantReviews) implements AbstractModel {
+
+    @Builder
+    public ShopProductVariant(
+        UUID shopId,
+        List<ProductVariantReviewVm> productVariantReviews) {
+      this.shopId = shopId;
+      this.productVariantReviews = productVariantReviews;
+    }
 
   }
+
 }

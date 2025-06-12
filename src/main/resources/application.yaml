@@ -10,7 +10,7 @@
 #       exposure:
 #         include: "*"
 server:
-  port: 8090
+  port: 8086
   error:
     include-message: never
 
@@ -24,6 +24,60 @@ eureka:
 spring:
   application:
     name: PRODUCT-SERVICE
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    locations: classpath:db/migration
+
+  # Redis Configuration
+  data:
+    redis:
+      # Redis server connection details
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:mypassword}
+      
+      # Connection and command timeout in milliseconds
+      timeout: 2000
+      
+      # SSL configuration (uncomment and configure if using SSL)
+      # ssl:
+      #   enabled: false
+      #   key-store: classpath:keystore.p12
+      #   key-store-password: your-keystore-password
+      #   key-store-type: PKCS12
+      
+      # Lettuce client configuration
+      lettuce:
+        # Connection pool settings
+        pool:
+          enabled: true
+          max-active: 16
+          max-idle: 8
+          min-idle: 2
+          max-wait: 5000ms
+          time-between-eviction-runs: 30000ms
+        
+        # Client name for monitoring
+        client-name: ${spring.application.name:product-service}
+        
+        # Shutdown timeout
+        shutdown-timeout: 100ms
+        
+        # Cluster configuration (uncomment if using Redis Cluster)
+        # cluster:
+        #   refresh:
+        #     adaptive: true
+        #     period: 1m
+      
+      # Sentinel configuration (uncomment if using Redis Sentinel)
+      # sentinel:
+      #   master: mymaster
+      #   nodes: localhost:26379,localhost:26380,localhost:26381
+      #   password: ${REDIS_SENTINEL_PASSWORD:}
+      #   sentinel:
+      #     username: ${REDIS_SENTINEL_USERNAME:}
+      #     password: ${REDIS_SENTINEL_PASSWORD:}
 
   rabbitmq:
     host: localhost # RabbitMQ host (localhost if running on the same machine)

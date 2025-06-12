@@ -19,39 +19,28 @@ import java.util.UUID;
 @AllArgsConstructor
 @Entity
 @Builder
-@Table(name = "inventory", schema = "ecommerce")
-public class EInventory implements Serializable {
+@Table(name = "inventory", schema = "public")
+public class EInventory {
   @Id
-  @GeneratedValue(strategy = GenerationType.AUTO)
-  @Column(name = "id", columnDefinition = "BINARY(16)", updatable = false, nullable = false)
+  // @GeneratedValue(strategy = GenerationType.UUID)
   private UUID id;
 
   @Version
   @Column(nullable = false)
   private long version;
 
-  @Column(name = "is_deleted", columnDefinition = "BIT(1)")
+  @Column(name = "is_deleted")
   private Boolean isDeleted;
 
-  // @Column(name = "created_by")
-  // private String createdBy;
-
-  // @Column(name = "updated_by")
-  // private String updatedBy;
-
-  // @CreationTimestamp
-  // @Column(name = "created_date")
-  // private Instant createdDate;
-
-  // @UpdateTimestamp
-  // @Column(name = "updated_date")
-  // private Instant updatedDate;
+  @UpdateTimestamp
+  @Column(name = "updated_date")
+  private Instant updatedDate;
 
   @Column(name = "sku")
   private String sku;
 
   @ManyToOne
-  @JoinColumn(name = "product_id", columnDefinition = "BINARY(16)")
+  @JoinColumn(name = "product_id")
   private EProduct product;
 
   @Column(name = "quantity_available")
@@ -62,7 +51,14 @@ public class EInventory implements Serializable {
 
   @Column(name = "quantity_sold")
   private Integer quantitySold;
-  
+
   @Column(name = "address")
   private String address;
+
+  @PrePersist
+  protected void prePersist() {
+    if (this.id == null) {
+      this.id = UUID.randomUUID();
+    }
+  }
 }

@@ -9,7 +9,7 @@ import lombok.Builder;
 @Builder
 public record InventoryVm(
     UUID id,
-    String productId,
+    UUID productId,
     String sku,
     int quantityAvailable,
     int quantityReserved,
@@ -18,7 +18,7 @@ public record InventoryVm(
   @Builder
   public InventoryVm(
       UUID id,
-      String productId,
+      UUID productId,
       String sku,
       int quantityAvailable,
       int quantityReserved,

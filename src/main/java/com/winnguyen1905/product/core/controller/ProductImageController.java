@@ -1,10 +1,10 @@
 package com.winnguyen1905.product.core.controller;
 
 import com.winnguyen1905.product.core.model.request.ProductImageRequest;
-import com.winnguyen1905.product.core.model.response.ProductImageResponse;
-import com.winnguyen1905.product.persistance.entity.EProductImage;
-import com.winnguyen1905.product.persistance.repository.ProductImageRepository;
+import com.winnguyen1905.product.core.model.viewmodel.ProductImageResponse;
+import com.winnguyen1905.product.persistance.entity.garbage.EProductImage;
 import com.winnguyen1905.product.persistance.repository.ProductRepository;
+import com.winnguyen1905.product.persistance.repository.garbage.ProductImageRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;

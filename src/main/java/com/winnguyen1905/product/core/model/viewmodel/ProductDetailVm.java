@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.winnguyen1905.product.common.constant.ProductType;
 import com.winnguyen1905.product.core.model.ProductVariantDetailVm;
 import com.winnguyen1905.product.core.model.request.AbstractModel;
 import com.winnguyen1905.product.core.model.request.ProductImageRequest;
@@ -21,7 +22,7 @@ public record ProductDetailVm(
     JsonNode features,
     Boolean isDeleted,
     String updatedDate,
-    String productType,
+    ProductType productType,
     String description,
     String createdDate,
     List<ProductImageRequest> images,
@@ -38,7 +39,7 @@ public record ProductDetailVm(
       JsonNode features,
       Boolean isDeleted,
       String updatedDate,
-      String productType,
+      ProductType productType,
       String description,
       String createdDate,
       List<ProductImageRequest> images,

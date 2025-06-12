@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Locale.Category;
 
 import com.winnguyen1905.product.core.model.viewmodel.CategoryTreeVm;
-import com.winnguyen1905.product.persistance.entity.ECategory;
+import com.winnguyen1905.product.persistance.entity.garbage.ECategory;
 
 public class CategoryMapper {
   public static CategoryTreeVm toCategoryTree(List<ECategory> categories) {

@@ -9,6 +9,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.*;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.winnguyen1905.product.secure.RegionPartition;
 
 import io.hypersistence.utils.hibernate.type.json.JsonType;
 import jakarta.persistence.Column;
@@ -20,6 +21,9 @@ import jakarta.persistence.Column;
 public class ESProductVariant {
   @Id
   private UUID id;
+
+  @Field(type = FieldType.Keyword, name = "region")
+  private RegionPartition region;
 
   @Field(type = FieldType.Keyword, name = "product_id")
   private UUID productId;

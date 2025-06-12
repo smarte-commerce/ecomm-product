@@ -6,8 +6,8 @@ import org.springframework.stereotype.Service;
 
 import com.winnguyen1905.product.core.model.Brand;
 import com.winnguyen1905.product.core.service.BrandService;
-import com.winnguyen1905.product.persistance.entity.EBrand;
-import com.winnguyen1905.product.persistance.repository.BrandRepository;
+import com.winnguyen1905.product.persistance.entity.garbage.EBrand;
+import com.winnguyen1905.product.persistance.repository.garbage.BrandRepository;
 
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;

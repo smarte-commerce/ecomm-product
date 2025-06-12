@@ -2,6 +2,7 @@ package com.winnguyen1905.product.secure;
 
 import java.io.IOException;
 
+import org.hibernate.Filter;
 import org.hibernate.Session;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -32,9 +33,18 @@ public class RegionHibernateFilterConfigurer extends OncePerRequestFilter {
 
     if (authentication != null && authentication.getPrincipal() instanceof Jwt jwt) {
       String region = jwt.getClaimAsString(AccountRequestArgument.REGION.value);
+      Session session = entityManager.unwrap(Session.class);
+      Filter filter = session.getEnabledFilter("regionFilter");
       if (region != null) {
-        Session session = entityManager.unwrap(Session.class);
-        session.enableFilter("regionFilter").setParameter("region", region);
+        if (filter == null) {
+          session.enableFilter("regionFilter").setParameter("region", region);
+        } else {
+          filter.setParameter("region", region);
+        }
+      } else {
+        if (filter != null) {
+          session.disableFilter("regionFilter");
+        }
       }
     }
 

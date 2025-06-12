@@ -11,7 +11,7 @@ import lombok.experimental.SuperBuilder;
 @Setter
 @SuperBuilder
 @RedisHash(value = "inventory")
-public class RInventory extends EBase {
+public class RInventory {
   private UUID productId;
   private UUID variationId;
   private EInventory inventory;

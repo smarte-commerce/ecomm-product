@@ -5,11 +5,14 @@ import java.util.Objects;
 
 import org.springframework.integration.annotation.Default;
 
+import com.winnguyen1905.product.secure.RegionPartition;
+
 public record SearchProductRequest(
     List<Sort> sorts,
     String searchTerm,
     List<Filter> filters,
-    Pagination pagination) implements AbstractModel {
+    Pagination pagination,
+    RegionPartition region) implements AbstractModel {
 
   public Pagination getPage() {
     if (Objects.isNull(pagination)) {

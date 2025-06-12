@@ -17,8 +17,14 @@ import com.winnguyen1905.product.common.annotation.ResponseMessage;
 import com.winnguyen1905.product.common.constant.SystemConstant;
 import com.winnguyen1905.product.core.model.ProductVariantDetailVm;
 import com.winnguyen1905.product.core.model.request.AddProductRequest;
+import com.winnguyen1905.product.core.model.request.InventoryConfirmationRequest;
+import com.winnguyen1905.product.core.model.request.ProductAvailabilityRequest;
+import com.winnguyen1905.product.core.model.request.ReserveInventoryRequest;
 import com.winnguyen1905.product.core.model.request.SearchProductRequest;
 import com.winnguyen1905.product.core.model.request.UpdateProductRequest;
+import com.winnguyen1905.product.core.model.response.InventoryConfirmationResponse;
+import com.winnguyen1905.product.core.model.response.ProductAvailabilityResponse;
+import com.winnguyen1905.product.core.model.response.ReserveInventoryResponse;
 import com.winnguyen1905.product.core.model.viewmodel.PagedResponse;
 import com.winnguyen1905.product.core.model.viewmodel.ProductDetailVm;
 import com.winnguyen1905.product.core.model.viewmodel.ProductImageVm;
@@ -33,7 +39,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("api/products")
+@RequestMapping("products")
 public class ProductController {
 
   private final VendorProductService vendorProductService;
@@ -70,6 +76,27 @@ public class ProductController {
     return ResponseEntity.ok(customerProductService.getProductVariantDetails(productId));
   }
 
+  @PostMapping("/availability")
+  @ResponseMessage(message = "Check product availability success")
+  public ResponseEntity<ProductAvailabilityResponse> checkProductAvailability(
+      @RequestBody ProductAvailabilityRequest productAvailabilityRequest) {
+    return ResponseEntity.ok(customerProductService.checkProductAvailability(productAvailabilityRequest));
+  }
+
+  @PostMapping("/reserve-inventory")
+  @ResponseMessage(message = "Reserve inventory success")
+  public ResponseEntity<ReserveInventoryResponse> reserveInventory(
+      @RequestBody ReserveInventoryRequest reserveInventoryRequest) {
+    return ResponseEntity.ok(customerProductService.reserveInventory(reserveInventoryRequest));
+  }
+
+  @PostMapping("/inventory-confirmation")
+  @ResponseMessage(message = "Inventory confirmation success")
+  public ResponseEntity<InventoryConfirmationResponse> inventoryConfirmation(
+      @RequestBody InventoryConfirmationRequest inventoryConfirmationRequest) {
+    return ResponseEntity.ok(customerProductService.inventoryConfirmation(inventoryConfirmationRequest));
+  }
+
   // Vendor API-------------------------------------------------------------
 
   @PostMapping("/create")
@@ -93,12 +120,10 @@ public class ProductController {
     return entity;
   }
 
-  // @GetMapping("/variant-details/{ids}")
-  // public ResponseEntity<ProductVariantByShopVm>
-  // getProductVariantDetail(@PathVariable List<String> ids) {
-  // return
-  // ResponseEntity.ok(this.customerProductService.getProductVariantDetails(ids));
-  // }
+  @GetMapping("/variant-details/{ids}")
+  public ResponseEntity<ProductVariantByShopVm> getProductCartDetail(@PathVariable("ids") Set<UUID> ids) {
+    return ResponseEntity.ok(this.customerProductService.getProductVariantDetails(ids));
+  }
 
   // @GetMapping("/my-product")
   // @MetaMessage(message = "get all my product with filter success")

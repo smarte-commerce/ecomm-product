@@ -15,6 +15,8 @@ import co.elastic.clients.elasticsearch._types.FieldValue;
 import co.elastic.clients.elasticsearch._types.SortOptions;
 import co.elastic.clients.elasticsearch._types.SortOrder;
 import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
+import co.elastic.clients.elasticsearch._types.query_dsl.FunctionBoostMode;
+import co.elastic.clients.elasticsearch._types.query_dsl.FunctionScoreMode;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.elasticsearch._types.query_dsl.TermsQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.TermsQueryField;
@@ -28,15 +30,30 @@ public class ElasticSearchQueryBuilder {
     BoolQuery.Builder boolQueryBuilder = new BoolQuery.Builder();
 
     setFilters(searchProductRequest, boolQueryBuilder);
-
     setMatchQuery(searchProductRequest, boolQueryBuilder);
 
-    Query finalQuery = Query.of(bool -> bool.bool(boolQueryBuilder.build()));
+    Query baseQuery = Query.of(q -> q.bool(boolQueryBuilder.build()));
 
-    List<SortOptions> sortOptions = getSortOptions(searchProductRequest);
+    Query finalQuery;
+
+    if (searchProductRequest.region() != null) {
+      // Apply region boosting via function_score
+      finalQuery = Query.of(q -> q.functionScore(fs -> fs
+          .query(baseQuery)
+          .functions(f -> f
+              .filter(Query.of(
+                  fq -> fq.term(t -> t.field("region").value(FieldValue.of(searchProductRequest.region().toString())))))
+              .weight(5.0))
+          .boostMode(FunctionBoostMode.Multiply)
+          .scoreMode(FunctionScoreMode.Sum)));
+    } else {
+      log.warn("SearchProductRequest region is null, not boosting by region.");
+      finalQuery = baseQuery;
+    }
 
     NativeQueryBuilder nativeQueryBuilder = NativeQuery.builder().withQuery(finalQuery);
 
+    List<SortOptions> sortOptions = getSortOptions(searchProductRequest);
     if (sortOptions != null && !sortOptions.isEmpty()) {
       nativeQueryBuilder.withSort(sortOptions);
     }

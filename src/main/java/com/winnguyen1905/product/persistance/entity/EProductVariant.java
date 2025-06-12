@@ -14,6 +14,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 import lombok.AllArgsConstructor;
@@ -28,18 +29,17 @@ import lombok.Setter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "product_variant", schema = "ecommerce")
+@Table(name = "product_variant", schema = "public")
 public class EProductVariant implements Serializable {
   @Id
-  @GeneratedValue(strategy = GenerationType.AUTO)
-  @Column(name = "id", columnDefinition = "BINARY(16)", updatable = false, nullable = false)
+  // @GeneratedValue(strategy = GenerationType.UUID)
   private UUID id;
 
   @Version
   @Column(nullable = false)
   private long version;
 
-  @Column(name = "is_deleted", columnDefinition = "BIT(1)")
+  @Column(name = "is_deleted")
   private Boolean isDeleted;
 
   @Column(name = "sku")
@@ -48,11 +48,20 @@ public class EProductVariant implements Serializable {
   @Column(name = "variation_price")
   private Double price;
 
-  @Column(columnDefinition = "jsonbb", name = "features")
+  @Column(columnDefinition = "jsonb", name = "features")
   @Convert(converter = JsonNodeConverter.class)
   private JsonNode features;
 
   @ManyToOne
-  @JoinColumn(name = "product_id", columnDefinition = "BINARY(16)")
+  @JoinColumn(name = "product_id")
   private EProduct product;
+
+  @PrePersist
+  protected void prePersist() {
+    this.isDeleted = false;
+    this.version = 0;
+    if (this.id == null) {
+      this.id = UUID.randomUUID();
+    }
+  }
 }

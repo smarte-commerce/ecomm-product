@@ -1,4 +1,4 @@
-package com.winnguyen1905.product.persistance.entity;
+package com.winnguyen1905.product.persistance.entity.garbage;
 
 import java.io.Serializable;
 import java.time.Instant;
@@ -33,7 +33,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "brands")
+@Table(name = "brands", schema = "ecommerce")
 public class EBrand implements Serializable {
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
@@ -72,14 +72,14 @@ public class EBrand implements Serializable {
   @Column(name = "brand_is_verified")
   private Boolean isVerified;
 
-  @OneToMany(mappedBy = "brand", fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST })
-  private List<EProduct> products;
+  // @OneToMany(mappedBy = "brand", fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST })
+  // private List<EProduct> products;
 
-  @PrePersist
-  private void prePersist() {
-    this.isVerified = false;
-    if (this.products == null) {
-      this.products = new ArrayList<>();
-    }
-  }
+  // @PrePersist
+  // private void prePersist() {
+  //   this.isVerified = false;
+  //   if (this.products == null) {
+  //     this.products = new ArrayList<>();
+  //   }
+  // }
 }

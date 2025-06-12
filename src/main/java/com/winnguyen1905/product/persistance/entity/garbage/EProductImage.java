@@ -1,4 +1,4 @@
-package com.winnguyen1905.product.persistance.entity;
+package com.winnguyen1905.product.persistance.entity.garbage;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -46,7 +46,7 @@ public class EProductImage {
   @Enumerated(EnumType.STRING)
   private ProductImageType type;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "product_id", columnDefinition = "BINARY(16)")
-  private EProduct product;
+  // @ManyToOne(fetch = FetchType.LAZY)
+  // @JoinColumn(name = "product_id", columnDefinition = "BINARY(16)")
+  // private EProduct product;
 }

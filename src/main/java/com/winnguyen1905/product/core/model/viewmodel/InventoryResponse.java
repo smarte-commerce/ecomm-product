@@ -1,4 +1,4 @@
-package com.winnguyen1905.product.core.model.response;
+package com.winnguyen1905.product.core.model.viewmodel;
 
 import java.util.UUID;
 
