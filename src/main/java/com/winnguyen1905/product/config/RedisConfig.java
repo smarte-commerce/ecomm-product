@@ -163,7 +163,7 @@ public class RedisConfig implements MessageListener, ApplicationEventPublisherAw
     if (expiredKey.startsWith("reservation:")) {
       String reservationId = expiredKey.split(":")[1];
       log.info("Processing expired reservation: {}", reservationId);
-      
+
       // Publish an event instead of directly calling the service
       eventPublisher.publishEvent(new ReservationExpiredEvent(UUID.fromString(reservationId)));
     }
