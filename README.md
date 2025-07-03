@@ -319,11 +319,48 @@ GET    /api/v1/search/suggestions    # Gợi ý tìm kiếm
 
 ### Inventory
 ```http
-GET    /api/v1/inventory/{sku}       # Thông tin tồn kho
-POST   /api/v1/inventory/reserve     # Đặt trước sản phẩm
-POST   /api/v1/inventory/confirm     # Xác nhận bán hàng
-POST   /api/v1/inventory/release     # Hủy đặt trước
+GET    /api/v1/inventories/{id}                # Thông tin tồn kho theo ID
+GET    /api/v1/inventories/sku/{sku}           # Thông tin tồn kho theo SKU
+GET    /api/v1/inventories/product/{productId} # Danh sách tồn kho theo sản phẩm
+PATCH  /api/v1/inventories/{id}/reserve        # Đặt trước sản phẩm
+PATCH  /api/v1/inventories/{id}/release        # Hủy đặt trước
+POST   /api/v1/inventories/check-availability  # Kiểm tra tồn kho
+POST   /api/v1/inventories/reserve-batch       # Đặt trước hàng loạt
 ```
+
+### Inventory Management with Optimistic Locking
+
+The inventory management system has been enhanced with optimistic locking to ensure data consistency in high-concurrency scenarios. Key features include:
+
+#### Concurrency Control
+- **Optimistic locking** using version fields to detect conflicts
+- **Automatic retry** for failed operations (up to 3 attempts)
+- **Transaction isolation** to maintain data integrity
+
+#### Reservation Workflow
+```
+┌─────────┐     ┌─────────────┐     ┌─────────────┐     ┌─────────┐
+│  Start  ├────►│  Reserve    ├────►│  Confirm    ├────►│  End    │
+│         │     │  Inventory  │     │  Order      │     │         │
+└─────────┘     └─────────────┘     └─────────────┘     └─────────┘
+                       │                   │
+                       │                   │
+                       ▼                   │
+                ┌─────────────┐            │
+                │  Release    │◄───────────┘
+                │  (Cancel)   │
+                └─────────────┘
+```
+
+#### Redis-Based Reservation System
+- Temporary holds stored in Redis
+- Configurable expiration times
+- Automatic cleanup of expired reservations
+
+#### Batch Operations
+- Atomic reservation of multiple items
+- All-or-nothing transaction semantics
+- Automatic rollback on partial failures
 
 ## 🧪 Testing
 
