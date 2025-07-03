@@ -147,7 +147,7 @@ public class DatabaseInitializer implements CommandLineRunner {
 
       EInventory inventory = createInventory(product, variant.getSku());
       product.getInventories().add(inventory);
-      product.getVariations().add(variant);
+      // product.getVariations().add(variant);
 
       EProduct savedProduct = productRepository.save(product);
       log.info("Created product '{}' with {} variants", name, variantsData.size());
