@@ -54,6 +54,11 @@
 
     <!-- Utilities -->
     <dependency>
+      <groupId>io.swagger.core.v3</groupId>
+      <artifactId>swagger-annotations</artifactId>
+      <version>2.2.31</version>
+    </dependency>
+    <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
       <scope>provided</scope>
@@ -63,7 +68,7 @@
   <artifactId>flyway-core</artifactId>
 </dependency> -->
 
-<!-- <dependency>
+    <!-- <dependency>
   <groupId>org.flywaydb</groupId>
   <artifactId>flyway-database-cockroachdb</artifactId>
   <version>10.13.0</version>  

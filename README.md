@@ -211,6 +211,51 @@ JWT_SECRET=your_jwt_secret_key
 JWT_EXPIRATION=86400
 ```
 
+## 📁 Project Structure
+
+```
+src/main/java/com/winnguyen1905/product/
+├── common/
+│   ├── annotation/           # Custom annotations
+│   └── constant/             # Constants and enums
+├── config/                   # Configuration classes
+├── core/
+│   ├── builder/              # Query builders
+│   ├── controller/           # REST controllers
+│   ├── mapper_v2/            # Entity-DTO mappers
+│   ├── model/
+│   │   ├── entity/           # Domain entities
+│   │   ├── request/          # Request DTOs
+│   │   ├── response/         # Response DTOs
+│   │   └── viewmodel/        # View models
+│   ├── repository/           # Repository interfaces
+│   └── service/              # Service interfaces
+│       └── impl/             # Service implementations
+├── exception/                # Custom exceptions
+├── persistance/
+│   ├── elasticsearch/        # Elasticsearch entities
+│   ├── entity/               # JPA entities
+│   └── repository/           # JPA repositories
+├── secure/                   # Security configurations
+└── util/                     # Utility classes
+```
+
+### Service Layer Architecture
+
+The service layer follows a simplified structure:
+
+- **Service Interfaces** (`/service/`): All service interfaces in the main service package
+- **Service Implementations** (`/service/impl/`): All implementations in the impl subfolder
+
+Key Services:
+- `EnhancedProductService` - Main product management service
+- `AdminProductService` - Administrative operations
+- `CustomerProductService` - Customer-facing operations
+- `InventoryService` - Inventory management
+- `VendorProductService` - Vendor-specific operations
+- `BrandService` - Brand management
+- `VendorCategoryService` - Category management
+
 ## 📊 Database Schema
 
 ### Entities Chính
@@ -442,6 +487,193 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [ ] Bulk import/export functionality
 - [ ] Advanced reporting features
 
----
+# API Coverage Analysis for Multi-Vendor Ecommerce
 
-**Made with ❤️ by the Product Team**
+## Current API Coverage (Product Management Microservice) - UPDATED AFTER REFACTORING
+
+### ✅ **Excellent Coverage - Core Ecommerce Functionality:**
+
+#### **✅ Product Management (EnhancedProductController):**
+- **Complete CRUD Operations** - Create, read, update, delete products
+- **Multi-Vendor Support** - Vendor-specific product management
+- **Bulk Operations** - Mass updates, imports, status changes
+- **Search & Filtering** - Elasticsearch integration with advanced filtering
+- **SEO Management** - Slug generation, meta tags, SEO optimization
+- **Analytics** - Product performance, view counts, purchase analytics
+- **Cache Management** - Redis caching with manual cache control
+- **Inventory Integration** - Sync with inventory system
+
+#### **✅ Inventory Management (InventoryController):**
+- **Real-time Inventory Tracking** - Available, reserved, sold quantities
+- **Reservation System** - Temporary holds with automatic timeout
+- **Optimistic/Pessimistic Locking** - Concurrency control
+- **Multi-location Support** - Multiple warehouse management
+- **Batch Operations** - Bulk inventory updates
+
+#### **✅ Brand & Category Management:**
+- **Brand Management (BrandController)** - Complete CRUD with vendor support
+- **Category Management (CategoryController)** - Hierarchical structure
+- **Multi-vendor Support** - Vendor-specific brands and categories
+- **Search Functionality** - Advanced search and filtering
+
+#### **✅ Image Management (ProductImageController):**
+- **Multi-format Support** - Various image formats and sizes
+- **CDN Integration** - AWS S3 and CloudFront support
+- **Responsive Images** - Multiple size variants
+- **Bulk Upload** - Mass image operations
+- **SEO Optimization** - Alt text, titles, descriptions
+
+#### **✅ Customer Product APIs (ProductController):**
+- **Product Discovery** - Browse, search, filter products
+- **Product Details** - Complete product information
+- **Availability Checking** - Real-time stock validation
+- **Inventory Reservation** - Pre-purchase holds
+
+#### **✅ Admin Management (AdminController):**
+- **Product Approval** - Admin oversight workflow
+- **System Management** - Cache control, monitoring
+- **Vendor Performance** - Analytics and reporting
+- **Inventory Oversight** - Admin inventory management
+
+### ✅ **Newly Added Controllers - Complete Multi-Vendor Coverage:**
+
+#### **✅ Vendor Management (VendorController - REFACTORED):**
+- **Vendor Registration** - Complete onboarding process
+- **Profile Management** - Vendor profile and settings
+- **Analytics Dashboard** - Sales, performance metrics
+- **Order Management** - Vendor order fulfillment
+- **Financial Management** - Earnings, payouts, transactions
+- **Verification System** - Document upload and verification
+- **Settings & Preferences** - Vendor configuration
+
+#### **✅ Order Management (OrderController - NEW):**
+- **Order Placement** - Complete checkout process
+- **Order Tracking** - Real-time status updates
+- **Vendor Fulfillment** - Order processing workflow
+- **Return Management** - Return requests and processing
+- **Order Analytics** - Performance reporting
+- **Admin Oversight** - Order management and dispute resolution
+
+#### **✅ Shopping Cart (CartController - NEW):**
+- **Cart Management** - Add, update, remove items
+- **Cart Calculations** - Totals, taxes, shipping estimates
+- **Coupon System** - Discount application
+- **Cart Validation** - Availability and pricing checks
+- **Guest Cart Merging** - Login integration
+- **Wishlist Integration** - Save for later functionality
+
+#### **✅ Customer Management (CustomerController - NEW):**
+- **Profile Management** - Customer information
+- **Address Management** - Multiple shipping addresses
+- **Wishlist System** - Save favorite products
+- **Preferences** - Shopping preferences and settings
+- **Notification System** - Customer communications
+
+### ❌ **Still Missing for Complete Ecommerce Platform:**
+
+#### **1. Payment Management Service (Critical)**
+```java
+@RestController
+@RequestMapping("/api/v1/payments")
+public class PaymentController {
+    // Payment processing, refunds, payment methods
+    // Multi-vendor commission handling
+    // Payout management for vendors
+}
+```
+
+#### **2. Review & Rating System (Important)**
+```java
+@RestController
+@RequestMapping("/api/v1/reviews")
+public class ReviewController {
+    // Product reviews and ratings
+    // Vendor reviews and ratings
+    // Review moderation and analytics
+}
+```
+
+#### **3. Shipping & Logistics (Important)**
+```java
+@RestController
+@RequestMapping("/api/v1/shipping")
+public class ShippingController {
+    // Shipping rate calculation
+    // Carrier integration
+    // Tracking management
+    // Delivery confirmation
+}
+```
+
+#### **4. Promotion & Discount Management (Important)**
+```java
+@RestController
+@RequestMapping("/api/v1/promotions")
+public class PromotionController {
+    // Coupon management
+    // Discount rules engine
+    // Flash sales and special offers
+    // Vendor-specific promotions
+}
+```
+
+#### **5. Notification System (Important)**
+```java
+@RestController
+@RequestMapping("/api/v1/notifications")
+public class NotificationController {
+    // Email notifications
+    // SMS notifications
+    // Push notifications
+    // Notification preferences
+}
+```
+
+#### **6. User Management & Authentication (Critical)**
+```java
+@RestController
+@RequestMapping("/api/v1/auth")
+public class AuthController {
+    // User registration and login
+    // JWT token management
+    // Password reset
+    // Social media authentication
+}
+```
+
+#### **7. Support & Help Desk (Nice to Have)**
+```java
+@RestController
+@RequestMapping("/api/v1/support")
+public class SupportController {
+    // Support tickets
+    // Live chat integration
+    // FAQ management
+    // Knowledge base
+}
+```
+
+### **API Architecture Summary:**
+
+#### **✅ Current Complete Coverage (~80% of Ecommerce Functionality):**
+1. ✅ **Product Management** - Complete with variants, images, SEO
+2. ✅ **Inventory Management** - Real-time tracking with reservations
+3. ✅ **Vendor Management** - Registration, analytics, order management
+4. ✅ **Order Management** - Full order lifecycle
+5. ✅ **Shopping Cart** - Complete cart functionality
+6. ✅ **Customer Management** - Profile, wishlist, preferences
+7. ✅ **Brand & Category** - Complete hierarchical management
+8. ✅ **Admin Management** - System oversight and analytics
+
+#### **❌ Missing Critical Services (~20% for Production):**
+1. ❌ **Payment Processing** - Payment gateway integration
+2. ❌ **Review System** - Customer feedback and ratings
+3. ❌ **Shipping Management** - Logistics and tracking
+4. ❌ **Promotion Engine** - Discounts and coupons
+5. ❌ **Notification System** - Customer communications
+6. ❌ **User Authentication** - Registration and login
+
+### **Recommendation:**
+The current implementation is excellent for MVP and early development. For production deployment, prioritize implementing Payment, Review, and Shipping services to complete the platform.
+
+**Total API Coverage: ~80% of a complete multi-vendor ecommerce platform**

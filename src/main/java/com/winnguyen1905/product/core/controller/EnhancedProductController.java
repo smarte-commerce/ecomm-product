@@ -28,7 +28,7 @@ import com.winnguyen1905.product.core.model.request.UpdateProductRequest;
 import com.winnguyen1905.product.core.model.response.ProductResponse;
 import com.winnguyen1905.product.core.model.viewmodel.PagedResponse;
 import com.winnguyen1905.product.core.model.viewmodel.RestResponse;
-import com.winnguyen1905.product.core.service.enhanced.EnhancedProductService;
+import com.winnguyen1905.product.core.service.EnhancedProductService;
 import com.winnguyen1905.product.secure.TAccountRequest;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -45,6 +45,13 @@ import lombok.extern.slf4j.Slf4j;
  * 
  * Comprehensive API endpoints for multi-vendor product management
  * Includes full CRUD operations, search, analytics, and bulk operations
+ * 
+ * This controller replaces the legacy VendorProductService.addProduct() method
+ * with the more comprehensive createProduct() method that includes:
+ * - Better validation and error handling
+ * - Automatic Elasticsearch indexing
+ * - Enhanced caching support
+ * - More comprehensive request/response models
  */
 @Slf4j
 @RestController
