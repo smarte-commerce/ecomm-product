@@ -5,66 +5,59 @@ import java.util.UUID;
 import com.winnguyen1905.product.common.constant.ProductImageType;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+@Data
 @Builder
-public record CreateProductImageRequest(
+@NoArgsConstructor
+@AllArgsConstructor
+public class CreateProductImageRequest {
+    private UUID productId;
+    private UUID variantId;
+    private ProductImageType type;
+    private Boolean isPrimary;
+    
+    @Size(max = 255, message = "Title không được vượt quá 255 ký tự")
+    private String title;
+    
+    @Size(max = 255, message = "Alt text không được vượt quá 255 ký tự")
+    private String altText;
     
     @NotBlank(message = "URL hình ảnh là bắt buộc")
     @Size(max = 1000, message = "URL hình ảnh không được vượt quá 1000 ký tự")
-    String url,
-    
-    @Size(max = 255, message = "Alt text không được vượt quá 255 ký tự")
-    String altText,
-    
-    @Size(max = 255, message = "Title không được vượt quá 255 ký tự")
-    String title,
+    private String url;
     
     @Size(max = 500, message = "Mô tả không được vượt quá 500 ký tự")
-    String description,
+    private String description;
     
-    @NotNull(message = "Loại hình ảnh là bắt buộc")
-    ProductImageType type,
-    
-    Integer displayOrder,
-    Boolean isPrimary,
-    Boolean isActive,
-    
-    // Optional variant ID if this image is variant-specific
-    UUID variantId,
+    private Integer displayOrder;
+    private Boolean isActive;
     
     // Technical details
-    String fileName,
-    Long fileSize,
-    String mimeType,
-    Integer width,
-    Integer height,
+    private String fileName;
+    private Long fileSize;
+    private String mimeType;
+    private Integer width;
+    private Integer height;
     
     // CDN URLs
-    String cdnUrl,
-    String thumbnailUrl,
-    String smallUrl,
-    String mediumUrl,
-    String largeUrl,
+    private String cdnUrl;
+    private String thumbnailUrl;
+    private String smallUrl;
+    private String mediumUrl;
+    private String largeUrl;
     
     // Storage details
-    String storageProvider,
-    String storageBucket,
-    String storageKey,
+    private String storageProvider;
+    private String storageBucket;
+    private String storageKey;
     
     // Metadata
-    String colorPalette,
-    Boolean isOptimized,
-    Integer compressionQuality
-) {
-    
-    public CreateProductImageRequest {
-        if (displayOrder == null) displayOrder = 0;
-        if (isPrimary == null) isPrimary = false;
-        if (isActive == null) isActive = true;
-        if (isOptimized == null) isOptimized = false;
-        if (storageProvider == null) storageProvider = "S3";
-    }
+    private String colorPalette;
+    private Boolean isOptimized;
+    private Integer compressionQuality;
 } 
