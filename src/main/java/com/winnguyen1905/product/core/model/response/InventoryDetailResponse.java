@@ -1,4 +1,4 @@
-package com.winnguyen1905.product.core.model;
+package com.winnguyen1905.product.core.model.response;
 
 import java.util.UUID;
 
@@ -7,7 +7,7 @@ import com.winnguyen1905.product.core.model.request.AbstractModel;
 import lombok.Builder;
 
 @Builder
-public record Inventory(
+public record InventoryDetailResponse(
     UUID id,
     String sku,
     String createdDate,
@@ -17,7 +17,7 @@ public record Inventory(
     int quantityReserved,
     int quantityAvailable) implements AbstractModel {
   @Builder
-  public Inventory(
+  public InventoryDetailResponse(
       UUID id,
       String sku,
       String createdDate,
@@ -35,4 +35,4 @@ public record Inventory(
     this.quantityReserved = quantityReserved;
     this.quantityAvailable = quantityAvailable;
   }
-}
+} 

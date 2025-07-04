@@ -1,5 +1,6 @@
 package com.winnguyen1905.product.core.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,6 +11,7 @@ import com.winnguyen1905.product.core.model.request.AbstractModel;
 
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -17,21 +19,21 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Reservation implements  AbstractModel {
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class Reservation implements AbstractModel {
     private static final long serialVersionUID = 1L;
     
     private UUID id;
+    private String status;
     private String orderId;
-    private List<ReservationItem> items;
-    private Instant expiresAt;
+    private String userId;
+    private List<ReservationItem> items = new ArrayList<>();
+    private Long version;
     private Instant createdAt;
+    private Instant updatedAt;
+    private Instant expiresAt;
     private Instant confirmedAt;
     private Instant cancelledAt;
-    private Instant updatedAt;
-    private String status; // PENDING, CONFIRMED, EXPIRED, CANCELLED
-    
-    @Version
-    private Long version;
     
     @Data
     @Builder
@@ -40,10 +42,10 @@ public class Reservation implements  AbstractModel {
     public static class ReservationItem implements AbstractModel {
         private static final long serialVersionUID = 1L;
         
+        private String sku;
+        private Integer quantity;
+        private UUID inventoryId;
         private UUID productId;
         private UUID variantId;
-        private String sku;
-        private int quantity;
-        private boolean confirmed;
     }
 }
