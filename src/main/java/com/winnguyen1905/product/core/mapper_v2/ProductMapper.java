@@ -2,7 +2,7 @@ package com.winnguyen1905.product.core.mapper_v2;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.winnguyen1905.product.common.constant.ProductStatus;
-import com.winnguyen1905.product.core.model.ProductVariantDetailVm;
+import com.winnguyen1905.product.core.model.response.ProductVariantDetailResponse;
 import com.winnguyen1905.product.core.model.request.AddProductRequest;
 import com.winnguyen1905.product.core.model.request.ProductVariantDto;
 import com.winnguyen1905.product.core.model.request.UpdateProductRequest;
@@ -15,6 +15,8 @@ import com.winnguyen1905.product.persistance.entity.EProduct;
 import com.winnguyen1905.product.persistance.entity.EProductVariant;
 import com.winnguyen1905.product.persistance.elasticsearch.ESProductVariant;
 import com.winnguyen1905.product.persistance.entity.EInventory;
+import com.winnguyen1905.product.core.model.request.CreateProductRequest;
+import com.winnguyen1905.product.core.model.request.CreateProductVariantRequest;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -33,7 +35,7 @@ public class ProductMapper {
         .collect(Collectors.toMap(EInventory::getSku, EInventory::getQuantityAvailable, (a, b) -> b, HashMap::new));
 
     // Map variants (using 'variants' instead of 'variations')
-    List<ProductVariantDetailVm> variations = product.getVariants().stream()
+    List<ProductVariantDetailResponse> variations = product.getVariants().stream()
         .map(productVariant -> ProductMapper.productVariantDetailBuilder(productVariant,
             stockMapBySku.get(productVariant.getSku())))
         .collect(Collectors.toList());
@@ -81,10 +83,10 @@ public class ProductMapper {
         .build();
   }
 
-  private static ProductVariantDetailVm productVariantDetailBuilder(EProductVariant productVariant, Integer stock) {
+  private static ProductVariantDetailResponse productVariantDetailBuilder(EProductVariant productVariant, Integer stock) {
     if (productVariant == null) return null;
 
-    return ProductVariantDetailVm.builder()
+    return ProductVariantDetailResponse.builder()
         .stock(stock != null ? stock : 0)
         .id(productVariant.getId())
         .sku(productVariant.getSku())
@@ -106,7 +108,9 @@ public class ProductMapper {
 
   /**
    * Convert AddProductRequest to EProduct entity
+   * @deprecated Use EnhancedProductMapper.toEntity(CreateProductRequest) instead
    */
+  @Deprecated
   public static EProduct toProductEntity(AddProductRequest request) {
     if (request == null) return null;
 
@@ -217,5 +221,39 @@ public class ProductMapper {
         .collect(Collectors.toList());
 
     return new ProductVariantByShopVm(shopProductVariants);
+  }
+
+  /**
+   * Convert legacy AddProductRequest to modern CreateProductRequest
+   * @param addRequest The legacy request
+   * @return CreateProductRequest for use with EnhancedProductService
+   */
+  public static CreateProductRequest convertToCreateProductRequest(AddProductRequest addRequest) {
+    if (addRequest == null) return null;
+
+    return CreateProductRequest.builder()
+        .name(addRequest.name())
+        .description(addRequest.description())
+        .slug(addRequest.slug())
+        .productType(addRequest.type())
+        .vendorId(addRequest.shopId()) // Using shopId as vendorId
+        .shopId(addRequest.shopId())
+        .region(addRequest.region())
+        .features(addRequest.features())
+        .build();
+  }
+
+  /**
+   * Convert legacy ProductVariantDto to CreateProductVariantRequest
+   */
+  public static CreateProductVariantRequest convertToCreateVariantRequest(ProductVariantDto variantDto) {
+    if (variantDto == null) return null;
+
+    return CreateProductVariantRequest.builder()
+        .sku(variantDto.sku())
+        .price(BigDecimal.valueOf(variantDto.price()))
+        .attributes(variantDto.features())
+        .inventoryQuantity(variantDto.stock())
+        .build();
   }
 }
