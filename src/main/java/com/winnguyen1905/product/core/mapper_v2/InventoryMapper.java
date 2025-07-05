@@ -3,7 +3,6 @@ package com.winnguyen1905.product.core.mapper_v2;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.winnguyen1905.product.core.model.Inventory;
 import com.winnguyen1905.product.core.model.request.ProductInventoryDto;
 import com.winnguyen1905.product.core.model.request.ReserveInventoryRequest;
 import com.winnguyen1905.product.core.model.request.UpdateInventoryRequest;
@@ -15,17 +14,18 @@ import com.winnguyen1905.product.core.model.viewmodel.InventoryVm;
 import com.winnguyen1905.product.persistance.elasticsearch.ESInventory;
 import com.winnguyen1905.product.persistance.entity.EInventory;
 import com.winnguyen1905.product.persistance.entity.RInventory;
+import com.winnguyen1905.product.core.model.response.InventoryDetailResponse;
 
 public class InventoryMapper {
 
   /**
    * Map RInventory to Inventory model with enhanced fields
    */
-  public static Inventory mapInventory(RInventory rInventory) {
+  public static InventoryDetailResponse mapInventory(RInventory rInventory) {
     if (rInventory == null || rInventory.getInventory() == null) return null;
 
     EInventory eInventory = rInventory.getInventory();
-    return Inventory.builder()
+    return InventoryDetailResponse.builder()
         .id(eInventory.getId())
         .sku(eInventory.getSku())
         .isDeleted(eInventory.getIsDeleted())

@@ -16,9 +16,8 @@ import com.winnguyen1905.product.persistance.elasticsearch.ESInventory;
 import com.winnguyen1905.product.persistance.elasticsearch.ESProductVariant;
 import com.winnguyen1905.product.persistance.entity.EInventory;
 import com.winnguyen1905.product.persistance.entity.EProduct;
+import com.winnguyen1905.product.persistance.entity.EProductImage;
 import com.winnguyen1905.product.persistance.entity.EProductVariant;
-import com.winnguyen1905.product.persistance.entity.garbage.EProductImage;
-import com.winnguyen1905.product.secure.TAccountRequest;
 import com.winnguyen1905.product.util.CommonUtils;
 
 import lombok.RequiredArgsConstructor;
@@ -30,34 +29,40 @@ import lombok.extern.slf4j.Slf4j;
 public class ProductESMapper {
 
   public static List<ESProductVariant> toESProductVariants(EProduct product) {
+    if (product == null) return null;
+
     HashMap<String, EInventory> inventoryMapBySku = product.getInventories().stream()
         .collect(
             Collectors.toMap(EInventory::getSku, inventory -> inventory, (sku, inventory) -> inventory, HashMap::new));
-    // HashMap<UUID, String> imageMapByProductVariantId =
-    // product.getImages().stream()
-    // .collect(
-    // Collectors.toMap(EProductImage::getProductVariantId, EProductImage::getUrl,
-    // (a, b) -> b, HashMap::new));
 
-    return CommonUtils.stream(product.getVariations())
-        .map(
-            productVariant -> {
+    // Map product images by variant ID
+    HashMap<UUID, String> imageMapByProductVariantId = product.getImages().stream()
+        .collect(
+            Collectors.toMap(EProductImage::getProductVariantId, EProductImage::getUrl,
+            (a, b) -> b, HashMap::new));
+
+    return CommonUtils.stream(product.getVariants()) // Using 'variants' instead of 'variations'
+        .map(productVariant -> {
               ObjectNode allFeatures = mergeProductFeatures(product, productVariant);
               StringBuilder variantName = generateVariantName(product, productVariant);
               ESInventory inventory = InventoryMapper.toESInventory(inventoryMapBySku.get(productVariant.getSku()));
               JsonNode mergedFeatures = transformFeaturesToObject(allFeatures);
 
               return ESProductVariant.builder()
-                  .region(product.getRegion())
+                  .region(productVariant.getRegion()) // Use variant's region (RegionPartition enum)
                   .id(productVariant.getId())
                   .productId(product.getId())
                   .features(mergedFeatures)
-                  // .imageUrl(imageMapByProductVariantId.get(productVariant.getId()))
-                  // .brand(product.getBrand().getName())
-                  .price(productVariant.getPrice())
+                  .imageUrl(imageMapByProductVariantId.get(productVariant.getId()))
+                  .brand(product.getBrand() != null ? product.getBrand().getName() : null)
+                  .price(productVariant.getPrice() != null ? productVariant.getPrice().doubleValue() : 0.0)
                   .name(variantName.toString())
                   .description(product.getDescription())
                   .inventory(inventory)
+                  .createdBy(productVariant.getCreatedBy())
+                  .updatedBy(productVariant.getUpdatedBy())
+                  .createdDate(productVariant.getCreatedDate())
+                  .updatedDate(productVariant.getUpdatedDate())
                   .build();
             })
         .collect(Collectors.toList());
@@ -75,22 +80,36 @@ public class ProductESMapper {
   }
 
   private static StringBuilder generateVariantName(EProduct product, EProductVariant productVariant) {
-    var fieldIterator = ((JsonNode) productVariant.getFeatures()).fieldNames();
     var variantName = new StringBuilder(product.getName());
-    while (fieldIterator.hasNext()) {
-      var fieldName = fieldIterator.next();
-      var value = ((JsonNode) productVariant.getFeatures()).get(fieldName).textValue();
-      variantName.append(" ").append(value).append(" ").append(fieldName);
+
+    // Handle variant attributes (using attributes instead of features)
+    if (productVariant.getAttributes() != null) {
+      var fieldIterator = ((JsonNode) productVariant.getAttributes()).fieldNames();
+      while (fieldIterator.hasNext()) {
+        var fieldName = fieldIterator.next();
+        var value = ((JsonNode) productVariant.getAttributes()).get(fieldName).textValue();
+        variantName.append(" ").append(value).append(" ").append(fieldName);
+      }
     }
     return variantName;
   }
 
   private static ObjectNode mergeProductFeatures(EProduct product, EProductVariant productVariant) {
     var baseFields = product.getFeatures();
-    var variantFields = productVariant.getFeatures();
+    var variantFields = productVariant.getAttributes(); // Using attributes for variants
 
-    ObjectNode allFeatures = ((JsonNode) baseFields).deepCopy();
-    allFeatures.setAll((ObjectNode) variantFields);
+    ObjectNode allFeatures = new ObjectMapper().createObjectNode();
+
+    // Merge product features
+    if (baseFields instanceof JsonNode) {
+      allFeatures.setAll((ObjectNode) baseFields);
+    }
+
+    // Merge variant attributes
+    if (variantFields instanceof JsonNode) {
+      allFeatures.setAll((ObjectNode) variantFields);
+    }
+
     return allFeatures;
   }
 
