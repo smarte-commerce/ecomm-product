@@ -1,6 +1,7 @@
 package com.winnguyen1905.product.core.controller;
 
 import com.winnguyen1905.product.common.annotation.ResponseMessage;
+import com.winnguyen1905.product.core.controller.base.BaseController;
 import com.winnguyen1905.product.core.model.request.InventoryConfirmationRequest;
 import com.winnguyen1905.product.core.model.request.ReserveInventoryRequest;
 import com.winnguyen1905.product.core.model.request.UpdateInventoryRequest;
@@ -42,7 +43,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Validated
 @Tag(name = "Inventory Management", description = "APIs for inventory operations")
-public class InventoryController {
+public class InventoryController extends BaseController {
 
   private final InventoryService inventoryService;
   private final CustomerProductService customerProductService;
@@ -52,6 +53,7 @@ public class InventoryController {
   @Operation(summary = "Get product inventories", description = "Retrieves all inventories for a specific product")
   @ApiResponses({
       @ApiResponse(responseCode = "200", description = "Successfully retrieved product inventories"),
+      @ApiResponse(responseCode = "403", description = "Not authorized to access this resource"),
       @ApiResponse(responseCode = "404", description = "Product not found")
   })
   @PreAuthorize("hasAnyRole('VENDOR', 'ADMIN')")
@@ -59,8 +61,9 @@ public class InventoryController {
       @Parameter(description = "Product ID", required = true) @PathVariable UUID productId,
       Pageable pageable,
       TAccountRequest accountRequest) {
-    log.info("Getting inventories for product: {} by user: {}", productId, accountRequest.id());
-    return ResponseEntity.ok(inventoryService.getProductInventory(productId, pageable));
+    logRequest("Getting inventories for product", productId, accountRequest);
+    var result = inventoryService.getProductInventory(productId, pageable);
+    return ok(result);
   }
 
   @GetMapping("/{id}")
@@ -68,14 +71,16 @@ public class InventoryController {
   @Operation(summary = "Get inventory by ID", description = "Retrieves inventory details by its ID")
   @ApiResponses({
       @ApiResponse(responseCode = "200", description = "Successfully retrieved inventory"),
+      @ApiResponse(responseCode = "403", description = "Not authorized to access this resource"),
       @ApiResponse(responseCode = "404", description = "Inventory not found")
   })
   @PreAuthorize("hasAnyRole('VENDOR', 'ADMIN')")
   public ResponseEntity<InventoryVm> getInventoryById(
       @Parameter(description = "Inventory ID", required = true) @PathVariable UUID id,
       TAccountRequest accountRequest) {
-    log.info("Getting inventory: {} by user: {}", id, accountRequest.id());
-    return ResponseEntity.ok(inventoryService.getInventoryById(id));
+    logRequest("Getting inventory", id, accountRequest);
+    var result = inventoryService.getInventoryById(id);
+    return ok(result);
   }
 
   @GetMapping("/sku/{sku}")
@@ -87,9 +92,11 @@ public class InventoryController {
   })
   @PreAuthorize("hasAnyRole('VENDOR', 'ADMIN', 'CUSTOMER')")
   public ResponseEntity<InventoryVm> getInventoryBySku(
-      @Parameter(description = "Product SKU", required = true) @PathVariable String sku) {
-    log.info("Getting inventory by SKU: {}", sku);
-    return ResponseEntity.ok(inventoryService.getInventoryBySku(sku));
+      @Parameter(description = "Product SKU", required = true) @PathVariable String sku,
+      TAccountRequest accountRequest) {
+    logRequest("Getting inventory by SKU: " + sku, accountRequest);
+    var result = inventoryService.getInventoryBySku(sku);
+    return ok(result);
   }
 
   @PutMapping("/{id}")
@@ -98,6 +105,7 @@ public class InventoryController {
   @ApiResponses({
       @ApiResponse(responseCode = "200", description = "Successfully updated inventory"),
       @ApiResponse(responseCode = "400", description = "Invalid input data"),
+      @ApiResponse(responseCode = "403", description = "Not authorized to update inventory"),
       @ApiResponse(responseCode = "404", description = "Inventory not found")
   })
   @PreAuthorize("hasAnyRole('VENDOR', 'ADMIN')")
@@ -105,9 +113,10 @@ public class InventoryController {
       @Parameter(description = "Inventory ID", required = true) @PathVariable UUID id,
       @Valid @RequestBody UpdateInventoryRequest request,
       TAccountRequest accountRequest) {
-    log.info("Updating inventory: {} by user: {}", id, accountRequest.id());
-    // Note: This is a stub implementation; the service method needs to be updated to accept UpdateInventoryRequest
-    return ResponseEntity.ok(inventoryService.updateInventory(id));
+    logRequest("Updating inventory", id, accountRequest);
+    // TODO: Update service method to accept UpdateInventoryRequest
+    var result = inventoryService.updateInventory(id);
+    return ok(result);
   }
 
   @PatchMapping("/{id}/reserve")
@@ -121,12 +130,13 @@ public class InventoryController {
   @PreAuthorize("hasAnyRole('VENDOR', 'ADMIN', 'CUSTOMER')")
   public Mono<ResponseEntity<InventoryVm>> reserveInventory(
       @Parameter(description = "Inventory ID", required = true) @PathVariable UUID id,
-      @Parameter(description = "Quantity to reserve", required = true) @RequestParam Integer quantity) {
-    log.info("Reserving inventory: {} with quantity: {}", id, quantity);
+      @Parameter(description = "Quantity to reserve", required = true) @RequestParam Integer quantity,
+      TAccountRequest accountRequest) {
+    logRequest("Reserving inventory " + id + " with quantity " + quantity, accountRequest);
     return inventoryService.reserveInventory(id, quantity)
-        .map(ResponseEntity::ok)
+        .map(this::ok)
         .onErrorResume(e -> {
-          log.error("Error reserving inventory: {}", e.getMessage());
+          log.error("Error reserving inventory {}: {}", id, e.getMessage());
           return Mono.just(ResponseEntity.badRequest().build());
         });
   }
@@ -137,6 +147,7 @@ public class InventoryController {
   @ApiResponses({
       @ApiResponse(responseCode = "200", description = "Successfully released inventory"),
       @ApiResponse(responseCode = "400", description = "Invalid request"),
+      @ApiResponse(responseCode = "403", description = "Not authorized to release inventory"),
       @ApiResponse(responseCode = "404", description = "Inventory not found")
   })
   @PreAuthorize("hasAnyRole('VENDOR', 'ADMIN')")
@@ -144,11 +155,11 @@ public class InventoryController {
       @Parameter(description = "Inventory ID", required = true) @PathVariable UUID id,
       @Parameter(description = "Quantity to release", required = true) @RequestParam Integer quantity,
       TAccountRequest accountRequest) {
-    log.info("Releasing inventory: {} with quantity: {} by user: {}", id, quantity, accountRequest.id());
+    logRequest("Releasing inventory " + id + " with quantity " + quantity, accountRequest);
     return inventoryService.releaseInventory(id, quantity)
-        .map(ResponseEntity::ok)
+        .map(this::ok)
         .onErrorResume(e -> {
-          log.error("Error releasing inventory: {}", e.getMessage());
+          log.error("Error releasing inventory {}: {}", id, e.getMessage());
           return Mono.just(ResponseEntity.badRequest().build());
         });
   }
@@ -156,20 +167,31 @@ public class InventoryController {
   @PostMapping("/check-availability")
   @ResponseMessage(message = "Check inventory availability success")
   @Operation(summary = "Check inventory availability", description = "Checks availability for multiple inventory items")
+  @ApiResponses({
+      @ApiResponse(responseCode = "200", description = "Successfully checked availability"),
+      @ApiResponse(responseCode = "400", description = "Invalid availability request")
+  })
   public ResponseEntity<InventoryConfirmationResponse> checkInventoryAvailability(
       @Valid @RequestBody InventoryConfirmationRequest request) {
-    log.info("Checking inventory availability for reservation: {}", request.getReservationId());
-    return ResponseEntity.ok(customerProductService.inventoryConfirmation(request));
+    logPublicRequest("Checking inventory availability for reservation: " + request.getReservationId());
+    var result = customerProductService.inventoryConfirmation(request);
+    return ok(result);
   }
 
   @PostMapping("/reserve-batch")
   @ResponseMessage(message = "Batch reserve inventory success")
   @Operation(summary = "Batch reserve inventory", description = "Reserves multiple inventory items")
+  @ApiResponses({
+      @ApiResponse(responseCode = "200", description = "Successfully reserved inventory batch"),
+      @ApiResponse(responseCode = "400", description = "Invalid reserve request"),
+      @ApiResponse(responseCode = "403", description = "Not authorized to reserve inventory")
+  })
   @PreAuthorize("hasAnyRole('CUSTOMER', 'ADMIN')")
   public ResponseEntity<ReserveInventoryResponse> reserveInventoryBatch(
       @Valid @RequestBody ReserveInventoryRequest request,
       TAccountRequest accountRequest) {
-    log.info("Batch reserving inventory for user: {}", accountRequest.id());
-    return ResponseEntity.ok(customerProductService.reserveInventory(request));
+    logRequest("Batch reserving inventory", accountRequest);
+    var result = customerProductService.reserveInventory(request);
+    return ok(result);
   }
 }

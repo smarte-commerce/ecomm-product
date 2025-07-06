@@ -1,6 +1,9 @@
 package com.winnguyen1905.product.core.controller;
 
 import com.winnguyen1905.product.common.annotation.ResponseMessage;
+import com.winnguyen1905.product.core.controller.base.BaseController;
+import com.winnguyen1905.product.core.model.request.CreateCategoryRequest;
+import com.winnguyen1905.product.core.model.request.UpdateCategoryRequest;
 import com.winnguyen1905.product.core.service.VendorCategoryService;
 import com.winnguyen1905.product.secure.TAccountRequest;
 
@@ -15,7 +18,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
@@ -34,7 +36,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Validated
 @Tag(name = "Category Management", description = "APIs for category operations")
-public class CategoryController {
+public class CategoryController extends BaseController {
 
   private final VendorCategoryService categoryService;
   
@@ -42,8 +44,9 @@ public class CategoryController {
   @Operation(summary = "Get all categories", description = "Retrieves all categories with pagination and hierarchical structure")
   public ResponseEntity<?> getAllCategories(
       @Parameter(description = "Include inactive categories") @RequestParam(required = false, defaultValue = "false") boolean includeInactive) {
-    log.info("Getting all categories, includeInactive: {}", includeInactive);
-    return ResponseEntity.ok(categoryService.getAllCategories(includeInactive));
+    logPublicRequest("Getting all categories, includeInactive: " + includeInactive);
+    var result = categoryService.getAllCategories(includeInactive);
+    return ok(result);
   }
   
   @GetMapping("/{id}")
@@ -54,8 +57,9 @@ public class CategoryController {
   })
   public ResponseEntity<?> getCategoryById(
       @Parameter(description = "Category ID", required = true) @PathVariable UUID id) {
-    log.info("Getting category with ID: {}", id);
-    return ResponseEntity.ok(categoryService.getCategoryById(id));
+    logPublicRequest("Getting category by ID", id);
+    var result = categoryService.getCategoryById(id);
+    return ok(result);
   }
   
   @PostMapping
@@ -67,11 +71,11 @@ public class CategoryController {
   })
   @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<?> createCategory(
-      @Valid @RequestBody Object categoryRequest,
+      @Valid @RequestBody CreateCategoryRequest categoryRequest,
       TAccountRequest accountRequest) {
-    log.info("Creating category by admin: {}", accountRequest.id());
-    return ResponseEntity.status(HttpStatus.CREATED)
-        .body(categoryService.createCategory(categoryRequest, accountRequest));
+    logRequest("Creating category", accountRequest);
+    var result = categoryService.createCategory(categoryRequest, accountRequest);
+    return created(result);
   }
   
   @PutMapping("/{id}")
@@ -85,10 +89,11 @@ public class CategoryController {
   @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<?> updateCategory(
       @Parameter(description = "Category ID", required = true) @PathVariable UUID id,
-      @Valid @RequestBody Object categoryRequest,
+      @Valid @RequestBody UpdateCategoryRequest categoryRequest,
       TAccountRequest accountRequest) {
-    log.info("Updating category: {} by admin: {}", id, accountRequest.id());
-    return ResponseEntity.ok(categoryService.updateCategory(id, categoryRequest, accountRequest));
+    logRequest("Updating category", id, accountRequest);
+    var result = categoryService.updateCategory(id, categoryRequest, accountRequest);
+    return ok(result);
   }
   
   @DeleteMapping("/{id}")
@@ -103,16 +108,17 @@ public class CategoryController {
   public ResponseEntity<Void> deleteCategory(
       @Parameter(description = "Category ID", required = true) @PathVariable UUID id,
       TAccountRequest accountRequest) {
-    log.info("Deleting category: {} by admin: {}", id, accountRequest.id());
+    logRequest("Deleting category", id, accountRequest);
     categoryService.deleteCategory(id, accountRequest);
-    return ResponseEntity.ok().build();
+    return noContent();
   }
   
   @GetMapping("/tree")
   @Operation(summary = "Get category tree", description = "Retrieves hierarchical category tree")
   public ResponseEntity<?> getCategoryTree() {
-    log.info("Getting category tree");
-    return ResponseEntity.ok(categoryService.getCategoryTree());
+    logPublicRequest("Getting category tree");
+    var result = categoryService.getCategoryTree();
+    return ok(result);
   }
   
   @PostMapping("/{id}/move")
@@ -123,8 +129,9 @@ public class CategoryController {
       @Parameter(description = "Category ID", required = true) @PathVariable UUID id,
       @Parameter(description = "New parent category ID") @RequestParam(required = false) UUID parentId,
       TAccountRequest accountRequest) {
-    log.info("Moving category: {} to parent: {} by admin: {}", id, parentId, accountRequest.id());
-    return ResponseEntity.ok(categoryService.moveCategory(id, parentId, accountRequest));
+    logRequest("Moving category " + id + " to parent " + parentId, accountRequest);
+    var result = categoryService.moveCategory(id, parentId, accountRequest);
+    return ok(result);
   }
   
   @GetMapping("/search")
@@ -132,8 +139,9 @@ public class CategoryController {
   public ResponseEntity<?> searchCategories(
       @Parameter(description = "Search query") @RequestParam String query,
       @PageableDefault(size = 20) Pageable pageable) {
-    log.info("Searching categories with query: {}", query);
-    return ResponseEntity.ok(categoryService.searchCategories(query, pageable));
+    logPublicRequest("Searching categories with query: " + query);
+    var result = categoryService.searchCategories(query, pageable);
+    return ok(result);
   }
   
   @GetMapping("/{id}/products")
@@ -141,7 +149,8 @@ public class CategoryController {
   public ResponseEntity<?> getCategoryProducts(
       @Parameter(description = "Category ID", required = true) @PathVariable UUID id,
       @PageableDefault(size = 20) Pageable pageable) {
-    log.info("Getting products for category: {}", id);
-    return ResponseEntity.ok(categoryService.getCategoryProducts(id, pageable));
+    logPublicRequest("Getting products for category", id);
+    var result = categoryService.getCategoryProducts(id, pageable);
+    return ok(result);
   }
 }
