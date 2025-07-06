@@ -35,9 +35,9 @@ import java.util.UUID;
 @Validated
 @Tag(name = "Brand Management", description = "APIs for brand operations")
 public class BrandController {
-  
+
   private final BrandService brandService;
-  
+
   @GetMapping
   @Operation(summary = "Get all brands", description = "Retrieves all brands with pagination")
   public ResponseEntity<?> getAllBrands(
@@ -45,25 +45,25 @@ public class BrandController {
     log.info("Getting all brands with pagination");
     return ResponseEntity.ok(brandService.getAllBrands(pageable));
   }
-  
+
   @GetMapping("/{id}")
   @Operation(summary = "Get brand by ID", description = "Retrieves brand details by ID")
   @ApiResponses({
-    @ApiResponse(responseCode = "200", description = "Successfully retrieved brand"),
-    @ApiResponse(responseCode = "404", description = "Brand not found")
+      @ApiResponse(responseCode = "200", description = "Successfully retrieved brand"),
+      @ApiResponse(responseCode = "404", description = "Brand not found")
   })
   public ResponseEntity<?> getBrandById(
       @Parameter(description = "Brand ID", required = true) @PathVariable UUID id) {
     log.info("Getting brand with ID: {}", id);
     return ResponseEntity.ok(brandService.getBrandById(id));
   }
-  
+
   @PostMapping
   @ResponseMessage(message = "Create brand success")
   @Operation(summary = "Create brand", description = "Creates a new brand")
   @ApiResponses({
-    @ApiResponse(responseCode = "201", description = "Brand created successfully"),
-    @ApiResponse(responseCode = "400", description = "Invalid input data")
+      @ApiResponse(responseCode = "201", description = "Brand created successfully"),
+      @ApiResponse(responseCode = "400", description = "Invalid input data")
   })
   @PreAuthorize("hasAnyRole('ADMIN', 'VENDOR')")
   public ResponseEntity<?> createBrand(
@@ -73,14 +73,14 @@ public class BrandController {
     return ResponseEntity.status(HttpStatus.CREATED)
         .body(brandService.createBrand(brandRequest, accountRequest));
   }
-  
+
   @PutMapping("/{id}")
   @ResponseMessage(message = "Update brand success")
   @Operation(summary = "Update brand", description = "Updates an existing brand")
   @ApiResponses({
-    @ApiResponse(responseCode = "200", description = "Brand updated successfully"),
-    @ApiResponse(responseCode = "400", description = "Invalid input data"),
-    @ApiResponse(responseCode = "404", description = "Brand not found")
+      @ApiResponse(responseCode = "200", description = "Brand updated successfully"),
+      @ApiResponse(responseCode = "400", description = "Invalid input data"),
+      @ApiResponse(responseCode = "404", description = "Brand not found")
   })
   @PreAuthorize("hasAnyRole('ADMIN', 'VENDOR')")
   public ResponseEntity<?> updateBrand(
@@ -90,13 +90,13 @@ public class BrandController {
     log.info("Updating brand: {} by user: {}", id, accountRequest.id());
     return ResponseEntity.ok(brandService.updateBrand(id, brandRequest, accountRequest));
   }
-  
+
   @DeleteMapping("/{id}")
   @ResponseMessage(message = "Delete brand success")
   @Operation(summary = "Delete brand", description = "Deletes an existing brand")
   @ApiResponses({
-    @ApiResponse(responseCode = "200", description = "Brand deleted successfully"),
-    @ApiResponse(responseCode = "404", description = "Brand not found")
+      @ApiResponse(responseCode = "200", description = "Brand deleted successfully"),
+      @ApiResponse(responseCode = "404", description = "Brand not found")
   })
   @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<Void> deleteBrand(
@@ -106,7 +106,7 @@ public class BrandController {
     brandService.deleteBrand(id, accountRequest);
     return ResponseEntity.ok().build();
   }
-  
+
   @GetMapping("/vendor/{vendorId}")
   @Operation(summary = "Get vendor brands", description = "Retrieves all brands for a specific vendor")
   @PreAuthorize("hasAnyRole('ADMIN', 'VENDOR')")
@@ -117,7 +117,7 @@ public class BrandController {
     log.info("Getting brands for vendor: {} by user: {}", vendorId, accountRequest.id());
     return ResponseEntity.ok(brandService.getVendorBrands(vendorId, pageable, accountRequest));
   }
-  
+
   @GetMapping("/search")
   @Operation(summary = "Search brands", description = "Searches brands by name or other criteria")
   public ResponseEntity<?> searchBrands(

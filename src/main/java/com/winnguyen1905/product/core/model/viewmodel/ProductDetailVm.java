@@ -5,7 +5,7 @@ import java.util.UUID;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.winnguyen1905.product.common.constant.ProductType;
-import com.winnguyen1905.product.core.model.ProductVariantDetailVm;
+import com.winnguyen1905.product.core.model.response.ProductVariantDetailResponse;
 import com.winnguyen1905.product.core.model.request.AbstractModel;
 import com.winnguyen1905.product.core.model.request.ProductImageRequest;
 
@@ -26,7 +26,7 @@ public record ProductDetailVm(
     String description,
     String createdDate,
     List<ProductImageRequest> images,
-    List<ProductVariantDetailVm> variations) implements AbstractModel {
+    List<ProductVariantDetailResponse> variations) implements AbstractModel {
 
   @Builder
   public ProductDetailVm(
@@ -43,7 +43,7 @@ public record ProductDetailVm(
       String description,
       String createdDate,
       List<ProductImageRequest> images,
-      List<ProductVariantDetailVm> variations) {
+      List<ProductVariantDetailResponse> variations) {
     this.id = id;
     this.name = name;
     this.slug = slug;

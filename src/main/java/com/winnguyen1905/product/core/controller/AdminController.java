@@ -36,7 +36,7 @@ import java.util.List;
 @PreAuthorize("hasRole('ADMIN')")
 @Tag(name = "Admin Management", description = "Administrative APIs for system management")
 public class AdminController {
-  
+
   private final InventoryService inventoryService;
   private final AdminProductService adminProductService;
 
@@ -44,8 +44,8 @@ public class AdminController {
   @ResponseMessage(message = "Get all inventories success")
   @Operation(summary = "Get all inventories", description = "Admin-only endpoint to retrieve all inventories")
   @ApiResponses({
-    @ApiResponse(responseCode = "200", description = "Successfully retrieved inventories"),
-    @ApiResponse(responseCode = "403", description = "Not authorized to access this resource")
+      @ApiResponse(responseCode = "200", description = "Successfully retrieved inventories"),
+      @ApiResponse(responseCode = "403", description = "Not authorized to access this resource")
   })
   public ResponseEntity<PagedResponse<InventoryVm>> getAllInventories(
       Pageable pageable,
@@ -58,8 +58,8 @@ public class AdminController {
   @ResponseMessage(message = "Get inventory by ID success")
   @Operation(summary = "Get inventory by ID", description = "Admin-only endpoint to get inventory details")
   @ApiResponses({
-    @ApiResponse(responseCode = "200", description = "Successfully retrieved inventory"),
-    @ApiResponse(responseCode = "404", description = "Inventory not found")
+      @ApiResponse(responseCode = "200", description = "Successfully retrieved inventory"),
+      @ApiResponse(responseCode = "404", description = "Inventory not found")
   })
   public ResponseEntity<InventoryVm> getInventoryById(
       @Parameter(description = "Inventory ID", required = true) @PathVariable UUID inventoryId,
@@ -72,8 +72,8 @@ public class AdminController {
   @ResponseMessage(message = "Delete inventory success")
   @Operation(summary = "Delete inventory", description = "Admin-only endpoint to delete inventory")
   @ApiResponses({
-    @ApiResponse(responseCode = "200", description = "Successfully deleted inventory"),
-    @ApiResponse(responseCode = "404", description = "Inventory not found")
+      @ApiResponse(responseCode = "200", description = "Successfully deleted inventory"),
+      @ApiResponse(responseCode = "404", description = "Inventory not found")
   })
   public ResponseEntity<Void> deleteInventory(
       @Parameter(description = "Inventory ID", required = true) @PathVariable UUID inventoryId,
@@ -82,7 +82,7 @@ public class AdminController {
     adminProductService.deleteInventory(inventoryId);
     return ResponseEntity.ok().build();
   }
-  
+
   @GetMapping("/products/pending-approval")
   @ResponseMessage(message = "Get pending products success")
   @Operation(summary = "Get pending products", description = "Admin-only endpoint to retrieve products pending approval")
