@@ -69,7 +69,7 @@ public class CategoryController extends BaseController {
     @ApiResponse(responseCode = "201", description = "Category created successfully"),
     @ApiResponse(responseCode = "400", description = "Invalid input data")
   })
-  @PreAuthorize("hasRole('ADMIN')")
+  // @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<?> createCategory(
       @Valid @RequestBody CreateCategoryRequest categoryRequest,
       TAccountRequest accountRequest) {
@@ -86,7 +86,7 @@ public class CategoryController extends BaseController {
     @ApiResponse(responseCode = "400", description = "Invalid input data"),
     @ApiResponse(responseCode = "404", description = "Category not found")
   })
-  @PreAuthorize("hasRole('ADMIN')")
+  // @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<?> updateCategory(
       @Parameter(description = "Category ID", required = true) @PathVariable UUID id,
       @Valid @RequestBody UpdateCategoryRequest categoryRequest,
@@ -104,7 +104,7 @@ public class CategoryController extends BaseController {
     @ApiResponse(responseCode = "400", description = "Category has associated products"),
     @ApiResponse(responseCode = "404", description = "Category not found")
   })
-  @PreAuthorize("hasRole('ADMIN')")
+  // @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<Void> deleteCategory(
       @Parameter(description = "Category ID", required = true) @PathVariable UUID id,
       TAccountRequest accountRequest) {
@@ -124,7 +124,7 @@ public class CategoryController extends BaseController {
   @PostMapping("/{id}/move")
   @ResponseMessage(message = "Move category success")
   @Operation(summary = "Move category", description = "Moves category to a new parent")
-  @PreAuthorize("hasRole('ADMIN')")
+  // @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<?> moveCategory(
       @Parameter(description = "Category ID", required = true) @PathVariable UUID id,
       @Parameter(description = "New parent category ID") @RequestParam(required = false) UUID parentId,
