@@ -29,6 +29,200 @@
 - Improved type safety across Elasticsearch integration
 - Better separation of concerns between sync and search operations
 
+## 📸 AWS S3 Service Refactoring (January 2024)
+
+### Complete VendorS3Service Architecture Overhaul
+The AWS S3 integration has been completely refactored to provide a professional, production-ready image management system with comprehensive features and proper Spring Boot integration.
+
+#### **🔧 Technical Improvements:**
+
+##### **1. Professional S3 Client Configuration**
+- **Dependency Injection**: Replaced static S3Client with proper Spring dependency injection
+- **Credential Management**: Support for both IAM roles and static credentials
+- **Connection Pooling**: Optimized connection settings with configurable timeouts
+- **Error Handling**: Comprehensive S3Exception handling with retry logic
+
+##### **2. Spring Boot Configuration Integration**
+- **S3ConfigurationProperties**: Type-safe configuration binding with validation
+- **YAML Configuration**: Comprehensive AWS S3 settings in application.yaml
+- **Environment Variables**: Support for environment-specific configuration
+- **Validation**: Jakarta Bean Validation for configuration properties
+
+##### **3. Database Integration & Persistence**
+- **Metadata Storage**: Complete image metadata persistence using ProductImageRepository
+- **Entity Mapping**: Professional mapping between DTOs and EProductImage entities
+- **Transaction Management**: Proper @Transactional handling for data consistency
+- **Audit Trails**: Created/updated by tracking for vendor operations
+
+##### **4. Security & Access Control**
+- **Vendor Isolation**: Multi-tenant security ensuring vendors can only access their images
+- **Admin Override**: Administrative access for system management
+- **File Validation**: Comprehensive validation for file size, type, and extension
+- **Input Sanitization**: Protection against malicious file uploads
+
+##### **5. Performance Optimization**
+- **Redis Caching**: @Cacheable and @CacheEvict annotations for improved performance
+- **Batch Operations**: Efficient bulk upload capabilities
+- **Lazy Loading**: Optimized database queries with proper JPA relationships
+- **CDN Integration**: CloudFront URL generation for faster content delivery
+
+#### **🏗️ Service Architecture:**
+
+```java
+@Service
+@Transactional
+public class VendorS3ServiceImpl implements VendorS3Service {
+    
+    // Dependency injection of all required components
+    private final S3Client s3Client;
+    private final S3ConfigurationProperties s3Config;
+    private final ProductImageRepository productImageRepository;
+    private final ProductRepository productRepository;
+    private final ProductVariantRepository productVariantRepository;
+    
+    // Professional S3 client creation with proper credential handling
+    private S3Client createS3Client() {
+        // IAM role vs static credentials configuration
+        // Region and connection settings
+        // Error handling and validation
+    }
+}
+```
+
+#### **📝 Configuration Structure:**
+
+```yaml
+# application.yaml - Complete S3 Configuration
+aws:
+  s3:
+    region: ca-central-1
+    use-iam-role: true
+    bucket:
+      name: product-images
+      product-images: product-images
+    upload:
+      max-file-size: 50MB
+      allowed-content-types: [image/jpeg, image/png, ...]
+      allowed-extensions: [jpg, jpeg, png, ...]
+      max-files-per-upload: 10
+    cdn:
+      enabled: false
+      domain: your-cloudfront-domain.com
+    image-processing:
+      enabled: true
+      quality: 85
+      thumbnails:
+        enabled: true
+        sizes:
+          - name: thumbnail
+            width: 150
+            height: 150
+```
+
+#### **🚀 API Endpoints:**
+
+##### **Core Image Operations**
+- `GET /api/v1/products/{id}/images` - Get paginated product images
+- `GET /api/v1/products/images/{imageId}` - Get specific image metadata
+- `POST /api/v1/products/{id}/images` - Upload single image with metadata
+- `PUT /api/v1/products/images/{id}` - Update image metadata only
+- `DELETE /api/v1/products/images/{id}` - Delete image from S3 and database
+- `PATCH /api/v1/products/images/{id}/primary` - Set image as primary
+
+##### **Bulk Operations**
+- `POST /api/v1/products/images/bulk` - Bulk upload multiple images
+- `POST /api/v1/s3/packages` - Simple S3 upload without metadata
+
+#### **🔒 Security Features:**
+
+##### **File Validation**
+```java
+public void validateFile(MultipartFile file) {
+    // File size validation (configurable limits)
+    // Content type validation (image formats only)
+    // File extension validation
+    // Empty file detection
+}
+```
+
+##### **Vendor Access Control**
+```java
+private void validateVendorAccess(EProduct product, TAccountRequest accountRequest) {
+    // Ensure vendors can only manage their own products
+    // Admin override for system management
+    // Security exception handling
+}
+```
+
+#### **⚡ Performance Features:**
+
+##### **Caching Strategy**
+```java
+@Cacheable(value = "product_images", key = "'product:' + #productId + ':page:' + #pageable.pageNumber")
+public PagedResponse<ProductImageResponse> getProductImages(UUID productId, Pageable pageable)
+
+@CacheEvict(value = "product_images", allEntries = true)
+public ProductImageResponse uploadProductImage(...)
+```
+
+##### **Thumbnail Generation**
+- Automatic thumbnail URL generation for multiple sizes
+- CDN-friendly URL structure
+- Configurable image processing settings
+
+#### **📊 Database Schema Integration:**
+
+The refactored service properly integrates with the existing `EProductImage` entity:
+
+```java
+@Entity
+@Table(name = "product_images")
+public class EProductImage {
+    // Complete metadata storage
+    private String url;
+    private String cdnUrl;
+    private String thumbnailUrl, smallUrl, mediumUrl, largeUrl;
+    private String storageProvider;  // "S3"
+    private String storageBucket;
+    private String storageKey;
+    private UUID vendorId;
+    // Plus all other image metadata fields
+}
+```
+
+#### **🎯 Key Benefits:**
+
+1. **Production Ready**: Professional error handling, logging, and monitoring
+2. **Scalable**: Proper connection pooling and caching strategies
+3. **Secure**: Multi-tenant isolation and comprehensive validation
+4. **Maintainable**: Clean architecture with dependency injection
+5. **Configurable**: Environment-specific settings via Spring Boot configuration
+6. **Performance**: Redis caching and CDN integration
+7. **Monitoring**: Comprehensive logging for debugging and analytics
+
+#### **🔧 Technical Implementation Details:**
+
+##### **S3 Key Generation**
+```java
+private String generateS3Key(MultipartFile file, UUID productId, UUID variantId) {
+    // Structure: products/{productId}/variants/{variantId}/images/{timestamp}_{randomId}.ext
+    // Organized folder structure for better management
+    // Collision-resistant naming with timestamps and UUIDs
+}
+```
+
+##### **Error Handling**
+```java
+try {
+    // S3 operations
+} catch (S3Exception e) {
+    log.error("S3 operation failed: {}", e.getMessage());
+    throw new S3FileException("Could not complete S3 operation", HttpStatus.INTERNAL_SERVER_ERROR.value(), e);
+}
+```
+
+This refactoring transforms the S3 service from a basic placeholder into a comprehensive, production-ready image management system that properly integrates with the broader product management architecture.
+
 ## 🚀 Core Features
 
 ### 🛒 Product Management
@@ -65,11 +259,17 @@
 - **Regional Boosting**: Location-based search result optimization
 - **Fixed Architecture**: Resolved mapping inconsistencies, missing method implementations, and type mismatches
 
-### 🖼️ Image Management
-- **Multi-format support**: Support for various image formats
-- **CDN integration**: AWS S3 and CloudFront integration
-- **Responsive images**: Automatic generation of multiple sizes
-- **Image optimization**: Size and quality optimization
+### 🖼️ Image Management (Recently Refactored - January 2024)
+- **Multi-format support**: Support for various image formats (JPEG, PNG, WebP, GIF, etc.)
+- **AWS S3 Integration**: Professional S3 client with proper dependency injection
+- **CDN integration**: AWS CloudFront integration with configurable domains
+- **Responsive images**: Automatic generation of multiple thumbnail sizes
+- **Image optimization**: Size and quality optimization with configurable compression
+- **Database persistence**: Complete metadata storage with PostgreSQL integration
+- **Security & validation**: Comprehensive file validation (size, type, extension)
+- **Vendor access control**: Multi-tenant security with vendor isolation
+- **Caching support**: Redis-based caching for improved performance
+- **Bulk operations**: Mass upload and management capabilities
 
 ## 🏗️ System Architecture
 
