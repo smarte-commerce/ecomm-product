@@ -55,7 +55,7 @@ public class DatabaseInitializer implements CommandLineRunner {
     return new VariantData(id, name, price, sku, color, size);
   }
 
-  // ► RFC‑4122‑compliant (version‑4, variant 1) UUIDs
+  // ► RFC‑4122‑compliant (version‑4, variant 1) UUIDs
   // ──────────────────────────────────────────────────
 
   // Product IDs (product‑no. encoded in the first 8 hex digits)
@@ -80,40 +80,38 @@ public class DatabaseInitializer implements CommandLineRunner {
     try {
       log.info("Starting database initialization...");
 
-      // Create products with variants and inventory
+      // Create regional products for testing gateway routing
+      
+      // US Region Products
       createProductWithVariants(
           PRODUCT_1_ID,
           "Nike Air Max 270",
-          "Nike Air Max 270 - Comfortable running shoes",
+          "Nike Air Max 270 - Comfortable running shoes (US Market)",
+          RegionPartition.US,
           List.of(
-              createVariantData(VARIANT_1_1, "Black/White", 150.0, "NIKE-AM270-BW", "Black/White", "9"),
-              createVariantData(VARIANT_1_2, "White/Black", 150.0, "NIKE-AM270-WB", "White/Black", "9")));
+              createVariantData(VARIANT_1_1, "Black/White", 150.0, "NIKE-AM270-BW-US", "Black/White", "9"),
+              createVariantData(VARIANT_1_2, "White/Black", 150.0, "NIKE-AM270-WB-US", "White/Black", "9")));
 
-      // createProductWithVariants(
-      // PRODUCT_2_ID,
-      // "Adidas Ultraboost 21",
-      // "Adidas Ultraboost 21 - Premium running shoes",
-      // List.of(
-      // createVariantData(VARIANT_2_1, "Core Black", 180.0, "ADIDAS-UB21-CB",
-      // "Black", "9"),
-      // createVariantData(VARIANT_2_2, "White", 180.0, "ADIDAS-UB21-WH", "White",
-      // "9")
-      // )
-      // );
+      // EU Region Products
+      createProductWithVariants(
+          PRODUCT_2_ID,
+          "Adidas Ultraboost 21",
+          "Adidas Ultraboost 21 - Premium running shoes (EU Market)",
+          RegionPartition.EU,
+          List.of(
+              createVariantData(VARIANT_2_1, "Core Black", 180.0, "ADIDAS-UB21-CB-EU", "Black", "42"),
+              createVariantData(VARIANT_2_2, "White", 180.0, "ADIDAS-UB21-WH-EU", "White", "42")));
 
-      // createProductWithVariants(
-      // PRODUCT_3_ID,
-      // "Nike Dri-FIT T-Shirt",
-      // "Nike Dri-FIT T-Shirt - Lightweight and breathable",
-      // List.of(
-      // createVariantData(VARIANT_3_1, "Black - M", 29.99, "NIKE-TS-BL-M", "Black",
-      // "M"),
-      // createVariantData(VARIANT_3_2, "Black - L", 29.99, "NIKE-TS-BL-L", "Black",
-      // "L"),
-      // createVariantData(VARIANT_3_3, "White - M", 29.99, "NIKE-TS-WH-M", "White",
-      // "M")
-      // )
-      // );
+      // ASIA Region Products
+      createProductWithVariants(
+          PRODUCT_3_ID,
+          "Nike Dri-FIT T-Shirt",
+          "Nike Dri-FIT T-Shirt - Lightweight and breathable (ASIA Market)",
+          RegionPartition.ASIA,
+          List.of(
+              createVariantData(VARIANT_3_1, "Black - M", 29.99, "NIKE-TS-BL-M-ASIA", "Black", "M"),
+              createVariantData(VARIANT_3_2, "Black - L", 29.99, "NIKE-TS-BL-L-ASIA", "Black", "L"),
+              createVariantData(VARIANT_3_3, "White - M", 29.99, "NIKE-TS-WH-M-ASIA", "White", "M")));
 
       log.info("Database initialization completed successfully!");
     } catch (Exception e) {
@@ -122,18 +120,15 @@ public class DatabaseInitializer implements CommandLineRunner {
   }
 
   private void createProductWithVariants(UUID productId, String name, String description,
-      List<VariantData> variantsData) {
+      RegionPartition region, List<VariantData> variantsData) {
     try {
-      // Check if product already exists by name
-      // boolean productExists = productRepository.findAll().stream()
-      // .anyMatch(p -> name.equals(p.getName()));
+      // Check if product already exists by ID to avoid duplicates
+      if (productRepository.existsById(productId)) {
+        log.info("Product '{}' already exists, skipping...", name);
+        return;
+      }
 
-      // if (productExists) {
-      // log.info("Product '{}' already exists, skipping...", name);
-      // return;
-      // }
-
-      // Create product with fixed ID
+      // Create product with specified region
       EProduct product = EProduct.builder()
           .id(productId)
           .name(name)
@@ -141,21 +136,20 @@ public class DatabaseInitializer implements CommandLineRunner {
           .isPublished(true)
           .shopId(SHOP_ID)
           .productType(ProductType.FASHION)
-          .region(RegionPartition.ASIA)
+          .region(region)
           .build();
+      
       EProductVariant variant = createProductVariants(product, variantsData);
-
-      EInventory inventory = createInventory(product, variant.getSku());
+      EInventory inventory = createInventory(product, variant.getSku(), region);
       product.getInventories().add(inventory);
-      // product.getVariations().add(variant);
 
       EProduct savedProduct = productRepository.save(product);
-      log.info("Created product '{}' with {} variants", name, variantsData.size());
+      log.info("Created product '{}' with {} variants for region {}", name, variantsData.size(), region.getCode());
 
     } catch (Exception e) {
-      log.error("Error creating product: {}", name, e);
+      log.error("Error creating product: {} for region {}", name, region.getCode(), e);
     }
-  }     
+  }
 
   private EProductVariant createProductVariants(EProduct product, List<VariantData> variantsData) {
     for (VariantData variantData : variantsData) {
@@ -183,22 +177,29 @@ public class DatabaseInitializer implements CommandLineRunner {
     return null;
   }
 
-  private EInventory createInventory(EProduct product, String sku) {
+  private EInventory createInventory(EProduct product, String sku, RegionPartition region) {
     try {
+      // Regional warehouse addresses
+      String warehouseAddress = switch (region) {
+        case US -> "Warehouse A, Los Angeles, CA, USA";
+        case EU -> "Warehouse B, Amsterdam, Netherlands";
+        case ASIA -> "Warehouse C, District 1, Ho Chi Minh City, Vietnam";
+      };
+
       EInventory inventory = EInventory.builder()
           .sku(sku)
           .quantityReserved(0)
           .quantitySold(0)
-          .address("Warehouse A, District 1, Ho Chi Minh City")
+          .address(warehouseAddress)
           .isDeleted(false)
           .quantityAvailable(100)
           .product(product)
           .build();
-      // product.getInventories().add(inventory);
+      
       return inventory;
 
     } catch (Exception e) {
-      log.error("Error creating inventory: {}", sku, e);
+      log.error("Error creating inventory: {} for region {}", sku, region.getCode(), e);
     }
     return null;
   }
