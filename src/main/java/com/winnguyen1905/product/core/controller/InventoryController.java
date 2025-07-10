@@ -11,6 +11,7 @@ import com.winnguyen1905.product.core.model.viewmodel.InventoryVm;
 import com.winnguyen1905.product.core.model.viewmodel.PagedResponse;
 import com.winnguyen1905.product.core.service.CustomerProductService;
 import com.winnguyen1905.product.core.service.InventoryService;
+import com.winnguyen1905.product.secure.AccountRequest;
 import com.winnguyen1905.product.secure.TAccountRequest;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -56,7 +57,7 @@ public class InventoryController extends BaseController {
       @ApiResponse(responseCode = "403", description = "Not authorized to access this resource"),
       @ApiResponse(responseCode = "404", description = "Product not found")
   })
-  @PreAuthorize("hasAnyRole('VENDOR', 'ADMIN')")
+  // @PreAuthorize("hasAnyRole('VENDOR', 'ADMIN')")
   public ResponseEntity<PagedResponse<InventoryVm>> getProductInventories(
       @Parameter(description = "Product ID", required = true) @PathVariable UUID productId,
       Pageable pageable,
@@ -74,7 +75,7 @@ public class InventoryController extends BaseController {
       @ApiResponse(responseCode = "403", description = "Not authorized to access this resource"),
       @ApiResponse(responseCode = "404", description = "Inventory not found")
   })
-  @PreAuthorize("hasAnyRole('VENDOR', 'ADMIN')")
+  // @PreAuthorize("hasAnyRole('VENDOR', 'ADMIN')")
   public ResponseEntity<InventoryVm> getInventoryById(
       @Parameter(description = "Inventory ID", required = true) @PathVariable UUID id,
       TAccountRequest accountRequest) {
@@ -90,7 +91,7 @@ public class InventoryController extends BaseController {
       @ApiResponse(responseCode = "200", description = "Successfully retrieved inventory"),
       @ApiResponse(responseCode = "404", description = "Inventory not found with the given SKU")
   })
-  @PreAuthorize("hasAnyRole('VENDOR', 'ADMIN', 'CUSTOMER')")
+  // @PreAuthorize("hasAnyRole('VENDOR', 'ADMIN', 'CUSTOMER')")
   public ResponseEntity<InventoryVm> getInventoryBySku(
       @Parameter(description = "Product SKU", required = true) @PathVariable String sku,
       TAccountRequest accountRequest) {
@@ -108,7 +109,7 @@ public class InventoryController extends BaseController {
       @ApiResponse(responseCode = "403", description = "Not authorized to update inventory"),
       @ApiResponse(responseCode = "404", description = "Inventory not found")
   })
-  @PreAuthorize("hasAnyRole('VENDOR', 'ADMIN')")
+  // @PreAuthorize("hasAnyRole('VENDOR', 'ADMIN')")
   public ResponseEntity<InventoryVm> updateInventory(
       @Parameter(description = "Inventory ID", required = true) @PathVariable UUID id,
       @Valid @RequestBody UpdateInventoryRequest request,
@@ -127,7 +128,7 @@ public class InventoryController extends BaseController {
       @ApiResponse(responseCode = "400", description = "Insufficient quantity or invalid request"),
       @ApiResponse(responseCode = "404", description = "Inventory not found")
   })
-  @PreAuthorize("hasAnyRole('VENDOR', 'ADMIN', 'CUSTOMER')")
+  // @PreAuthorize("hasAnyRole('VENDOR', 'ADMIN', 'CUSTOMER')")
   public Mono<ResponseEntity<InventoryVm>> reserveInventory(
       @Parameter(description = "Inventory ID", required = true) @PathVariable UUID id,
       @Parameter(description = "Quantity to reserve", required = true) @RequestParam Integer quantity,
@@ -150,7 +151,7 @@ public class InventoryController extends BaseController {
       @ApiResponse(responseCode = "403", description = "Not authorized to release inventory"),
       @ApiResponse(responseCode = "404", description = "Inventory not found")
   })
-  @PreAuthorize("hasAnyRole('VENDOR', 'ADMIN')")
+  // @PreAuthorize("hasAnyRole('VENDOR', 'ADMIN')")
   public Mono<ResponseEntity<InventoryVm>> releaseInventory(
       @Parameter(description = "Inventory ID", required = true) @PathVariable UUID id,
       @Parameter(description = "Quantity to release", required = true) @RequestParam Integer quantity,
@@ -186,11 +187,10 @@ public class InventoryController extends BaseController {
       @ApiResponse(responseCode = "400", description = "Invalid reserve request"),
       @ApiResponse(responseCode = "403", description = "Not authorized to reserve inventory")
   })
-  @PreAuthorize("hasAnyRole('CUSTOMER', 'ADMIN')")
+  // @PreAuthorize("hasAnyRole('CUSTOMER', 'ADMIN')")
   public ResponseEntity<ReserveInventoryResponse> reserveInventoryBatch(
       @Valid @RequestBody ReserveInventoryRequest request,
-      TAccountRequest accountRequest) {
-    logRequest("Batch reserving inventory", accountRequest);
+      @AccountRequest TAccountRequest accountRequest) {
     var result = customerProductService.reserveInventory(request);
     return ok(result);
   }
