@@ -23,7 +23,13 @@ public record SearchProductRequest(
     RegionPartition region,
     ProductType productType,
     ProductStatus status,
-    Boolean isPublished
+    Boolean isPublished,
+    
+    // Partition-first search options
+    Boolean enablePartitionFirst,
+    Double partitionFirstThreshold, // Minimum results ratio to avoid fallback (0.0 - 1.0)
+    Integer maxResultsFromOtherPartitions,
+    Boolean includeGlobalProducts
 ) implements AbstractModel {
 
   /**
@@ -37,6 +43,35 @@ public record SearchProductRequest(
       return searchTerm.trim();
     }
     return null;
+  }
+
+  /**
+   * Check if partition-first search is enabled
+   */
+  public boolean isPartitionFirstEnabled() {
+    return enablePartitionFirst != null ? enablePartitionFirst : true; // Default enabled
+  }
+
+  /**
+   * Get the threshold for partition-first search (0.3 = 30% of desired results)
+   */
+  public double getPartitionFirstThreshold() {
+    return partitionFirstThreshold != null ? partitionFirstThreshold : 0.3;
+  }
+
+  /**
+   * Get max results from other partitions when falling back
+   */
+  public int getMaxResultsFromOtherPartitions() {
+    return maxResultsFromOtherPartitions != null ? maxResultsFromOtherPartitions : 
+           Math.max(10, getPage().getPageSize() / 2);
+  }
+
+  /**
+   * Check if global products should be included in search
+   */
+  public boolean shouldIncludeGlobalProducts() {
+    return includeGlobalProducts != null ? includeGlobalProducts : true;
   }
 
   /**
