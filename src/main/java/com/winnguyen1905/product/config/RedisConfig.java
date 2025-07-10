@@ -146,6 +146,20 @@ public class RedisConfig implements MessageListener, ApplicationEventPublisherAw
   }
 
   /**
+   * Creates a StringRedisTemplate for simple String operations.
+   * Used primarily for IP-region caching from gateway service.
+   */
+  @Bean
+  public StringRedisTemplate stringRedisTemplate(RedisConnectionFactory factory) {
+    log.debug("Creating StringRedisTemplate");
+    
+    StringRedisTemplate template = new StringRedisTemplate();
+    template.setConnectionFactory(factory);
+    template.afterPropertiesSet();
+    return template;
+  }
+
+  /**
    * Provides reactive value operations for String values.
    */
   @Bean
