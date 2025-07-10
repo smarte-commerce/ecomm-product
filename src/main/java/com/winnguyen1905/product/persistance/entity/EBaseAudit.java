@@ -1,4 +1,4 @@
-package com.winnguyen1905.product.persistance.entity.garbage;
+package com.winnguyen1905.product.persistance.entity;
 
 import java.time.Instant;
 import java.util.Objects;
