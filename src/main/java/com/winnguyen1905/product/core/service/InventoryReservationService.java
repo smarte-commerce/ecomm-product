@@ -4,24 +4,19 @@ import com.winnguyen1905.product.core.model.entity.Reservation;
 import reactor.core.publisher.Mono;
 
 public interface InventoryReservationService {
+    
     /**
-     * Process inventory reservation for the given reservation
-     * @param reservation The reservation to process
-     * @return The processed reservation
+     * Reserve inventory for items in a reservation
      */
     Mono<Reservation> reserveInventory(Reservation reservation);
     
     /**
-     * Release inventory for the given reservation
-     * @param reservation The reservation to release inventory for
-     * @return true if successful, false otherwise
+     * Release inventory previously reserved
      */
     Mono<Boolean> releaseInventory(Reservation reservation);
     
     /**
-     * Confirm inventory for the given reservation
-     * @param reservation The reservation to confirm inventory for
-     * @return true if successful, false otherwise
+     * Confirm inventory reservation and move to sold state
      */
     Mono<Boolean> confirmInventory(Reservation reservation);
 }
