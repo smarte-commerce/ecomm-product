@@ -1,0 +1,810 @@
+{
+  "info": {
+    "name": "Product Service API",
+    "description": "Comprehensive API collection for Product Service with all endpoints",
+    "version": "1.0.0",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "authToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "vendorId",
+      "value": "{{$randomUUID}}",
+      "type": "string"
+    },
+    {
+      "key": "productId",
+      "value": "{{$randomUUID}}",
+      "type": "string"
+    },
+    {
+      "key": "categoryId",
+      "value": "{{$randomUUID}}",
+      "type": "string"
+    },
+    {
+      "key": "brandId",
+      "value": "{{$randomUUID}}",
+      "type": "string"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{authToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "01. Authentication",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"vendor@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "login"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "02. Product CRUD",
+      "item": [
+        {
+          "name": "Create Product",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Sample Product\",\n  \"description\": \"This is a sample product description\",\n  \"shortDescription\": \"Sample product\",\n  \"productType\": \"SIMPLE\",\n  \"vendorId\": \"{{vendorId}}\",\n  \"shopId\": \"{{vendorId}}\",\n  \"region\": \"US\",\n  \"categoryId\": \"{{categoryId}}\",\n  \"brandId\": \"{{brandId}}\",\n  \"basePrice\": 29.99,\n  \"variants\": [\n    {\n      \"sku\": \"SAMPLE-001\",\n      \"name\": \"Default Variant\",\n      \"price\": 29.99,\n      \"inventoryQuantity\": 100\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/products",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "products"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Product",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/products/{{productId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "products", "{{productId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Product",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Product Name\",\n  \"description\": \"Updated product description\",\n  \"basePrice\": 39.99,\n  \"isPublished\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/products/{{productId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "products", "{{productId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Product",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/products/{{productId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "products", "{{productId}}"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "03. Product Search",
+      "item": [
+        {
+          "name": "Search Products",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"keyword\": \"sample\",\n  \"pagination\": {\n    \"pageNum\": 0,\n    \"pageSize\": 20\n  },\n  \"filters\": [\n    {\n      \"field\": \"category\",\n      \"values\": [\"electronics\"],\n      \"operator\": \"in\"\n    }\n  ],\n  \"sorts\": [\n    {\n      \"field\": \"price\",\n      \"order\": \"asc\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/products/search",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "products", "search"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Popular Products",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/products/search/popular?minPurchases=10&page=0&size=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "products", "search", "popular"],
+              "query": [
+                {
+                  "key": "minPurchases",
+                  "value": "10"
+                },
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "20"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Related Products",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/products/search/related/{{productId}}?page=0&size=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "products", "search", "related", "{{productId}}"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "04. Categories",
+      "item": [
+        {
+          "name": "Get All Categories",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/categories?includeInactive=false",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "categories"],
+              "query": [
+                {
+                  "key": "includeInactive",
+                  "value": "false"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Category",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Electronics\",\n  \"code\": \"ELECTRONICS\",\n  \"description\": \"Electronic devices and accessories\",\n  \"isPublished\": true,\n  \"isFeatured\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/categories",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "categories"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Category",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Electronics\",\n  \"description\": \"Updated description for electronics category\",\n  \"isPublished\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/categories/{{categoryId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "categories", "{{categoryId}}"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "05. Brands",
+      "item": [
+        {
+          "name": "Get All Brands",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/brands?page=0&size=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "brands"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "20"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Brand",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Sample Brand\",\n  \"code\": \"SAMPLE-BRAND\",\n  \"description\": \"A sample brand for testing\",\n  \"isActive\": true,\n  \"isGlobalBrand\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/brands",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "brands"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "06. Customer Products",
+      "item": [
+        {
+          "name": "Search Products (Customer)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"keyword\": \"electronics\",\n  \"pagination\": {\n    \"pageNum\": 0,\n    \"pageSize\": 20\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/customer/products/search",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "customer", "products", "search"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Product Detail",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/customer/products/{{productId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "customer", "products", "{{productId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Check Product Availability",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"items\": [\n    {\n      \"productId\": \"{{productId}}\",\n      \"variantId\": \"{{$randomUUID}}\",\n      \"quantity\": 2\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/customer/products/availability",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "customer", "products", "availability"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Reserve Inventory",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reservationId\": \"{{$randomUUID}}\",\n  \"items\": [\n    {\n      \"productId\": \"{{productId}}\",\n      \"variantId\": \"{{$randomUUID}}\",\n      \"quantity\": 1\n    }\n  ],\n  \"expiresAt\": \"2024-12-31T23:59:59Z\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/customer/products/reserve-inventory",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "customer", "products", "reserve-inventory"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "07. Inventory Management",
+      "item": [
+        {
+          "name": "Get Product Inventories",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/inventories/product/{{productId}}?page=0&size=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "inventories", "product", "{{productId}}"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "20"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Inventory",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"quantityAvailable\": 50,\n  \"quantityReserved\": 10,\n  \"quantitySold\": 40\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/inventories/{{$randomUUID}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "inventories", "{{$randomUUID}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Reserve Inventory",
+          "request": {
+            "method": "PATCH",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/inventories/{{$randomUUID}}/reserve?quantity=5",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "inventories", "{{$randomUUID}}", "reserve"],
+              "query": [
+                {
+                  "key": "quantity",
+                  "value": "5"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "08. Product Images",
+      "item": [
+        {
+          "name": "Get Product Images",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/products/{{productId}}/images?page=0&size=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "products", "{{productId}}", "images"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "20"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Upload Product Image",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": ""
+                },
+                {
+                  "key": "imageType",
+                  "value": "THUMBNAIL",
+                  "type": "text"
+                },
+                {
+                  "key": "isPrimary",
+                  "value": "true",
+                  "type": "text"
+                },
+                {
+                  "key": "title",
+                  "value": "Product Image",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/products/{{productId}}/images",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "products", "{{productId}}", "images"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "09. Vendor Management",
+      "item": [
+        {
+          "name": "Get Vendor Products",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/products/vendor/{{vendorId}}?status=ACTIVE&page=0&size=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "products", "vendor", "{{vendorId}}"],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "ACTIVE"
+                },
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "20"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Register Vendor",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"businessName\": \"Sample Business\",\n  \"businessType\": \"CORPORATION\",\n  \"contactPersonName\": \"John Doe\",\n  \"email\": \"john.doe@samplebusiness.com\",\n  \"phoneNumber\": \"+1234567890\",\n  \"businessAddress\": {\n    \"streetAddress\": \"123 Business St\",\n    \"city\": \"Business City\",\n    \"stateProvince\": \"BC\",\n    \"postalCode\": \"12345\",\n    \"countryCode\": \"US\"\n  },\n  \"bankingInformation\": {\n    \"bankName\": \"Sample Bank\",\n    \"accountHolderName\": \"John Doe\",\n    \"accountNumber\": \"123456789012\",\n    \"routingNumber\": \"123456789\",\n    \"accountType\": \"BUSINESS\"\n  },\n  \"region\": \"US\",\n  \"acceptedTermsAndConditions\": true,\n  \"acceptedPrivacyPolicy\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/vendors/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "vendors", "register"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "10. Bulk Operations",
+      "item": [
+        {
+          "name": "Bulk Update Product Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "[\"{{productId}}\", \"{{$randomUUID}}\", \"{{$randomUUID}}\"]"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/products/bulk/status?status=ACTIVE",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "products", "bulk", "status"],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "ACTIVE"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Bulk Import Products",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "[\n  {\n    \"name\": \"Bulk Product 1\",\n    \"description\": \"First bulk product\",\n    \"productType\": \"SIMPLE\",\n    \"vendorId\": \"{{vendorId}}\",\n    \"shopId\": \"{{vendorId}}\",\n    \"region\": \"US\",\n    \"basePrice\": 19.99,\n    \"variants\": [\n      {\n        \"sku\": \"BULK-001\",\n        \"price\": 19.99,\n        \"inventoryQuantity\": 50\n      }\n    ]\n  },\n  {\n    \"name\": \"Bulk Product 2\",\n    \"description\": \"Second bulk product\",\n    \"productType\": \"SIMPLE\",\n    \"vendorId\": \"{{vendorId}}\",\n    \"shopId\": \"{{vendorId}}\",\n    \"region\": \"US\",\n    \"basePrice\": 29.99,\n    \"variants\": [\n      {\n        \"sku\": \"BULK-002\",\n        \"price\": 29.99,\n        \"inventoryQuantory\": 75\n      }\n    ]\n  }\n]"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/products/bulk/import",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "products", "bulk", "import"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "11. Admin Operations",
+      "item": [
+        {
+          "name": "Get All Inventories (Admin)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/inventories?page=0&size=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "admin", "inventories"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "20"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Pending Approval Products",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/products/pending-approval?page=0&size=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "admin", "products", "pending-approval"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "20"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Approve Product",
+          "request": {
+            "method": "PATCH",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/products/{{productId}}/approve?approved=true",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "admin", "products", "{{productId}}", "approve"],
+              "query": [
+                {
+                  "key": "approved",
+                  "value": "true"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "12. Elasticsearch",
+      "item": [
+        {
+          "name": "Search Products (Elasticsearch)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"keyword\": \"electronics\",\n  \"pagination\": {\n    \"pageNum\": 0,\n    \"pageSize\": 20\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/elasticsearch/search",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "elasticsearch", "search"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Sync Product to Elasticsearch",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/elasticsearch/sync/product/{{productId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "elasticsearch", "sync", "product", "{{productId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Full Reindex",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/elasticsearch/reindex",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "elasticsearch", "reindex"]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Auto-generate UUIDs for testing",
+          "if (!pm.collectionVariables.get('productId') || pm.collectionVariables.get('productId').includes('randomUUID')) {",
+          "    pm.collectionVariables.set('productId', pm.utils.uuid());",
+          "}",
+          "",
+          "if (!pm.collectionVariables.get('vendorId') || pm.collectionVariables.get('vendorId').includes('randomUUID')) {",
+          "    pm.collectionVariables.set('vendorId', pm.utils.uuid());",
+          "}",
+          "",
+          "if (!pm.collectionVariables.get('categoryId') || pm.collectionVariables.get('categoryId').includes('randomUUID')) {",
+          "    pm.collectionVariables.set('categoryId', pm.utils.uuid());",
+          "}",
+          "",
+          "if (!pm.collectionVariables.get('brandId') || pm.collectionVariables.get('brandId').includes('randomUUID')) {",
+          "    pm.collectionVariables.set('brandId', pm.utils.uuid());",
+          "}"
+        ]
+      }
+    }
+  ]
+} 
