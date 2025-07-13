@@ -136,7 +136,8 @@ public interface VendorProductService {
   /**
    * Upload vendor verification documents
    */
-  VendorDocumentUploadResponse uploadVerificationDocuments(UUID vendorId, String documentType, MultipartFile documentFile);
+  VendorDocumentUploadResponse uploadVerificationDocuments(UUID vendorId, String documentType,
+      MultipartFile documentFile);
 
   /**
    * Get verification status for vendor

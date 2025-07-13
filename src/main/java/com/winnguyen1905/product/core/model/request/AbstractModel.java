@@ -11,5 +11,6 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 @JsonNaming(PropertyNamingStrategies.LowerCamelCaseStrategy.class)
 @JsonFormat(pattern = "HH-mm-ss a dd-MM-yyyy", timezone = "GMT+7")
 public interface AbstractModel extends Serializable {
-  @Serial static final long serialVersionUID = 7213600440729202783L;
+  @Serial
+  static final long serialVersionUID = 7213600440729202783L;
 }
