@@ -197,7 +197,7 @@ public class ProductMapper {
         .build();
   }
 
-  public static ProductVariantReviewVm toProductVariantReview(EProductVariant productVariant) {
+  public static ProductVariantReviewVm toProductVariantReviewFromVariant(EProductVariant productVariant) {
     return ProductVariantReviewVm.builder()
         .id(productVariant.getId())
         .sku(productVariant.getSku())
@@ -215,7 +215,7 @@ public class ProductMapper {
         .map(entry -> ProductVariantByShopVm.ShopProductVariant.builder()
             .shopId(entry.getKey())
             .productVariantReviews(entry.getValue().stream()
-                .map(ProductMapper::toProductVariantReview)
+                .map(variant -> toProductVariantReviewFromVariant(variant))
                 .collect(Collectors.toList()))
             .build())
         .collect(Collectors.toList());
