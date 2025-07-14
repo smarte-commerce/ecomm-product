@@ -11,6 +11,7 @@ import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.QueryHints;
 import org.springframework.data.repository.query.Param;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Repository;
 
 import com.winnguyen1905.product.persistance.entity.EInventory;
@@ -36,4 +37,14 @@ public interface InventoryRepository extends JpaRepository<EInventory, UUID> {
     @Query("SELECT i FROM EInventory i WHERE i.id = :id")
     @QueryHints({@QueryHint(name = "jakarta.persistence.lock.timeout", value = "1000")})
     Optional<EInventory> findByIdWithLock(@Param("id") UUID id);
+    
+    @Cacheable(value = "inventory", key = "#id")
+    @Lock(LockModeType.OPTIMISTIC)
+    @Query("SELECT i FROM EInventory i WHERE i.id = :id")
+    Optional<EInventory> findByIdWithOptimisticLock(@Param("id") UUID id);
+    
+    @Cacheable(value = "inventory", key = "#sku")
+    @Lock(LockModeType.OPTIMISTIC)
+    @Query("SELECT i FROM EInventory i WHERE i.sku = :sku")
+    Optional<EInventory> findBySkuWithOptimisticLock(@Param("sku") String sku);
 }

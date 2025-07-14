@@ -1,73 +1,71 @@
 package com.winnguyen1905.product.persistance.elasticsearch;
 
-import lombok.*;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.winnguyen1905.product.secure.RegionPartition;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.elasticsearch.annotations.Document;
+import org.springframework.data.elasticsearch.annotations.Field;
+import org.springframework.data.elasticsearch.annotations.FieldType;
+
+import java.io.Serializable;
 import java.time.Instant;
 import java.util.UUID;
 
-import org.hibernate.annotations.Type;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.elasticsearch.annotations.*;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.winnguyen1905.product.secure.RegionPartition;
-
-import io.hypersistence.utils.hibernate.type.json.JsonType;
-import jakarta.persistence.Column;
-
-@Getter
-@Setter
+/**
+ * Elasticsearch document for Product Variant data
+ */
+@Data
 @Builder
-@Document(indexName = "products", writeTypeHint = WriteTypeHint.FALSE, storeIdInSource = true)
-public class ESProductVariant {
-  @Id
-  private UUID id;
+@NoArgsConstructor
+@AllArgsConstructor
+@Document(indexName = "product_variants")
+public class ESProductVariant implements Serializable {
 
-  @Field(type = FieldType.Keyword, name = "region")
-  private RegionPartition region;
+    @Id
+    private UUID id;
 
-  @Field(type = FieldType.Keyword, name = "product_id")
-  private UUID productId;
+    @Field(type = FieldType.Keyword)
+    private UUID productId;
 
-  @Field(type = FieldType.Keyword, name = "shop_id")
-  private UUID shopId;
+    @Field(type = FieldType.Keyword)
+    private RegionPartition region;
 
-  @Field(type = FieldType.Text, name = "name")
-  private String name;
+    @Field(type = FieldType.Object)
+    private JsonNode features;
 
-  @Field(type = FieldType.Text, name = "image_url")
-  private String imageUrl;
+    @Field(type = FieldType.Text)
+    private String imageUrl;
 
-  @Field(type = FieldType.Text, name = "description")
-  private String description;
+    @Field(type = FieldType.Text)
+    private String brand;
 
-  @Field(type = FieldType.Keyword, name = "brand")
-  private String brand;
+    @Field(type = FieldType.Double)
+    private Double price;
 
-  @Field(type = FieldType.Keyword, name = "brand_category")
-  private String brandCategory;
+    @Field(type = FieldType.Text, analyzer = "standard")
+    private String name;
 
-  @Field(type = FieldType.Double_Range, name = "price")
-  private double price;
+    @Field(type = FieldType.Text)
+    private String description;
 
-  @Field(type = FieldType.Object, name = "category")
-  private ESCategory category;
+    @Field(type = FieldType.Object)
+    private ESInventory inventory;
 
-  @Type(JsonType.class)
-  @Field(type = FieldType.Object, name = "feature")
-  private Object features;
+    @Field(type = FieldType.Keyword)
+    private String createdBy;
 
-  @Field(type = FieldType.Object, name = "inventory")
-  private ESInventory inventory;
+    @Field(type = FieldType.Keyword)
+    private String updatedBy;
 
-  @Field(type = FieldType.Date, name = "created_by")
-  private String createdBy;
+    @Field(type = FieldType.Date)
+    private Instant createdDate;
 
-  @Field(type = FieldType.Date, name = "updated_by")
-  private String updatedBy;
+    @Field(type = FieldType.Date)
+    private Instant updatedDate;
 
-  @Field(type = FieldType.Date, name = "created_date")
-  private Instant createdDate;
-
-  @Field(type = FieldType.Date, name = "updated_date")
-  private Instant updatedDate;
-}
+    private static final long serialVersionUID = 1L;
+} 
