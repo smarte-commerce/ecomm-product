@@ -2,16 +2,10 @@ package com.winnguyen1905.product.core.controller;
 
 import com.winnguyen1905.product.common.annotation.ResponseMessage;
 import com.winnguyen1905.product.core.controller.base.BaseController;
-import com.winnguyen1905.product.core.model.request.InventoryConfirmationRequest;
-import com.winnguyen1905.product.core.model.request.ReserveInventoryRequest;
 import com.winnguyen1905.product.core.model.request.UpdateInventoryRequest;
-import com.winnguyen1905.product.core.model.response.InventoryConfirmationResponse;
-import com.winnguyen1905.product.core.model.response.ReserveInventoryResponse;
 import com.winnguyen1905.product.core.model.viewmodel.InventoryVm;
 import com.winnguyen1905.product.core.model.viewmodel.PagedResponse;
-import com.winnguyen1905.product.core.service.CustomerProductService;
 import com.winnguyen1905.product.core.service.InventoryService;
-import com.winnguyen1905.product.secure.AccountRequest;
 import com.winnguyen1905.product.secure.TAccountRequest;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -25,7 +19,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
@@ -35,7 +28,7 @@ import java.util.UUID;
 /**
  * Inventory Management REST API Controller
  * 
- * Provides endpoints for inventory management including querying, updating,
+ * Simplified inventory operations including querying, updating,
  * reserving and releasing inventory
  */
 @Slf4j
@@ -43,11 +36,10 @@ import java.util.UUID;
 @RequestMapping("/api/v1/inventories")
 @RequiredArgsConstructor
 @Validated
-@Tag(name = "Inventory Management", description = "APIs for inventory operations")
+@Tag(name = "Inventory Management", description = "Core inventory operations")
 public class InventoryController extends BaseController {
 
   private final InventoryService inventoryService;
-  private final CustomerProductService customerProductService;
 
   @GetMapping("/product/{productId}")
   @ResponseMessage(message = "Get product inventories success")
@@ -165,33 +157,4 @@ public class InventoryController extends BaseController {
         });
   }
 
-  @PostMapping("/check-availability")
-  @ResponseMessage(message = "Check inventory availability success")
-  @Operation(summary = "Check inventory availability", description = "Checks availability for multiple inventory items")
-  @ApiResponses({
-      @ApiResponse(responseCode = "200", description = "Successfully checked availability"),
-      @ApiResponse(responseCode = "400", description = "Invalid availability request")
-  })
-  public ResponseEntity<InventoryConfirmationResponse> checkInventoryAvailability(
-      @Valid @RequestBody InventoryConfirmationRequest request) {
-    logPublicRequest("Checking inventory availability for reservation: " + request.getReservationId());
-    var result = customerProductService.inventoryConfirmation(request);
-    return ok(result);
-  }
-
-  @PostMapping("/reserve-batch")
-  @ResponseMessage(message = "Batch reserve inventory success")
-  @Operation(summary = "Batch reserve inventory", description = "Reserves multiple inventory items")
-  @ApiResponses({
-      @ApiResponse(responseCode = "200", description = "Successfully reserved inventory batch"),
-      @ApiResponse(responseCode = "400", description = "Invalid reserve request"),
-      @ApiResponse(responseCode = "403", description = "Not authorized to reserve inventory")
-  })
-  // @PreAuthorize("hasAnyRole('CUSTOMER', 'ADMIN')")
-  public ResponseEntity<ReserveInventoryResponse> reserveInventoryBatch(
-      @Valid @RequestBody ReserveInventoryRequest request,
-      @AccountRequest TAccountRequest accountRequest) {
-    var result = customerProductService.reserveInventory(request);
-    return ok(result);
-  }
 }
