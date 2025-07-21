@@ -1,9 +1,13 @@
 package com.winnguyen1905.product.core.controller;
 
+import com.winnguyen1905.product.common.annotation.ResponseMessage;
 import com.winnguyen1905.product.core.controller.base.BaseController;
+import com.winnguyen1905.product.core.elasticsearch.service.ProductSearchService;
+import com.winnguyen1905.product.core.elasticsearch.service.ProductSyncService;
 import com.winnguyen1905.product.core.model.request.SearchProductRequest;
 import com.winnguyen1905.product.core.model.response.ProductResponse;
 import com.winnguyen1905.product.core.model.viewmodel.PagedResponse;
+import com.winnguyen1905.product.core.model.viewmodel.ProductVariantReviewVm;
 import com.winnguyen1905.product.core.service.EnhancedProductService;
 import com.winnguyen1905.product.secure.TAccountRequest;
 
@@ -22,22 +26,27 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /**
  * Product Search REST API Controller
  * 
- * Handles product search operations with Elasticsearch
+ * Handles all product search operations including Elasticsearch,
+ * sync operations, suggestions, and analytics
  */
 @Slf4j
 @RestController
-@RequestMapping("/api/v1/products/search")
+@RequestMapping("/api/v1/search")
 @RequiredArgsConstructor
 @Validated
-@Tag(name = "Product Search", description = "Product search operations")
+@Tag(name = "Product Search", description = "All product search and Elasticsearch operations")
 public class ProductSearchController extends BaseController {
 
   private final EnhancedProductService enhancedProductService;
+  private final ProductSearchService productSearchService;
+  private final ProductSyncService productSyncService;
 
   @PostMapping
   @Operation(summary = "Search products", description = "Search products with Elasticsearch using partition-first approach")
@@ -192,10 +201,124 @@ public class ProductSearchController extends BaseController {
   public ResponseEntity<ProductResponse> getProductBySlug(
       @Parameter(description = "Product slug", required = true) @PathVariable String slug,
       @Parameter(description = "Vendor ID") @RequestParam(required = false) UUID vendorId) {
-    
     logPublicRequest("Getting product by slug: " + slug + " for vendor: " + vendorId);
-    
     ProductResponse response = enhancedProductService.getProductBySlug(slug, vendorId);
     return ok(response);
+  }
+
+  // ================== ELASTICSEARCH OPERATIONS ==================
+
+  @PostMapping("/elasticsearch")
+  @ResponseMessage(message = "Elasticsearch search success")
+  @Operation(summary = "Elasticsearch search", description = "Advanced product search with Elasticsearch")
+  @ApiResponses({
+      @ApiResponse(responseCode = "200", description = "Products found successfully"),
+      @ApiResponse(responseCode = "400", description = "Invalid search request")
+  })
+  public ResponseEntity<PagedResponse<ProductVariantReviewVm>> searchWithElasticsearch(
+      @Valid @RequestBody SearchProductRequest searchRequest) {
+    logPublicRequest("Elasticsearch search with term: " + searchRequest.getKeyword());
+    PagedResponse<ProductVariantReviewVm> result = productSearchService.searchProducts(searchRequest);
+    return ok(result);
+  }
+
+  @GetMapping("/suggestions")
+  @Operation(summary = "Get search suggestions", description = "Get autocomplete suggestions for search")
+  @ApiResponses({
+      @ApiResponse(responseCode = "200", description = "Suggestions retrieved successfully")
+  })
+  public ResponseEntity<List<String>> getSearchSuggestions(
+      @Parameter(description = "Search term", required = true) @RequestParam String term) {
+    logPublicRequest("Getting search suggestions for: " + term);
+    List<String> suggestions = productSearchService.getSearchSuggestions(term);
+    return ok(suggestions);
+  }
+
+  // ================== SYNC OPERATIONS (Admin) ==================
+
+  @PostMapping("/sync/product/{productId}")
+  @ResponseMessage(message = "Sync product success")
+  @Operation(summary = "Sync single product", description = "Sync a single product to Elasticsearch")
+  @ApiResponses({
+      @ApiResponse(responseCode = "200", description = "Product synced successfully"),
+      @ApiResponse(responseCode = "404", description = "Product not found")
+  })
+  public ResponseEntity<Void> syncProduct(
+      @Parameter(description = "Product ID", required = true) @PathVariable UUID productId,
+      TAccountRequest accountRequest) {
+    logRequest("Syncing product to Elasticsearch", productId, accountRequest);
+    productSyncService.syncProduct(productId);
+    return noContent();
+  }
+
+  @PostMapping("/sync/products")
+  @ResponseMessage(message = "Sync products success")
+  @Operation(summary = "Sync multiple products", description = "Sync multiple products to Elasticsearch")
+  @ApiResponses({
+      @ApiResponse(responseCode = "200", description = "Products synced successfully")
+  })
+  public ResponseEntity<Void> syncProducts(
+      @Parameter(description = "Product IDs", required = true) @RequestBody List<UUID> productIds,
+      TAccountRequest accountRequest) {
+    logRequest("Syncing multiple products to Elasticsearch", accountRequest, String.valueOf(productIds.size()));
+    productSyncService.syncProducts(productIds);
+    return noContent();
+  }
+
+  @PostMapping("/reindex")
+  @ResponseMessage(message = "Full reindex started")
+  @Operation(summary = "Full reindex", description = "Perform full reindex of all products to Elasticsearch")
+  @ApiResponses({
+      @ApiResponse(responseCode = "200", description = "Reindex started successfully")
+  })
+  public ResponseEntity<Void> fullReindex(TAccountRequest accountRequest) {
+    logRequest("Starting full reindex of products", accountRequest, "ALL");
+    productSyncService.fullReindex();
+    return noContent();
+  }
+
+  @DeleteMapping("/product/{productId}")
+  @ResponseMessage(message = "Delete from index success")
+  @Operation(summary = "Delete product from index", description = "Remove product from Elasticsearch index")
+  @ApiResponses({
+      @ApiResponse(responseCode = "200", description = "Product deleted from index"),
+      @ApiResponse(responseCode = "404", description = "Product not found in index")
+  })
+  public ResponseEntity<Void> deleteProductFromIndex(
+      @Parameter(description = "Product ID", required = true) @PathVariable UUID productId,
+      TAccountRequest accountRequest) {
+    logRequest("Deleting product from Elasticsearch index", productId, accountRequest);
+    productSyncService.deleteProduct(productId);
+    return noContent();
+  }
+
+  // ================== HEALTH & STATISTICS ==================
+
+  @GetMapping("/health")
+  @Operation(summary = "Check index health", description = "Check Elasticsearch index health and statistics")
+  @ApiResponses({
+      @ApiResponse(responseCode = "200", description = "Index health retrieved successfully")
+  })
+  public ResponseEntity<String> checkIndexHealth() {
+    logPublicRequest("Checking Elasticsearch index health");
+    boolean isHealthy = productSyncService.isHealthy();
+    String message = isHealthy ? "Elasticsearch index is healthy" : "Elasticsearch index has issues";
+    return ok(message);
+  }
+
+  @GetMapping("/stats")
+  @Operation(summary = "Get index statistics", description = "Get detailed Elasticsearch index statistics")
+  @ApiResponses({
+      @ApiResponse(responseCode = "200", description = "Index statistics retrieved successfully")
+  })
+  public ResponseEntity<Object> getIndexStats(TAccountRequest accountRequest) {
+    logRequest("Getting Elasticsearch index statistics", accountRequest, "STATS");
+    long documentCount = productSyncService.getDocumentCount();
+    Map<String, Object> stats = Map.of(
+        "documentCount", documentCount,
+        "indexName", "products",
+        "isHealthy", productSyncService.isHealthy(),
+        "timestamp", java.time.Instant.now());
+    return ok(stats);
   }
 } 
