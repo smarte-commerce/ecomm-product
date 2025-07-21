@@ -1,40 +1,63 @@
 package com.winnguyen1905.product.core.service.impl;
 
 import com.winnguyen1905.product.core.model.entity.Reservation;
-import com.winnguyen1905.product.core.repository.ReservationRepository;
 import com.winnguyen1905.product.core.service.ReservationService;
+import com.winnguyen1905.product.exception.ReservationException;
+import com.winnguyen1905.product.persistance.repository.ReservationRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.UUID;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class ReservationServiceImpl implements ReservationService {
 
   private final ReservationRepository reservationRepository;
+
+  private static final Duration DEFAULT_RESERVATION_DURATION = Duration.ofMinutes(30);
+  private static final int MAX_RETRIES = 3;
 
   @Override
   public Mono<Reservation> createReservation(Reservation reservation) {
     if (reservation.getId() == null) {
       reservation.setId(UUID.randomUUID());
     }
+
+    // Set expiration time if not set
+    if (reservation.getExpiresAt() == null) {
+      reservation.setExpiresAt(Instant.now().plus(DEFAULT_RESERVATION_DURATION));
+    }
+
     reservation.setStatus("PENDING");
 
-    log.info("Creating reservation for {} items", reservation.getItems().size());
+    log.info("Creating reservation: {}", reservation.getId());
+    return reservationRepository.save(reservation);
+  }
 
-    // Save the reservation with PENDING status
-    return reservationRepository.save(reservation)
-        .doOnSuccess(res -> log.info("Successfully created reservation {}", res.getId()))
-        .onErrorResume(e -> {
-          log.error("Error creating reservation: {}", e.getMessage());
-          return Mono.error(new RuntimeException("Failed to create reservation: " + e.getMessage()));
+  @Override
+  public Mono<Reservation> getReservation(String id) {
+    log.debug("Getting reservation: {}", id);
+    return reservationRepository.findById(id)
+        .switchIfEmpty(Mono.error(new ReservationException("Reservation not found: " + id)));
+  }
+
+  @Override
+  public Mono<Reservation> updateReservation(Reservation reservation) {
+    return reservationRepository.existsById(reservation.getId().toString())
+        .flatMap(exists -> {
+          if (!exists) {
+            return Mono
+                .error(new ReservationException("Cannot update non-existent reservation: " + reservation.getId()));
+          }
+
+          log.info("Updating reservation: {}", reservation.getId());
+          return reservationRepository.save(reservation);
         });
   }
 
@@ -43,7 +66,7 @@ public class ReservationServiceImpl implements ReservationService {
     log.info("Updating reservation: {} to status: {}", reservationId, status);
 
     return reservationRepository.findById(reservationId)
-        .switchIfEmpty(Mono.error(new RuntimeException("Reservation not found: " + reservationId)))
+        .switchIfEmpty(Mono.error(new ReservationException("Reservation not found: " + reservationId)))
         .flatMap(reservation -> {
           reservation.setStatus(status);
           if ("CONFIRMED".equals(status)) {
@@ -60,7 +83,7 @@ public class ReservationServiceImpl implements ReservationService {
     log.info("Confirming reservation: {} for order: {}", reservationId, orderId);
 
     return reservationRepository.findById(reservationId)
-        .switchIfEmpty(Mono.error(new RuntimeException("Reservation not found: " + reservationId)))
+        .switchIfEmpty(Mono.error(new ReservationException("Reservation not found: " + reservationId)))
         .flatMap(reservation -> {
           if ("CONFIRMED".equals(reservation.getStatus())) {
             log.info("Reservation {} already confirmed", reservationId);
@@ -75,11 +98,9 @@ public class ReservationServiceImpl implements ReservationService {
 
           // Set order ID and update status
           reservation.setOrderId(orderId);
-          return updateReservationStatus(reservationId, "CONFIRMED");
-        })
-        .onErrorResume(e -> {
-          log.error("Error confirming reservation {}: {}", reservationId, e.getMessage());
-          return Mono.error(new RuntimeException("Failed to confirm reservation: " + e.getMessage()));
+          reservation.setStatus("CONFIRMED");
+          reservation.setConfirmedAt(Instant.now());
+          return reservationRepository.save(reservation);
         });
   }
 
@@ -88,7 +109,7 @@ public class ReservationServiceImpl implements ReservationService {
     log.info("Cancelling reservation: {}", reservationId);
 
     return reservationRepository.findById(reservationId)
-        .switchIfEmpty(Mono.error(new RuntimeException("Reservation not found: " + reservationId)))
+        .switchIfEmpty(Mono.error(new ReservationException("Reservation not found: " + reservationId)))
         .flatMap(reservation -> {
           // Check if already cancelled
           if ("CANCELLED".equals(reservation.getStatus())) {
@@ -102,17 +123,25 @@ public class ReservationServiceImpl implements ReservationService {
           }
 
           // Update reservation status to CANCELLED
-          return updateReservationStatus(reservationId, "CANCELLED")
-              .thenReturn(true);
-        })
-        .onErrorResume(e -> {
-          log.error("Error cancelling reservation {}: {}", reservationId, e.getMessage());
-          return Mono.error(new RuntimeException("Failed to cancel reservation: " + e.getMessage()));
+          reservation.setStatus("CANCELLED");
+          reservation.setCancelledAt(Instant.now());
+          return reservationRepository.save(reservation).thenReturn(true);
         });
   }
 
   @Override
-  public Mono<Reservation> getReservation(String reservationId) {
-    return reservationRepository.findById(reservationId);
+  public Mono<Boolean> isReservationValid(String id) {
+    return reservationRepository.findById(id)
+        .map(reservation -> {
+          boolean isValid = "PENDING".equals(reservation.getStatus()) ||
+              "CONFIRMED".equals(reservation.getStatus());
+
+          if (isValid && reservation.getExpiresAt() != null) {
+            isValid = Instant.now().isBefore(reservation.getExpiresAt());
+          }
+
+          return isValid;
+        })
+        .defaultIfEmpty(false);
   }
 }
