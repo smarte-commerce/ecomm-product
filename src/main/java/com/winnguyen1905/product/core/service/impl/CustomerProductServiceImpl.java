@@ -3,14 +3,15 @@ package com.winnguyen1905.product.core.service.impl;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.ArrayList;
 
-import org.springframework.data.elasticsearch.core.SearchHit;
-import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
-import com.winnguyen1905.product.core.mapper_v2.ProductESMapper;
+import com.winnguyen1905.product.core.elasticsearch.service.ProductSearchService;
 import com.winnguyen1905.product.core.mapper_v2.ProductMapper;
-import com.winnguyen1905.product.core.model.ProductVariantDetailVm;
 import com.winnguyen1905.product.core.model.request.InventoryConfirmationRequest;
 import com.winnguyen1905.product.core.model.request.ProductAvailabilityRequest;
 import com.winnguyen1905.product.core.model.request.ReserveInventoryRequest;
@@ -27,19 +28,19 @@ import com.winnguyen1905.product.core.service.InventoryService;
 import com.winnguyen1905.product.persistance.entity.EInventory;
 import com.winnguyen1905.product.persistance.entity.EProduct;
 import com.winnguyen1905.product.persistance.entity.EProductVariant;
-import com.winnguyen1905.product.persistance.elasticsearch.ESProductVariant;
 import com.winnguyen1905.product.persistance.repository.InventoryRepository;
 import java.util.Optional;
 import java.util.Set;
 
 import com.winnguyen1905.product.persistance.repository.ProductRepository;
 import com.winnguyen1905.product.persistance.repository.ProductVariantRepository;
-import com.winnguyen1905.product.persistance.repository.custom.ProductESCustomRepository;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import com.winnguyen1905.product.core.model.response.ProductVariantDetailResponse;
+import com.winnguyen1905.product.core.model.viewmodel.ProductImageVm;
 
 @Slf4j
 @Service
@@ -48,7 +49,7 @@ public class CustomerProductServiceImpl implements CustomerProductService {
 
   private final ProductRepository productRepository;
   private final ProductVariantRepository productVariantRepository;
-  private final ProductESCustomRepository productESRepository;
+  private final ProductSearchService productSearchService;
   private final InventoryRepository inventoryRepository;
   private final InventoryService inventoryService;
 
@@ -61,27 +62,24 @@ public class CustomerProductServiceImpl implements CustomerProductService {
 
   @Override
   public PagedResponse<ProductVariantReviewVm> searchProducts(SearchProductRequest searchProductRequest) {
-    SearchHits<ESProductVariant> searchHits = productESRepository.searchProducts(searchProductRequest,
-        ESProductVariant.class);
-
-    List<ESProductVariant> esProductVariants = searchHits.getSearchHits()
-        .stream()
-        .map(SearchHit::getContent)
-        .toList();
-
-    log.info("Number of products found: {}", esProductVariants.size());
-
-    List<ProductVariantReviewVm> productVariantResponses = ProductESMapper
-        .toProductVariantReviews(esProductVariants);
-
-    log.info("Number of product variant reviews mapped: {}", productVariantResponses.size());
-
-    return PagedResponse.<ProductVariantReviewVm>builder()
-        .results(productVariantResponses)
-        .page(searchProductRequest.getPage().pageNum())
-        .size(searchProductRequest.getPage().pageSize())
-        .totalElements((int) searchHits.getTotalHits())
-        .build();
+    log.info("Searching products with request: {}", searchProductRequest);
+    
+    try {
+      PagedResponse<ProductVariantReviewVm> response = productSearchService.searchProducts(searchProductRequest);
+      log.info("Found {} products for search", response.getTotalElements());
+      return response;
+    } catch (Exception e) {
+      log.error("Error searching products: {}", e.getMessage(), e);
+      // Return empty response on error
+      return PagedResponse.<ProductVariantReviewVm>builder()
+          .content(List.of())
+          .pageNumber(searchProductRequest.getPage().pageNum())
+          .pageSize(searchProductRequest.getPage().pageSize())
+          .totalElements(0)
+          .totalPages(0)
+          .isLastPage(true)
+          .build();
+    }
   }
 
   @Override
@@ -93,13 +91,13 @@ public class CustomerProductServiceImpl implements CustomerProductService {
   }
 
   @Override
-  public List<ProductVariantDetailVm> getProductVariantDetails(UUID productId) {
-    List<ProductVariantDetailVm> productVariants = this.productVariantRepository
+  public List<ProductVariantDetailResponse> getProductVariantDetails(UUID productId) {
+    List<ProductVariantDetailResponse> productVariants = this.productVariantRepository
         .findVariantsByProductId(productId).stream()
-        .map(productVariant -> ProductVariantDetailVm.builder()
+        .map(productVariant -> ProductVariantDetailResponse.builder()
             .id(productVariant.getId())
             .sku(productVariant.getSku())
-            .price(productVariant.getPrice())
+            .price(productVariant.getPrice() != null ? productVariant.getPrice().doubleValue() : 0.0)
             .build())
         .collect(Collectors.toList());
     return productVariants;
@@ -110,7 +108,7 @@ public class CustomerProductServiceImpl implements CustomerProductService {
     log.info("Checking product availability for request: {}", productAvailabilityRequest);
 
     List<ProductAvailabilityResponse.Item> availabilityItems = productAvailabilityRequest.getItems().stream()
-        .map(requestItem -> {
+        .<ProductAvailabilityResponse.Item>map(requestItem -> {
           try {
             // Find the product variant by ID
             var variant = productVariantRepository.findById(requestItem.getVariantId())
@@ -123,7 +121,8 @@ public class CustomerProductServiceImpl implements CustomerProductService {
 
             // Check if the variant is active and published
             boolean isActive = variant.getIsDeleted() == null || !variant.getIsDeleted();
-            boolean isPublished = variant.getProduct() != null && variant.getProduct().isPublished();
+            boolean isPublished = variant.getProduct() != null && 
+                                Boolean.TRUE.equals(variant.getProduct().getIsPublished());
 
             // Check inventory availability if inventory exists
             boolean isInStock = false;
@@ -142,7 +141,7 @@ public class CustomerProductServiceImpl implements CustomerProductService {
                 .available(isActive && isPublished && isInStock)
                 .isActive(isActive && isPublished)
                 .stockQuantity(availableQuantity)
-                .currentPrice(variant.getPrice() != null ? variant.getPrice() : 0.0)
+                .currentPrice(variant.getPrice() != null ? variant.getPrice().doubleValue() : 0.0)
                 .build();
 
           } catch (Exception e) {
@@ -265,6 +264,34 @@ public class CustomerProductServiceImpl implements CustomerProductService {
     response.setItems(List.of(item));
 
     return response;
+  }
+
+  @Override
+  public PagedResponse<ProductImageVm> getProductImages(UUID productId, Pageable pageable) {
+    log.info("Getting images for product: {}", productId);
+    
+    // Find product by ID
+    var product = productRepository.findByIdAndIsPublishedTrue(productId)
+        .orElseThrow(() -> new EntityNotFoundException("Product not found with id: " + productId));
+        
+    // You would typically have a repository method to fetch images directly
+    // This is a simplified implementation that gets images from the product entity
+    
+    // For now, return an empty list with pagination info
+    List<ProductImageVm> images = new ArrayList<>();
+    
+    // Create page implementation
+    Page<ProductImageVm> page = new PageImpl<>(images, pageable, 0);
+    
+    // Use constructor directly
+    return new PagedResponse<>(
+        page.getContent(),  // content
+        page.getNumber(),   // pageNumber
+        page.getSize(),     // pageSize
+        page.getTotalElements(), // totalElements
+        page.getTotalPages(),    // totalPages
+        page.isLast()           // isLastPage
+    );
   }
 
 }

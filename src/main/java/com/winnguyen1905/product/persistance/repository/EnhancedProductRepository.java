@@ -111,6 +111,45 @@ public interface EnhancedProductRepository extends JpaRepository<EProduct, UUID>
                                   @Param("region") RegionPartition region,
                                   Pageable pageable);
 
+    // ================== PARTITION-FIRST SEARCH ==================
+
+    @Query("SELECT p FROM EProduct p WHERE " +
+           "(:name IS NULL OR LOWER(p.name) LIKE LOWER(CONCAT('%', :name, '%'))) AND " +
+           "(:productType IS NULL OR p.productType = :productType) AND " +
+           "(:vendorId IS NULL OR p.vendorId = :vendorId) AND " +
+           "p.region = :region AND " +
+           "p.isPublished = true AND p.status = 'ACTIVE' AND p.isDeleted = false " +
+           "ORDER BY p.purchaseCount DESC, p.ratingAverage DESC")
+    Page<EProduct> searchProductsInPartition(@Param("name") String name,
+                                           @Param("productType") ProductType productType,
+                                           @Param("vendorId") UUID vendorId,
+                                           @Param("region") RegionPartition region,
+                                           Pageable pageable);
+
+    @Query("SELECT p FROM EProduct p WHERE " +
+           "(:name IS NULL OR LOWER(p.name) LIKE LOWER(CONCAT('%', :name, '%'))) AND " +
+           "(:productType IS NULL OR p.productType = :productType) AND " +
+           "(:vendorId IS NULL OR p.vendorId = :vendorId) AND " +
+           "p.region != :excludeRegion AND " +
+           "p.isPublished = true AND p.status = 'ACTIVE' AND p.isDeleted = false " +
+           "ORDER BY p.ratingAverage DESC, p.purchaseCount DESC")
+    Page<EProduct> searchProductsInOtherPartitions(@Param("name") String name,
+                                                  @Param("productType") ProductType productType,
+                                                  @Param("vendorId") UUID vendorId,
+                                                  @Param("excludeRegion") RegionPartition excludeRegion,
+                                                  Pageable pageable);
+
+    @Query("SELECT COUNT(p) FROM EProduct p WHERE " +
+           "(:name IS NULL OR LOWER(p.name) LIKE LOWER(CONCAT('%', :name, '%'))) AND " +
+           "(:productType IS NULL OR p.productType = :productType) AND " +
+           "(:vendorId IS NULL OR p.vendorId = :vendorId) AND " +
+           "p.region = :region AND " +
+           "p.isPublished = true AND p.status = 'ACTIVE' AND p.isDeleted = false")
+    long countProductsInPartition(@Param("name") String name,
+                                 @Param("productType") ProductType productType,
+                                 @Param("vendorId") UUID vendorId,
+                                 @Param("region") RegionPartition region);
+
     // ================== ANALYTICS QUERIES ==================
 
     @Query("SELECT COUNT(p) FROM EProduct p WHERE p.vendorId = :vendorId AND p.isDeleted = false")
