@@ -1,30 +1,41 @@
 package com.winnguyen1905.product.persistance.elasticsearch;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.elasticsearch.annotations.Document;
+import org.springframework.data.elasticsearch.annotations.Field;
+import org.springframework.data.elasticsearch.annotations.FieldType;
+
+import java.io.Serializable;
 import java.util.UUID;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.elasticsearch.annotations.Field;
-
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
-
-@Getter
-@Setter
+/**
+ * Elasticsearch document for Inventory data
+ */
+@Data
 @Builder
-public class ESInventory {
-  @Id
-  private UUID id;
+@NoArgsConstructor
+@AllArgsConstructor
+@Document(indexName = "inventory")
+public class ESInventory implements Serializable {
 
-  @Field(name = "sku")
-  private String sku;
+    @Id
+    private UUID id;
 
-  @Field(name = "quantity_available")
-  private int quantityAvailable;
+    @Field(type = FieldType.Keyword)
+    private String sku;
 
-  @Field(name = "quantity_reserved")
-  private int quantityReserved;
+    @Field(type = FieldType.Integer)
+    private Integer quantityAvailable;
 
-  @Field(name = "quantity_sold")
-  private int quantitySold;
-}
+    @Field(type = FieldType.Integer)
+    private Integer quantityReserved;
+
+    @Field(type = FieldType.Integer)
+    private Integer quantitySold;
+
+    private static final long serialVersionUID = 1L;
+} 
