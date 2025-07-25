@@ -1,0 +1,634 @@
+{
+  "name": "Additional Controllers - Part 2",
+  "item": [
+    {
+      "name": "6. Admin Controller",
+      "description": "Administrative operations and bulk management",
+      "item": [
+        {
+          "name": "Get All Inventories",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/inventories?page=0&size=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "admin", "inventories"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "20"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Pending Approval Products",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/products/pending-approval?page=0&size=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "admin", "products", "pending-approval"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "20"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Approve Product",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"isPublished\": true,\n  \"rejectionReason\": null\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/products/{{productIPhone15Id}}/approve",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "admin", "products", "{{productIPhone15Id}}", "approve"]
+            }
+          }
+        },
+        {
+          "name": "Bulk Update Product Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productIds\": [\n    \"{{productIPhone15Id}}\",\n    \"{{productSamsungS24Id}}\"\n  ],\n  \"status\": \"ACTIVE\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/products/bulk/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "admin", "products", "bulk", "status"]
+            }
+          }
+        },
+        {
+          "name": "Get Cache Status",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/system/cache/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "admin", "system", "cache", "status"]
+            }
+          }
+        },
+        {
+          "name": "Clear Cache",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cacheName\": \"products\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/system/cache/clear",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "admin", "system", "cache", "clear"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "7. Inventory Controller",
+      "description": "Inventory management and stock operations",
+      "item": [
+        {
+          "name": "Get Product Inventories",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{vendorToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/inventories/product/{{productIPhone15Id}}?page=0&size=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "inventories", "product", "{{productIPhone15Id}}"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "20"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Inventory by SKU",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/inventories/sku/{{testSku}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "inventories", "sku", "{{testSku}}"]
+            }
+          }
+        },
+        {
+          "name": "Reserve Inventory",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"quantity\": 2,\n  \"reservationId\": \"{{testOrderId}}\",\n  \"expirationMinutes\": 30\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/inventories/reserve",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "inventories", "reserve"]
+            }
+          }
+        },
+        {
+          "name": "Release Inventory",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"quantity\": 2,\n  \"reservationId\": \"{{testOrderId}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/inventories/release",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "inventories", "release"]
+            }
+          }
+        },
+        {
+          "name": "Check Inventory Availability",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"items\": [\n    {\n      \"sku\": \"{{testSku}}\",\n      \"quantity\": 5\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/inventories/check-availability",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "inventories", "check-availability"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "8. Internal Controller",
+      "description": "Service-to-service communication APIs",
+      "item": [
+        {
+          "name": "Calculate Pricing",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sagaId\": \"{{testSagaId}}\",\n  \"customerId\": \"{{testCustomerId}}\",\n  \"shopItems\": [\n    {\n      \"shopId\": \"{{shopId}}\",\n      \"items\": [\n        {\n          \"productVariantId\": \"{{variantIPhonePink128Id}}\",\n          \"quantity\": 1,\n          \"requestedPrice\": 799.00\n        },\n        {\n          \"productVariantId\": \"{{variantSamsungGray256Id}}\",\n          \"quantity\": 2,\n          \"requestedPrice\": 699.00\n        }\n      ]\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/internal/calculate-pricing",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "internal", "calculate-pricing"]
+            }
+          }
+        },
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/internal/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "internal", "health"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "9. Regional Controller",
+      "description": "Regional and multi-region operations",
+      "item": [
+        {
+          "name": "Get Regional Context",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/regional/context",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "regional", "context"]
+            }
+          }
+        },
+        {
+          "name": "Test Regional Routing - US",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/regional/test/us",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "regional", "test", "us"]
+            }
+          }
+        },
+        {
+          "name": "Test Regional Routing - EU",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/regional/test/eu",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "regional", "test", "eu"]
+            }
+          }
+        },
+        {
+          "name": "Test Regional Routing - ASIA",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/regional/test/asia",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "regional", "test", "asia"]
+            }
+          }
+        },
+        {
+          "name": "Get Regional Recommendations",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/regional/products/recommendations",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "regional", "products", "recommendations"]
+            }
+          }
+        },
+        {
+          "name": "Get Products in Current Region",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Region",
+                "value": "US"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/regional/products?page=0&size=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "regional", "products"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "20"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Products from Specific Region",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/regional/products/{{regionEU}}?page=0&size=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "regional", "products", "{{regionEU}}"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "20"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "10. Business Scenarios",
+      "description": "End-to-end business workflows and integration tests",
+      "item": [
+        {
+          "name": "E-commerce Flow - Browse Products",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"keyword\": \"\",\n  \"pagination\": {\n    \"pageNum\": 0,\n    \"pageSize\": 12\n  },\n  \"filters\": [\n    {\n      \"field\": \"category\",\n      \"values\": [\"Electronics\"],\n      \"operator\": \"in\"\n    },\n    {\n      \"field\": \"priceRange\",\n      \"values\": [\"500-1000\"],\n      \"operator\": \"range\"\n    }\n  ],\n  \"sorts\": [\n    {\n      \"field\": \"popularity\",\n      \"order\": \"desc\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/products/search",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "products", "search"]
+            }
+          }
+        },
+        {
+          "name": "E-commerce Flow - Product Detail View",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/products/public/{{productIPhone15Id}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "products", "public", "{{productIPhone15Id}}"]
+            }
+          }
+        },
+        {
+          "name": "E-commerce Flow - Check Stock",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productVariantIds\": [\n    \"{{variantIPhonePink128Id}}\"\n  ],\n  \"quantities\": [1]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/products/availability",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "products", "availability"]
+            }
+          }
+        },
+        {
+          "name": "E-commerce Flow - Add to Cart (Reserve)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerId\": \"{{testCustomerId}}\",\n  \"orderId\": \"{{testOrderId}}\",\n  \"items\": [\n    {\n      \"productVariantId\": \"{{variantIPhonePink128Id}}\",\n      \"quantity\": 1\n    }\n  ],\n  \"expirationMinutes\": 30\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/products/reserve-inventory",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "products", "reserve-inventory"]
+            }
+          }
+        },
+        {
+          "name": "Multi-Region Search - US Products",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Region",
+                "value": "US"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"keyword\": \"iPhone\",\n  \"region\": \"US\",\n  \"partitionFirstEnabled\": true,\n  \"pagination\": {\n    \"pageNum\": 0,\n    \"pageSize\": 10\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/search/elasticsearch",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "search", "elasticsearch"]
+            }
+          }
+        },
+        {
+          "name": "Multi-Region Search - EU Products",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Region",
+                "value": "EU"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"keyword\": \"Adidas\",\n  \"region\": \"EU\",\n  \"partitionFirstEnabled\": true,\n  \"pagination\": {\n    \"pageNum\": 0,\n    \"pageSize\": 10\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/search/elasticsearch",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "search", "elasticsearch"]
+            }
+          }
+        },
+        {
+          "name": "Multi-Region Search - ASIA Products",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Region",
+                "value": "ASIA"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"keyword\": \"Samsung\",\n  \"region\": \"ASIA\",\n  \"partitionFirstEnabled\": true,\n  \"pagination\": {\n    \"pageNum\": 0,\n    \"pageSize\": 10\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/search/elasticsearch",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "search", "elasticsearch"]
+            }
+          }
+        },
+        {
+          "name": "Vendor Workflow - Check Dashboard",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{vendorToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/vendors/analytics/dashboard",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "vendors", "analytics", "dashboard"]
+            }
+          }
+        },
+        {
+          "name": "Vendor Workflow - Update Product SEO",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{vendorToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"metaTitle\": \"Best Smartphone 2024 - iPhone 15\",\n  \"metaDescription\": \"Experience the future with iPhone 15. Advanced camera, powerful performance, all-day battery.\",\n  \"metaKeywords\": \"iPhone 15, smartphone, Apple, mobile phone, camera, 5G\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/vendors/products/{{productIPhone15Id}}/seo",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "vendors", "products", "{{productIPhone15Id}}", "seo"]
+            }
+          }
+        },
+        {
+          "name": "Admin Workflow - Monitor System",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/search/stats",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "search", "stats"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+} 

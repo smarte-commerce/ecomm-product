@@ -1,0 +1,280 @@
+{
+  "settings": {
+    "number_of_shards": 1,
+    "number_of_replicas": 1,
+    "max_result_window": 10000,
+    "analysis": {
+      "analyzer": {
+        "product_name_analyzer": {
+          "type": "custom",
+          "tokenizer": "standard",
+          "filter": [
+            "lowercase",
+            "asciifolding",
+            "synonym_filter",
+            "stop",
+            "stemmer"
+          ]
+        },
+        "autocomplete_analyzer": {
+          "type": "custom",
+          "tokenizer": "standard",
+          "filter": [
+            "lowercase",
+            "asciifolding",
+            "autocomplete_filter"
+          ]
+        },
+        "search_analyzer": {
+          "type": "custom",
+          "tokenizer": "standard",
+          "filter": [
+            "lowercase",
+            "asciifolding",
+            "synonym_filter",
+            "stop"
+          ]
+        }
+      },
+      "filter": {
+        "synonym_filter": {
+          "type": "synonym",
+          "synonyms": [
+            "phone,smartphone,mobile",
+            "laptop,notebook,computer",
+            "tv,television",
+            "shoes,footwear",
+            "shirt,top,blouse",
+            "pants,trousers",
+            "dress,gown",
+            "watch,timepiece"
+          ]
+        },
+        "autocomplete_filter": {
+          "type": "edge_ngram",
+          "min_gram": 2,
+          "max_gram": 20
+        },
+        "stemmer": {
+          "type": "stemmer",
+          "language": "english"
+        }
+      }
+    }
+  },
+  "mappings": {
+    "properties": {
+      "id": {
+        "type": "keyword"
+      },
+      "product_id": {
+        "type": "keyword"
+      },
+      "variant_id": {
+        "type": "keyword"
+      },
+      "shop_id": {
+        "type": "keyword"
+      },
+      "region": {
+        "type": "keyword"
+      },
+      "name": {
+        "type": "text",
+        "analyzer": "product_name_analyzer",
+        "search_analyzer": "search_analyzer",
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 256
+          },
+          "autocomplete": {
+            "type": "text",
+            "analyzer": "autocomplete_analyzer",
+            "search_analyzer": "standard"
+          }
+        }
+      },
+      "description": {
+        "type": "text",
+        "analyzer": "standard",
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 256
+          }
+        }
+      },
+      "sku": {
+        "type": "keyword"
+      },
+      "price": {
+        "type": "double"
+      },
+      "currency": {
+        "type": "keyword"
+      },
+      "image_url": {
+        "type": "text",
+        "index": false
+      },
+      "image_urls": {
+        "type": "keyword",
+        "index": false
+      },
+      "category": {
+        "type": "nested",
+        "properties": {
+          "id": {
+            "type": "keyword"
+          },
+          "name": {
+            "type": "text",
+            "analyzer": "standard",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "description": {
+            "type": "text",
+            "analyzer": "standard"
+          },
+          "parent_id": {
+            "type": "keyword"
+          },
+          "path": {
+            "type": "keyword"
+          },
+          "level": {
+            "type": "integer"
+          },
+          "left_bound": {
+            "type": "long"
+          },
+          "right_bound": {
+            "type": "long"
+          }
+        }
+      },
+      "brand": {
+        "type": "nested",
+        "properties": {
+          "id": {
+            "type": "keyword"
+          },
+          "name": {
+            "type": "text",
+            "analyzer": "standard",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "description": {
+            "type": "text",
+            "analyzer": "standard"
+          },
+          "logo_url": {
+            "type": "keyword",
+            "index": false
+          },
+          "website": {
+            "type": "keyword",
+            "index": false
+          },
+          "is_verified": {
+            "type": "boolean"
+          }
+        }
+      },
+      "inventory": {
+        "type": "nested",
+        "properties": {
+          "id": {
+            "type": "keyword"
+          },
+          "sku": {
+            "type": "keyword"
+          },
+          "quantity_available": {
+            "type": "integer"
+          },
+          "quantity_reserved": {
+            "type": "integer"
+          },
+          "quantity_sold": {
+            "type": "integer"
+          },
+          "low_stock_threshold": {
+            "type": "integer"
+          },
+          "is_in_stock": {
+            "type": "boolean"
+          },
+          "is_low_stock": {
+            "type": "boolean"
+          },
+          "last_updated": {
+            "type": "date"
+          }
+        }
+      },
+      "features": {
+        "type": "object",
+        "enabled": true
+      },
+      "status": {
+        "type": "keyword"
+      },
+      "is_published": {
+        "type": "boolean"
+      },
+      "is_featured": {
+        "type": "boolean"
+      },
+      "rating": {
+        "type": "double"
+      },
+      "review_count": {
+        "type": "integer"
+      },
+      "view_count": {
+        "type": "integer"
+      },
+      "purchase_count": {
+        "type": "integer"
+      },
+      "tags": {
+        "type": "keyword"
+      },
+      "seo_title": {
+        "type": "text",
+        "analyzer": "standard"
+      },
+      "seo_description": {
+        "type": "text",
+        "analyzer": "standard"
+      },
+      "seo_keywords": {
+        "type": "keyword"
+      },
+      "created_date": {
+        "type": "date"
+      },
+      "updated_date": {
+        "type": "date"
+      },
+      "created_by": {
+        "type": "keyword"
+      },
+      "updated_by": {
+        "type": "keyword"
+      }
+    }
+  }
+} 

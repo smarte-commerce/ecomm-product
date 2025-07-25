@@ -24,10 +24,24 @@ eureka:
 spring:
   application:
     name: PRODUCT-SERVICE
+  
+  # OAuth2 Resource Server Configuration for JWT
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8080/realms/myrealm
+  
   flyway:
     enabled: true
     baseline-on-migrate: true
     locations: classpath:db/migration
+  
+  cache:
+    type: redis
+    redis:
+      time-to-live: 3600000  # 1 hour in milliseconds
+      cache-null-values: false
 
   # Redis Configuration
   data:
@@ -105,6 +119,9 @@ spring:
     multipart:
       max-file-size: 50MB
       max-request-size: 50MB
+      enabled: true
+      file-size-threshold: 2KB
+      location: ${java.io.tmpdir}
 
   main:
     allow-bean-definition-overriding: true
@@ -146,3 +163,110 @@ jwt:
   base64-secret: hl4gDqBxBgOSDWqBlvwFYQInjYRGAdS4lUT7Nf3Zk1nItoSQ9wSFDPU+kXHKcKUW/UKbpGv9bCsa9S/QsoFRHw==
   access_token-validity-in-seconds: 90000000
   refresh_token-validity-in-seconds: 100000000
+
+# Enhanced Elasticsearch Configuration
+elasticsearch:
+  host: ${ELASTICSEARCH_HOST:localhost}
+  port: ${ELASTICSEARCH_PORT:9200}
+  username: ${ELASTICSEARCH_USERNAME:elastic}
+  password: ${ELASTICSEARCH_PASSWORD:guest}
+  ssl:
+    enabled: ${ELASTICSEARCH_SSL_ENABLED:false}
+  connection:
+    timeout: ${ELASTICSEARCH_CONNECTION_TIMEOUT:5000}
+  socket:
+    timeout: ${ELASTICSEARCH_SOCKET_TIMEOUT:30000}
+  indices:
+    products:
+      name: products
+      settings-path: elasticsearch/product-settings.json
+      refresh-policy: wait_for
+  search:
+    max-result-window: 10000
+    default-page-size: 20
+    max-page-size: 100
+    suggestion-limit: 10
+
+# AWS S3 Configuration
+aws:
+  s3:
+    # S3 Connection Settings
+    region: ${AWS_REGION:ca-central-1}
+    access-key: ${AWS_ACCESS_KEY_ID:}
+    secret-key: ${AWS_SECRET_ACCESS_KEY:}
+    
+    # Bucket Configuration
+    bucket:
+      name: ${S3_BUCKET_NAME:product-images}
+      product-images: ${S3_PRODUCT_IMAGES_BUCKET:product-images}
+      
+    # Upload Configuration
+    upload:
+      max-file-size: 50MB
+      allowed-content-types:
+        - image/jpeg
+        - image/jpg
+        - image/png
+        - image/gif
+        - image/webp
+        - image/bmp
+        - image/tiff
+      allowed-extensions:
+        - jpg
+        - jpeg
+        - png
+        - gif
+        - webp
+        - bmp
+        - tiff
+      max-files-per-upload: 10
+      
+    # CDN Configuration (CloudFront)
+    cdn:
+      enabled: ${CDN_ENABLED:false}
+      domain: ${CDN_DOMAIN:}
+      
+    # Connection Settings
+    connection:
+      timeout: 30000
+      socket-timeout: 30000
+      max-connections: 50
+      max-error-retry: 3
+      
+    # Security
+    use-iam-role: ${USE_IAM_ROLE:true}
+    
+    # Image Processing
+    image-processing:
+      enabled: true
+      quality: 85
+      thumbnails:
+        enabled: true
+        sizes:
+          - name: thumbnail
+            width: 150
+            height: 150
+          - name: small
+            width: 300
+            height: 300
+          - name: medium
+            width: 600
+            height: 600
+          - name: large
+            width: 1200
+            height: 1200
+
+# File Upload Validation
+file:
+  validation:
+    image:
+      max-size: 50MB
+      min-size: 1KB
+      max-width: 5000
+      max-height: 5000
+      min-width: 50
+      min-height: 50
+      quality:
+        min: 1
+        max: 100
+        default: 85
