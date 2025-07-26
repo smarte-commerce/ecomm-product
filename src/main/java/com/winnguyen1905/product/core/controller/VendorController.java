@@ -45,10 +45,10 @@ import java.util.UUID;
  * product operations, analytics, and settings
  */
 @Slf4j
-@RestController
-@RequestMapping("/api/v1/vendors")
-@RequiredArgsConstructor
 @Validated
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/api/v1/vendors")
 @Tag(name = "Vendor Management", description = "All vendor operations and management")
 public class VendorController extends BaseController {
 
