@@ -46,31 +46,36 @@ public class AccountRequestArgumentResolver implements HandlerMethodArgumentReso
   @Override
   public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
       NativeWebRequest webRequest, WebDataBinderFactory binderFactory) {
-    
+
     log.debug("Resolving account request argument from headers and authentication context");
-    
+
     // Extract region using the enhanced multi-factor detection
-    RegionPartition region = extractRegionWithMultiFactorDetection(webRequest);
-    
+    RegionPartition region = null;
+    try {
+      region = extractRegionWithMultiFactorDetection(webRequest);
+    } catch (Exception e) {
+      log.debug(">>>>>>>>>> Error extracting region: {}", e.getMessage());
+    }
+
     // Extract other account information
     String username = null;
     UUID id = null;
     AccountType accountType = AccountType.CUSTOMER; // Default
-    
+
     try {
       // Try to extract from JWT token if available (preferred method)
       Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
       if (authentication instanceof JwtAuthenticationToken) {
         JwtAuthenticationToken jwtAuth = (JwtAuthenticationToken) authentication;
         Jwt jwt = jwtAuth.getToken();
-        
+
         // Extract from Keycloak JWT claims
         username = jwt.getClaimAsString("preferred_username");
         String subjectId = jwt.getClaimAsString("sub");
         if (subjectId != null) {
           id = UUID.fromString(subjectId);
         }
-        
+
         // Extract roles from authorities (already processed by SecurityConfig)
         Collection<? extends GrantedAuthority> authorities = jwtAuth.getAuthorities();
         if (!authorities.isEmpty()) {
@@ -81,13 +86,13 @@ public class AccountRequestArgumentResolver implements HandlerMethodArgumentReso
           }
           accountType = AccountType.fromRole(role);
         }
-        
+
         log.debug("Extracted user info from JWT - User: {}, ID: {}, Type: {}", username, id, accountType);
       }
     } catch (Exception e) {
       log.debug("No valid JWT authentication found, using header-based approach: {}", e.getMessage());
     }
-    
+
     // Fallback to headers if JWT is not available (Gateway scenario)
     if (username == null) {
       username = webRequest.getHeader("X-User-Preferred-Username");
@@ -117,30 +122,31 @@ public class AccountRequestArgumentResolver implements HandlerMethodArgumentReso
       }
     }
 
-    log.info("Resolved account request - User: {}, Region: {}, Type: {}, Detection: {}", 
-             username, region.getCode(), accountType, 
-             webRequest.getHeader("X-Region-Detection-Method"));
+    log.info("Resolved account request - User: {}, Region: {}, Type: {}, Detection: {}",
+        username, region.getCode(), accountType,
+        webRequest.getHeader("X-Region-Detection-Method"));
 
     return TAccountRequest.builder()
         .id(id)
         .region(region)
-        .username(username)
+        .username(username != null ? username : "anonymous")
         .accountType(accountType)
         .build();
   }
 
   /**
-   * Enhanced region extraction using multiple detection factors with priority order
+   * Enhanced region extraction using multiple detection factors with priority
+   * order
    */
   private RegionPartition extractRegionWithMultiFactorDetection(NativeWebRequest webRequest) {
-    
+
     // Priority 1: Explicit region preference header (highest priority)
     String preferredRegion = webRequest.getHeader("X-Preferred-Region");
     if (isValidRegionCode(preferredRegion)) {
       log.debug("Using preferred region from header: {}", preferredRegion);
       return RegionPartition.fromCode(preferredRegion);
     }
-    
+
     // Priority 2: Gateway-detected region header (most reliable)
     String gatewayRegion = webRequest.getHeader("X-Region-Code");
     if (isValidRegionCode(gatewayRegion)) {
@@ -164,8 +170,9 @@ public class AccountRequestArgumentResolver implements HandlerMethodArgumentReso
     } catch (Exception e) {
       log.debug("No JWT token available for region extraction: {}", e.getMessage());
     }
-    
-    // Priority 4: Session-cached region from Redis (product service has regionCacheService)
+
+    // Priority 4: Session-cached region from Redis (product service has
+    // regionCacheService)
     String sessionId = extractSessionId(webRequest);
     if (sessionId != null) {
       try {
@@ -178,7 +185,7 @@ public class AccountRequestArgumentResolver implements HandlerMethodArgumentReso
         log.debug("Error retrieving cached session region: {}", e.getMessage());
       }
     }
-    
+
     // Priority 5: Accept-Language header analysis
     String acceptLanguage = webRequest.getHeader("Accept-Language");
     if (acceptLanguage != null && !acceptLanguage.trim().isEmpty()) {
@@ -188,21 +195,21 @@ public class AccountRequestArgumentResolver implements HandlerMethodArgumentReso
         return languageRegion;
       }
     }
-    
-         // Priority 6: Client IP geolocation with Redis caching
-     String clientIp = extractClientIp(webRequest);
-     if (clientIp != null) {
-       try {
-         RegionPartition ipRegion = regionCacheService.getCachedRegionForIp(clientIp);
-         if (ipRegion != null) {
-           log.debug("Using region from client IP {}: {}", clientIp, ipRegion);
-           return ipRegion;
-         }
-       } catch (Exception e) {
-         log.debug("Error detecting region from IP: {}", e.getMessage());
-       }
-     }
-    
+
+    // Priority 6: Client IP geolocation with Redis caching
+    String clientIp = extractClientIp(webRequest);
+    if (clientIp != null) {
+      try {
+        RegionPartition ipRegion = regionCacheService.getCachedRegionForIp(clientIp);
+        if (ipRegion != null) {
+          log.debug("Using region from client IP {}: {}", clientIp, ipRegion);
+          return ipRegion;
+        }
+      } catch (Exception e) {
+        log.debug("Error detecting region from IP: {}", e.getMessage());
+      }
+    }
+
     // Default fallback
     log.debug("No region detected, defaulting to US");
     return RegionPartition.US;
@@ -216,13 +223,13 @@ public class AccountRequestArgumentResolver implements HandlerMethodArgumentReso
       // Simple language to region mapping
       if (acceptLanguage.contains("en-US") || acceptLanguage.contains("en-CA") || acceptLanguage.contains("es-MX")) {
         return RegionPartition.US;
-      } else if (acceptLanguage.contains("en-GB") || acceptLanguage.contains("de") || 
-                 acceptLanguage.contains("fr") || acceptLanguage.contains("it") || 
-                 acceptLanguage.contains("es-ES")) {
+      } else if (acceptLanguage.contains("en-GB") || acceptLanguage.contains("de") ||
+          acceptLanguage.contains("fr") || acceptLanguage.contains("it") ||
+          acceptLanguage.contains("es-ES")) {
         return RegionPartition.EU;
-      } else if (acceptLanguage.contains("zh") || acceptLanguage.contains("ja") || 
-                 acceptLanguage.contains("ko") || acceptLanguage.contains("en-AU") || 
-                 acceptLanguage.contains("en-SG")) {
+      } else if (acceptLanguage.contains("zh") || acceptLanguage.contains("ja") ||
+          acceptLanguage.contains("ko") || acceptLanguage.contains("en-AU") ||
+          acceptLanguage.contains("en-SG")) {
         return RegionPartition.ASIA;
       }
     } catch (Exception e) {
@@ -240,7 +247,7 @@ public class AccountRequestArgumentResolver implements HandlerMethodArgumentReso
       if (ip.startsWith("192.168") || ip.startsWith("10.") || ip.startsWith("172.")) {
         return RegionPartition.US; // Local IPs default to US
       }
-      
+
       // Add more sophisticated IP ranges here
       // For now, just return null to proceed to next detection method
       return null;
@@ -271,15 +278,15 @@ public class AccountRequestArgumentResolver implements HandlerMethodArgumentReso
   private String extractClientIp(NativeWebRequest webRequest) {
     // Priority order for IP extraction
     String[] ipHeaders = {
-        "X-Client-IP",           // Gateway-provided IP (highest priority)
-        "X-Forwarded-For",       // Standard proxy header
-        "X-Real-IP",             // Nginx real IP
-        "X-Originating-IP",      // Some proxies use this
-        "CF-Connecting-IP",      // Cloudflare
-        "True-Client-IP",        // Akamai
-        "X-Cluster-Client-IP"    // Some load balancers
+        "X-Client-IP", // Gateway-provided IP (highest priority)
+        "X-Forwarded-For", // Standard proxy header
+        "X-Real-IP", // Nginx real IP
+        "X-Originating-IP", // Some proxies use this
+        "CF-Connecting-IP", // Cloudflare
+        "True-Client-IP", // Akamai
+        "X-Cluster-Client-IP" // Some load balancers
     };
-    
+
     for (String header : ipHeaders) {
       String ip = webRequest.getHeader(header);
       if (ip != null && !ip.trim().isEmpty() && !ip.equalsIgnoreCase("unknown")) {
@@ -293,7 +300,7 @@ public class AccountRequestArgumentResolver implements HandlerMethodArgumentReso
         }
       }
     }
-    
+
     return null;
   }
 
@@ -306,7 +313,7 @@ public class AccountRequestArgumentResolver implements HandlerMethodArgumentReso
     if (sessionId != null && !sessionId.trim().isEmpty()) {
       return sessionId;
     }
-    
+
     // Try cookie-based session
     String cookieHeader = webRequest.getHeader("Cookie");
     if (cookieHeader != null) {
@@ -319,7 +326,7 @@ public class AccountRequestArgumentResolver implements HandlerMethodArgumentReso
         }
       }
     }
-    
+
     return null;
   }
 
@@ -330,13 +337,13 @@ public class AccountRequestArgumentResolver implements HandlerMethodArgumentReso
     if (ip == null || ip.trim().isEmpty()) {
       return false;
     }
-    
+
     // Basic IPv4 validation
     String[] parts = ip.split("\\.");
     if (parts.length != 4) {
       return false;
     }
-    
+
     try {
       for (String part : parts) {
         int num = Integer.parseInt(part);
