@@ -11,7 +11,6 @@ import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CachingConfigurer;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.interceptor.CacheErrorHandler;
-import org.springframework.cache.interceptor.CacheResolver;
 import org.springframework.cache.interceptor.KeyGenerator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -29,8 +28,6 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.time.Duration;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Regional Redis caching configuration that partitions cache data by user
@@ -59,7 +56,19 @@ public class RegionalCacheConfiguration implements CachingConfigurer {
   @Bean
   @Override
   public CacheManager cacheManager() {
-    return new RegionalCacheManager();
+    // Create simple cache manager using default connection factory for now
+    // The regional routing will be handled at the application level
+    RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
+        .entryTtl(Duration.ofHours(24))
+        .serializeKeysWith(RedisSerializationContext.SerializationPair
+            .fromSerializer(new StringRedisSerializer()))
+        .serializeValuesWith(RedisSerializationContext.SerializationPair
+            .fromSerializer(new Jackson2JsonRedisSerializer<>(new ObjectMapper(), Object.class)))
+        .disableCachingNullValues();
+
+    return RedisCacheManager.builder(redisConnectionFactory())
+        .cacheDefaults(config)
+        .build();
   }
 
   /**
@@ -110,7 +119,7 @@ public class RegionalCacheConfiguration implements CachingConfigurer {
   @Bean
   @Primary
   public RedisTemplate<String, Object> redisTemplate() {
-    return new RegionalRedisTemplate();
+    return createRedisTemplate(redisConnectionFactory());
   }
 
   /**
@@ -160,6 +169,7 @@ public class RegionalCacheConfiguration implements CachingConfigurer {
     }
 
     LettuceConnectionFactory factory = new LettuceConnectionFactory(config);
+    factory.afterPropertiesSet(); // Initialize the connection factory
     log.info("Creating Redis connection factory for database {} (region cache)", database);
 
     return factory;
@@ -173,12 +183,12 @@ public class RegionalCacheConfiguration implements CachingConfigurer {
     template.setConnectionFactory(connectionFactory);
 
     // JSON serialization configuration
-    Jackson2JsonRedisSerializer<Object> jsonSerializer = new Jackson2JsonRedisSerializer<>(Object.class);
     ObjectMapper objectMapper = new ObjectMapper();
     objectMapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
     objectMapper.activateDefaultTyping(LaissezFaireSubTypeValidator.instance,
         ObjectMapper.DefaultTyping.NON_FINAL);
-    jsonSerializer.setObjectMapper(objectMapper);
+    
+    Jackson2JsonRedisSerializer<Object> jsonSerializer = new Jackson2JsonRedisSerializer<>(objectMapper, Object.class);
 
     // Set serializers
     template.setKeySerializer(new StringRedisSerializer());
@@ -188,84 +198,6 @@ public class RegionalCacheConfiguration implements CachingConfigurer {
 
     template.afterPropertiesSet();
     return template;
-  }
-
-  /**
-   * Regional cache manager that routes operations to region-specific Redis
-   * instances
-   */
-  public class RegionalCacheManager implements CacheManager {
-
-    private final Map<RegionPartition, RedisCacheManager> regionalManagers = new HashMap<>();
-    private final RedisCacheManager defaultManager;
-
-    public RegionalCacheManager() {
-      // Initialize regional cache managers
-      regionalManagers.put(RegionPartition.US, createRegionalCacheManager(usRedisConnectionFactory()));
-      regionalManagers.put(RegionPartition.EU, createRegionalCacheManager(euRedisConnectionFactory()));
-      regionalManagers.put(RegionPartition.ASIA, createRegionalCacheManager(asiaRedisConnectionFactory()));
-
-      // Default manager (US)
-      defaultManager = regionalManagers.get(RegionPartition.US);
-
-      log.info("Initialized regional cache managers for {} regions", regionalManagers.size());
-    }
-
-    @Override
-    public org.springframework.cache.Cache getCache(String name) {
-      RegionPartition region = getCurrentRegion();
-      RedisCacheManager manager = regionalManagers.getOrDefault(region, defaultManager);
-
-      log.debug("Getting cache '{}' for region: {}", name, region);
-      return manager.getCache(name);
-    }
-
-    @Override
-    public java.util.Collection<String> getCacheNames() {
-      return defaultManager.getCacheNames();
-    }
-
-    private RedisCacheManager createRegionalCacheManager(RedisConnectionFactory connectionFactory) {
-      RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
-          .entryTtl(Duration.ofHours(24)) // Default 24 hour TTL
-          .serializeKeysWith(RedisSerializationContext.SerializationPair
-              .fromSerializer(new StringRedisSerializer()))
-          .serializeValuesWith(RedisSerializationContext.SerializationPair
-              .fromSerializer(new Jackson2JsonRedisSerializer<>(Object.class)))
-          .disableCachingNullValues();
-
-      return RedisCacheManager.builder(connectionFactory)
-          .cacheDefaults(config)
-          .build();
-    }
-
-    private RegionPartition getCurrentRegion() {
-      try {
-        // Try to get region from thread local context
-        RegionPartition region = RegionalDataSourceConfiguration.RegionalContext.getCurrentRegion();
-        if (region != null) {
-          return region;
-        }
-
-        // Try to get region from request headers
-        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-        if (attributes != null) {
-          String regionCode = attributes.getRequest().getHeader("X-Region-Code");
-          if (regionCode != null && !regionCode.trim().isEmpty()) {
-            try {
-              return RegionPartition.fromCode(regionCode);
-            } catch (Exception e) {
-              log.debug("Invalid region code in header: {}", regionCode);
-            }
-          }
-        }
-      } catch (Exception e) {
-        log.debug("Error determining current region for cache: {}", e.getMessage());
-      }
-
-      // Default to US
-      return RegionPartition.US;
-    }
   }
 
   /**
@@ -323,78 +255,6 @@ public class RegionalCacheConfiguration implements CachingConfigurer {
         }
       } catch (Exception e) {
         log.debug("Error determining region for cache key generation: {}", e.getMessage());
-      }
-
-      return RegionPartition.US;
-    }
-  }
-
-  /**
-   * Regional Redis template that routes operations to correct region
-   */
-  public class RegionalRedisTemplate extends RedisTemplate<String, Object> {
-
-    private final Map<RegionPartition, RedisTemplate<String, Object>> regionalTemplates = new HashMap<>();
-    private final RedisTemplate<String, Object> defaultTemplate;
-
-    public RegionalRedisTemplate() {
-      regionalTemplates.put(RegionPartition.US, usRedisTemplate());
-      regionalTemplates.put(RegionPartition.EU, euRedisTemplate());
-      regionalTemplates.put(RegionPartition.ASIA, asiaRedisTemplate());
-      defaultTemplate = regionalTemplates.get(RegionPartition.US);
-    }
-
-    @Override
-    public org.springframework.data.redis.core.ValueOperations<String, Object> opsForValue() {
-      RegionPartition region = getCurrentRegion();
-      RedisTemplate<String, Object> template = regionalTemplates.getOrDefault(region, defaultTemplate);
-      return template.opsForValue();
-    }
-
-    @Override
-    public org.springframework.data.redis.core.HashOperations<String, Object, Object> opsForHash() {
-      RegionPartition region = getCurrentRegion();
-      RedisTemplate<String, Object> template = regionalTemplates.getOrDefault(region, defaultTemplate);
-      return template.opsForHash();
-    }
-
-    @Override
-    public org.springframework.data.redis.core.ListOperations<String, Object> opsForList() {
-      RegionPartition region = getCurrentRegion();
-      RedisTemplate<String, Object> template = regionalTemplates.getOrDefault(region, defaultTemplate);
-      return template.opsForList();
-    }
-
-    @Override
-    public org.springframework.data.redis.core.SetOperations<String, Object> opsForSet() {
-      RegionPartition region = getCurrentRegion();
-      RedisTemplate<String, Object> template = regionalTemplates.getOrDefault(region, defaultTemplate);
-      return template.opsForSet();
-    }
-
-    @Override
-    public org.springframework.data.redis.core.ZSetOperations<String, Object> opsForZSet() {
-      RegionPartition region = getCurrentRegion();
-      RedisTemplate<String, Object> template = regionalTemplates.getOrDefault(region, defaultTemplate);
-      return template.opsForZSet();
-    }
-
-    private RegionPartition getCurrentRegion() {
-      try {
-        RegionPartition region = RegionalDataSourceConfiguration.RegionalContext.getCurrentRegion();
-        if (region != null) {
-          return region;
-        }
-
-        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-        if (attributes != null) {
-          String regionCode = attributes.getRequest().getHeader("X-Region-Code");
-          if (regionCode != null) {
-            return RegionPartition.fromCode(regionCode);
-          }
-        }
-      } catch (Exception e) {
-        log.debug("Error determining region for Redis operation: {}", e.getMessage());
       }
 
       return RegionPartition.US;

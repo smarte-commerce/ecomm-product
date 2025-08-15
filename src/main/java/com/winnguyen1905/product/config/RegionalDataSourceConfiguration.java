@@ -8,6 +8,7 @@ import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.Profile;
 import org.springframework.jdbc.datasource.lookup.AbstractRoutingDataSource;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -25,6 +26,7 @@ import java.util.Map;
 @Slf4j
 @Configuration
 @EnableTransactionManagement
+@Profile("!local") // Don't activate this configuration when using local profile
 public class RegionalDataSourceConfiguration {
 
     /**
@@ -53,9 +55,9 @@ public class RegionalDataSourceConfiguration {
     @ConfigurationProperties("app.datasource.us")
     public DataSource usDataSource() {
         return DataSourceBuilder.create()
-                .url("jdbc:postgresql://cockroachdb-1:26257/ecommerce_us?sslmode=disable")
-                .username("root")
-                .password("")
+                .url("jdbc:postgresql://localhost:5432/postgres?sslmode=disable")
+                .username("postgres")
+                .password("admin")
                 .driverClassName("org.postgresql.Driver")
                 .build();
     }
@@ -63,13 +65,13 @@ public class RegionalDataSourceConfiguration {
     /**
      * EU region database configuration
      */
-    @Bean
+    @Bean 
     @ConfigurationProperties("app.datasource.eu")
     public DataSource euDataSource() {
         return DataSourceBuilder.create()
-                .url("jdbc:postgresql://cockroachdb-2:26257/ecommerce_eu?sslmode=disable")
-                .username("root")
-                .password("")
+                .url("jdbc:postgresql://localhost:5432/postgres?sslmode=disable")
+                .username("postgres")
+                .password("admin")
                 .driverClassName("org.postgresql.Driver")
                 .build();
     }
@@ -81,9 +83,9 @@ public class RegionalDataSourceConfiguration {
     @ConfigurationProperties("app.datasource.asia")
     public DataSource asiaDataSource() {
         return DataSourceBuilder.create()
-                .url("jdbc:postgresql://cockroachdb-3:26257/ecommerce_asia?sslmode=disable")
-                .username("root")
-                .password("")
+                .url("jdbc:postgresql://localhost:5432/postgres?sslmode=disable")
+                .username("postgres")
+                .password("admin")
                 .driverClassName("org.postgresql.Driver")
                 .build();
     }
