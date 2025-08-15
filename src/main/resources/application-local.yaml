@@ -1,0 +1,117 @@
+server:
+  port: 8088
+
+spring:
+  application:
+    name: PRODUCT-SERVICE
+  
+  # Lazy initialization for faster startup
+  main:
+    lazy-initialization: true
+    
+  # JPA optimizations
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        # Disable schema validation to avoid conflicts with public schema
+        hbm2ddl:
+          auto: create-drop
+        # Use H2 compatible schema handling
+        default_schema: ""
+  
+  # Auto-configuration exclusions for local development
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration
+      - org.springframework.boot.autoconfigure.elasticsearch.ElasticsearchRestClientAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.elasticsearch.ElasticsearchDataAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.elasticsearch.ElasticsearchRepositoriesAutoConfiguration
+      - org.springframework.cloud.bus.BusAutoConfiguration
+      - org.springframework.cloud.client.loadbalancer.reactive.LoadBalancerBeanPostProcessorAutoConfiguration
+  
+  # Disable security for local development
+  security:
+    enabled: false
+  
+  # Cache disabled for local dev
+  cache:
+    type: none
+  
+  # H2 in-memory database for local development
+  datasource:
+    url: jdbc:h2:mem:testdb;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH
+    username: sa
+    password: password
+    driver-class-name: org.h2.Driver
+  
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  
+  # Disable Eureka for local development
+  cloud:
+    discovery:
+      enabled: false
+    config:
+      enabled: false
+    stream:
+      defaultBinder: none
+      bindings:
+        springCloudBusInput:
+          binder: none
+  
+  # Disable Redis for local development
+  data:
+    redis:
+      repositories:
+        enabled: false
+  redis:
+    host: disabled
+    port: 0
+  
+  # Disable Elasticsearch for local development  
+  elasticsearch:
+    uris: 
+    username: 
+    password:
+  
+  # Disable RabbitMQ for local development
+  rabbitmq:
+    host: disabled
+    port: 0
+
+eureka:
+  client:
+    enabled: false
+
+# Disable JWT validation for local
+jwt:
+  base64-secret: hl4gDqBxBgOSDWqBlvwFYQInjYRGAdS4lUT7Nf3Zk1nItoSQ9wSFDPU+kXHKcKUW/UKbpGv9bCsa9S/QsoFRHw==
+  access_token-validity-in-seconds: 90000000
+  refresh_token-validity-in-seconds: 100000000
+
+logging:
+  level:
+    com.winnguyen1905: DEBUG
+    org.springframework.web: DEBUG
+    org.springframework.cloud.client.loadbalancer: WARN
+    org.springframework.context.support.AbstractApplicationContext: WARN
+    org.springframework.beans.factory.support.DefaultListableBeanFactory: WARN
+    root: INFO
+
+# AWS S3 Configuration - Local Development (Disabled)
+aws:
+  s3:
+    region: us-east-1
+    access-key: dummy
+    secret-key: dummy
+    bucket:
+      name: local-bucket
+      product-images: local-product-images

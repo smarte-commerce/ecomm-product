@@ -9,8 +9,6 @@ import java.util.UUID;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Filter;
-import org.hibernate.annotations.FilterDef;
-import org.hibernate.annotations.ParamDef;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.data.redis.core.RedisHash;
@@ -38,9 +36,7 @@ import lombok.experimental.SuperBuilder;
     @Index(name = "idx_variant_region", columnList = "region"),
     @Index(name = "idx_variant_active", columnList = "is_active")
 })
-@FilterDef(name = "regionFilter", parameters = @ParamDef(name = "region", type = String.class))
 @Filter(name = "regionFilter", condition = "region = :region")
-@FilterDef(name = "vendorFilter", parameters = @ParamDef(name = "vendorId", type = String.class))
 @Filter(name = "vendorFilter", condition = "vendor_id = :vendorId")
 @RedisHash(value = "product_variant", timeToLive = 1800) // 30 minutes cache
 public class EProductVariant implements Serializable {
@@ -87,7 +83,7 @@ public class EProductVariant implements Serializable {
   // Pricing
   @NotNull(message = "Price is required")
   // @DecimalMin(value = "0.0", inclusive = false, message = "Price must be greater than 0")
-  @Column(name = "variant_price", precision = 19, scale = 2, nullable = false)
+  @Column(name = "variant_price", nullable = false)
   private Double price;
 
   @Column(name = "compare_at_price", precision = 19, scale = 2)
