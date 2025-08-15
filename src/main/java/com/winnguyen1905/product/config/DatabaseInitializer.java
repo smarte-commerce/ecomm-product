@@ -6,7 +6,9 @@ import java.util.UUID;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -48,6 +50,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j
 @Transactional
+@Profile("!local")  // Don't run in local development
 public class DatabaseInitializer implements CommandLineRunner {
 
   // Repositories
@@ -58,8 +61,9 @@ public class DatabaseInitializer implements CommandLineRunner {
   private final CategoryRepository categoryRepository;
   private final ProductImageRepository productImageRepository;
   
-  // Elasticsearch sync service
-  private final ProductSyncService productSyncService;
+  // Optional Elasticsearch sync service - will be null if not available
+  @Autowired(required = false)
+  private ProductSyncService productSyncService;
   
   private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -626,13 +630,17 @@ public class DatabaseInitializer implements CommandLineRunner {
     try {
       log.info("Starting Elasticsearch synchronization...");
       
-      // Trigger full reindex asynchronously
-      productSyncService.fullReindex();
-      
-      // Wait a moment for async operation to start
-      Thread.sleep(2000);
-      
-      log.info("Elasticsearch synchronization initiated successfully");
+      if (productSyncService != null) {
+        // Trigger full reindex asynchronously
+        productSyncService.fullReindex();
+        
+        // Wait a moment for async operation to start
+        Thread.sleep(2000);
+        
+        log.info("Elasticsearch synchronization initiated successfully");
+      } else {
+        log.info("Elasticsearch sync service not available - skipping synchronization");
+      }
     } catch (Exception e) {
       log.error("Error during Elasticsearch synchronization: {}", e.getMessage(), e);
       // Don't fail the entire initialization if ES sync fails
