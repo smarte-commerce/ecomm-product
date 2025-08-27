@@ -1,13 +1,11 @@
 package com.winnguyen1905.product.core.mapper_v2;
 
 import java.math.BigDecimal;
-import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import com.winnguyen1905.product.common.constant.ProductImageType;
 import com.winnguyen1905.product.common.constant.ProductStatus;
 import com.winnguyen1905.product.core.model.request.CreateProductImageRequest;
 import com.winnguyen1905.product.core.model.request.CreateProductRequest;
@@ -22,7 +20,6 @@ import com.winnguyen1905.product.persistance.entity.EInventory;
 import com.winnguyen1905.product.persistance.entity.EProduct;
 import com.winnguyen1905.product.persistance.entity.EProductImage;
 import com.winnguyen1905.product.persistance.entity.EProductVariant;
-import com.winnguyen1905.product.secure.RegionPartition;
 
 /**
  * Enhanced Product Mapper

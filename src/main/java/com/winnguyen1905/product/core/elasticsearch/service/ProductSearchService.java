@@ -5,6 +5,7 @@ import java.util.concurrent.CompletableFuture;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -13,7 +14,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import com.winnguyen1905.product.core.elasticsearch.document.ProductDocument;
-import com.winnguyen1905.product.core.elasticsearch.mapper.ProductDocumentMapper;
 import com.winnguyen1905.product.core.elasticsearch.query.ProductSearchQuery;
 import com.winnguyen1905.product.core.elasticsearch.repository.ProductElasticsearchRepository;
 import com.winnguyen1905.product.core.model.request.SearchProductRequest;
@@ -26,6 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
+@Profile("!local")  // Exclude from local profile
 @RequiredArgsConstructor
 public class ProductSearchService {
 
