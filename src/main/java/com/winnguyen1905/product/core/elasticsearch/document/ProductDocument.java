@@ -22,7 +22,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Document(indexName = "products", writeTypeHint = WriteTypeHint.FALSE)
+@Document(indexName = "products", writeTypeHint = WriteTypeHint.FALSE, createIndex = false)
 public class ProductDocument {
 
   @Id
