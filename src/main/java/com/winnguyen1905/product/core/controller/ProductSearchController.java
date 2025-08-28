@@ -17,9 +17,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
@@ -39,14 +39,22 @@ import java.util.UUID;
 @Slf4j
 @RestController
 @RequestMapping("/api/v1/search")
-@RequiredArgsConstructor
 @Validated
 @Tag(name = "Product Search", description = "All product search and Elasticsearch operations")
 public class ProductSearchController extends BaseController {
 
   private final EnhancedProductService enhancedProductService;
-  private final ProductSearchService productSearchService;
-  private final ProductSyncService productSyncService;
+  
+  // Optional Elasticsearch services - will be null in local profile
+  @Autowired(required = false)
+  private ProductSearchService productSearchService;
+  
+  @Autowired(required = false)
+  private ProductSyncService productSyncService;
+  
+  public ProductSearchController(EnhancedProductService enhancedProductService) {
+    this.enhancedProductService = enhancedProductService;
+  }
 
   @PostMapping
   @Operation(summary = "Search products", description = "Search products with Elasticsearch using partition-first approach")
@@ -236,61 +244,75 @@ public class ProductSearchController extends BaseController {
 
   // ================== SYNC OPERATIONS (Admin) ==================
 
-  @PostMapping("/sync/product/{productId}")
-  @ResponseMessage(message = "Sync product success")
-  @Operation(summary = "Sync single product", description = "Sync a single product to Elasticsearch")
-  @ApiResponses({
-      @ApiResponse(responseCode = "200", description = "Product synced successfully"),
-      @ApiResponse(responseCode = "404", description = "Product not found")
-  })
-  public ResponseEntity<Void> syncProduct(
-      @Parameter(description = "Product ID", required = true) @PathVariable UUID productId,
-      TAccountRequest accountRequest) {
-    logRequest("Syncing product to Elasticsearch", productId, accountRequest);
-    productSyncService.syncProduct(productId);
-    return noContent();
-  }
+  // @PostMapping("/sync/product/{productId}")
+  // @ResponseMessage(message = "Sync product success")
+  // @Operation(summary = "Sync single product", description = "Sync a single product to Elasticsearch")
+  // @ApiResponses({
+  //     @ApiResponse(responseCode = "200", description = "Product synced successfully"),
+  //     @ApiResponse(responseCode = "404", description = "Product not found"),
+  //     @ApiResponse(responseCode = "503", description = "Elasticsearch service not available")
+  // })
+  // public ResponseEntity<Void> syncProduct(
+  //     @Parameter(description = "Product ID", required = true) @PathVariable UUID productId,
+  //     TAccountRequest accountRequest) {
+  //   logRequest("Syncing product to Elasticsearch", productId, accountRequest);
+    
+  //   if (productSyncService != null) {
+  //     productSyncService.syncProduct(productId);
+  //   } else {
+  //     log.warn("Elasticsearch sync service not available - skipping sync for product: {}", productId);
+  //   }
+    
+  //   return noContent();
+  // }
 
-  @PostMapping("/sync/products")
-  @ResponseMessage(message = "Sync products success")
-  @Operation(summary = "Sync multiple products", description = "Sync multiple products to Elasticsearch")
-  @ApiResponses({
-      @ApiResponse(responseCode = "200", description = "Products synced successfully")
-  })
-  public ResponseEntity<Void> syncProducts(
-      @Parameter(description = "Product IDs", required = true) @RequestBody List<UUID> productIds,
-      TAccountRequest accountRequest) {
-    logRequest("Syncing multiple products to Elasticsearch", accountRequest, String.valueOf(productIds.size()));
-    productSyncService.syncProducts(productIds);
-    return noContent();
-  }
+  // @PostMapping("/sync/products")
+  // @ResponseMessage(message = "Sync products success")
+  // @Operation(summary = "Sync multiple products", description = "Sync multiple products to Elasticsearch")
+  // @ApiResponses({
+  //     @ApiResponse(responseCode = "200", description = "Products synced successfully"),
+  //     @ApiResponse(responseCode = "503", description = "Elasticsearch service not available")
+  // })
+  // public ResponseEntity<Void> syncProducts(
+  //     @Parameter(description = "Product IDs", required = true) @RequestBody List<UUID> productIds,
+  //     TAccountRequest accountRequest) {
+  //   logRequest("Syncing multiple products to Elasticsearch", accountRequest, String.valueOf(productIds.size()));
+    
+  //   if (productSyncService != null) {
+  //     productSyncService.syncProducts(productIds);
+  //   } else {
+  //     log.warn("Elasticsearch sync service not available - skipping sync for {} products", productIds.size());
+  //   }
+    
+  //   return noContent();
+  // }
 
-  @PostMapping("/reindex")
-  @ResponseMessage(message = "Full reindex started")
-  @Operation(summary = "Full reindex", description = "Perform full reindex of all products to Elasticsearch")
-  @ApiResponses({
-      @ApiResponse(responseCode = "200", description = "Reindex started successfully")
-  })
-  public ResponseEntity<Void> fullReindex(TAccountRequest accountRequest) {
-    logRequest("Starting full reindex of products", accountRequest, "ALL");
-    productSyncService.fullReindex();
-    return noContent();
-  }
+  // @PostMapping("/reindex")
+  // @ResponseMessage(message = "Full reindex started")
+  // @Operation(summary = "Full reindex", description = "Perform full reindex of all products to Elasticsearch")
+  // @ApiResponses({
+  //     @ApiResponse(responseCode = "200", description = "Reindex started successfully")
+  // })
+  // public ResponseEntity<Void> fullReindex(TAccountRequest accountRequest) {
+  //   logRequest("Starting full reindex of products", accountRequest, "ALL");
+  //   productSyncService.fullReindex();
+  //   return noContent();
+  // }
 
-  @DeleteMapping("/product/{productId}")
-  @ResponseMessage(message = "Delete from index success")
-  @Operation(summary = "Delete product from index", description = "Remove product from Elasticsearch index")
-  @ApiResponses({
-      @ApiResponse(responseCode = "200", description = "Product deleted from index"),
-      @ApiResponse(responseCode = "404", description = "Product not found in index")
-  })
-  public ResponseEntity<Void> deleteProductFromIndex(
-      @Parameter(description = "Product ID", required = true) @PathVariable UUID productId,
-      TAccountRequest accountRequest) {
-    logRequest("Deleting product from Elasticsearch index", productId, accountRequest);
-    productSyncService.deleteProduct(productId);
-    return noContent();
-  }
+  // @DeleteMapping("/product/{productId}")
+  // @ResponseMessage(message = "Delete from index success")
+  // @Operation(summary = "Delete product from index", description = "Remove product from Elasticsearch index")
+  // @ApiResponses({
+  //     @ApiResponse(responseCode = "200", description = "Product deleted from index"),
+  //     @ApiResponse(responseCode = "404", description = "Product not found in index")
+  // })
+  // public ResponseEntity<Void> deleteProductFromIndex(
+  //     @Parameter(description = "Product ID", required = true) @PathVariable UUID productId,
+  //     TAccountRequest accountRequest) {
+  //   logRequest("Deleting product from Elasticsearch index", productId, accountRequest);
+  //   productSyncService.deleteProduct(productId);
+  //   return noContent();
+  // }
 
   // ================== HEALTH & STATISTICS ==================
 
@@ -320,5 +342,17 @@ public class ProductSearchController extends BaseController {
         "isHealthy", productSyncService.isHealthy(),
         "timestamp", java.time.Instant.now());
     return ok(stats);
+  }
+
+  @PostMapping("/admin/recreate-index")
+  @Operation(summary = "Recreate Elasticsearch index", description = "Recreate the products index with proper settings and mappings")
+  @ApiResponses({
+      @ApiResponse(responseCode = "200", description = "Index recreated successfully"),
+      @ApiResponse(responseCode = "500", description = "Failed to recreate index")
+  })
+  public ResponseEntity<Object> recreateIndex(TAccountRequest accountRequest) {
+    logRequest("Recreating Elasticsearch index", accountRequest, "RECREATE_INDEX");
+    productSyncService.recreateIndex();
+    return ok(Map.of("message", "Elasticsearch index recreated successfully", "timestamp", java.time.Instant.now()));
   }
 } 

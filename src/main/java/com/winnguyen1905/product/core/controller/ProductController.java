@@ -7,6 +7,7 @@ import com.winnguyen1905.product.core.model.request.*;
 import com.winnguyen1905.product.core.model.response.*;
 import com.winnguyen1905.product.core.model.viewmodel.*;
 import com.winnguyen1905.product.core.service.*;
+import com.winnguyen1905.product.secure.AccountRequest;
 import com.winnguyen1905.product.secure.TAccountRequest;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -59,7 +60,7 @@ public class ProductController extends BaseController {
   })
   public ResponseEntity<ProductResponse> createProduct(
       @Valid @RequestBody CreateProductRequest request,
-      TAccountRequest accountRequest) {
+      @AccountRequest TAccountRequest accountRequest) {
     logRequest("Creating product", accountRequest);
     ProductResponse response = productService.createProduct(request, accountRequest);
     return created(response);
@@ -186,94 +187,94 @@ public class ProductController extends BaseController {
 
   // ================== IMAGE MANAGEMENT ==================
 
-  @GetMapping("/{productId}/images")
-  @Operation(summary = "Get images", description = "Get product images")
-  public ResponseEntity<PagedResponse<ProductImageVm>> getProductImages(
-      @Parameter(description = "Product ID", required = true) @PathVariable UUID productId,
-      @PageableDefault(size = 20) Pageable pageable) {
-    logPublicRequest("Getting images for product", productId);
-    PagedResponse<ProductImageVm> response = customerProductService.getProductImages(productId, pageable);
-    return ok(response);
-  }
+  // @GetMapping("/{productId}/images")
+  // @Operation(summary = "Get images", description = "Get product images")
+  // public ResponseEntity<PagedResponse<ProductImageVm>> getProductImages(
+  //     @Parameter(description = "Product ID", required = true) @PathVariable UUID productId,
+  //     @PageableDefault(size = 20) Pageable pageable) {
+  //   logPublicRequest("Getting images for product", productId);
+  //   PagedResponse<ProductImageVm> response = customerProductService.getProductImages(productId, pageable);
+  //   return ok(response);
+  // }
 
-  @PostMapping(value = "/{productId}/images", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-  @ResponseMessage(message = "Upload image success")
-  @Operation(summary = "Upload image", description = "Upload product image")
-  @ApiResponses({
-      @ApiResponse(responseCode = "201", description = "Image uploaded successfully"),
-      @ApiResponse(responseCode = "400", description = "Invalid file format")
-  })
-  public ResponseEntity<ProductImageResponse> uploadImage(
-      @Parameter(description = "Product ID", required = true) @PathVariable UUID productId,
-      @Parameter(description = "Image file", required = true) @RequestParam("file") MultipartFile file,
-      @Parameter(description = "Image type") @RequestParam(required = false, defaultValue = "THUMBNAIL") ProductImageType imageType,
-      @Parameter(description = "Variant ID") @RequestParam(required = false) UUID variantId,
-      @Parameter(description = "Is primary") @RequestParam(required = false, defaultValue = "false") Boolean isPrimary,
-      @Parameter(description = "Title") @RequestParam(required = false) String title,
-      @Parameter(description = "Alt text") @RequestParam(required = false) String altText,
-      TAccountRequest accountRequest) {
-    logRequest("Uploading image for product", productId, accountRequest);
+  // @PostMapping(value = "/{productId}/images", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  // @ResponseMessage(message = "Upload image success")
+  // @Operation(summary = "Upload image", description = "Upload product image")
+  // @ApiResponses({
+  //     @ApiResponse(responseCode = "201", description = "Image uploaded successfully"),
+  //     @ApiResponse(responseCode = "400", description = "Invalid file format")
+  // })
+  // public ResponseEntity<ProductImageResponse> uploadImage(
+  //     @Parameter(description = "Product ID", required = true) @PathVariable UUID productId,
+  //     @Parameter(description = "Image file", required = true) @RequestParam("file") MultipartFile file,
+  //     @Parameter(description = "Image type") @RequestParam(required = false, defaultValue = "THUMBNAIL") ProductImageType imageType,
+  //     @Parameter(description = "Variant ID") @RequestParam(required = false) UUID variantId,
+  //     @Parameter(description = "Is primary") @RequestParam(required = false, defaultValue = "false") Boolean isPrimary,
+  //     @Parameter(description = "Title") @RequestParam(required = false) String title,
+  //     @Parameter(description = "Alt text") @RequestParam(required = false) String altText,
+  //     TAccountRequest accountRequest) {
+  //   logRequest("Uploading image for product", productId, accountRequest);
 
-    CreateProductImageRequest request = CreateProductImageRequest.builder()
-        .productId(productId)
-        .variantId(variantId)
-        .type(imageType)
-        .isPrimary(isPrimary)
-        .title(title)
-        .altText(altText)
-        .build();
+  //   CreateProductImageRequest request = CreateProductImageRequest.builder()
+  //       .productId(productId)
+  //       .variantId(variantId)
+  //       .type(imageType)
+  //       .isPrimary(isPrimary)
+  //       .title(title)
+  //       .altText(altText)
+  //       .build();
 
-    ProductImageResponse response = s3Service.uploadProductImage(file, request, accountRequest);
-    return created(response);
-  }
+  //   ProductImageResponse response = s3Service.uploadProductImage(file, request, accountRequest);
+  //   return created(response);
+  // }
 
-  @PutMapping("/images/{imageId}")
-  @ResponseMessage(message = "Update image success")
-  @Operation(summary = "Update image", description = "Update image metadata")
-  public ResponseEntity<ProductImageResponse> updateImage(
-      @Parameter(description = "Image ID", required = true) @PathVariable UUID imageId,
-      @Valid @RequestBody UpdateProductImageRequest request,
-      TAccountRequest accountRequest) {
-    logRequest("Updating image", imageId, accountRequest);
-    ProductImageResponse response = s3Service.updateImageMetadata(imageId, request, accountRequest);
-    return ok(response);
-  }
+  // @PutMapping("/images/{imageId}")
+  // @ResponseMessage(message = "Update image success")
+  // @Operation(summary = "Update image", description = "Update image metadata")
+  // public ResponseEntity<ProductImageResponse> updateImage(
+  //     @Parameter(description = "Image ID", required = true) @PathVariable UUID imageId,
+  //     @Valid @RequestBody UpdateProductImageRequest request,
+  //     TAccountRequest accountRequest) {
+  //   logRequest("Updating image", imageId, accountRequest);
+  //   ProductImageResponse response = s3Service.updateImageMetadata(imageId, request, accountRequest);
+  //   return ok(response);
+  // }
 
-  @DeleteMapping("/images/{imageId}")
-  @ResponseMessage(message = "Delete image success")
-  @Operation(summary = "Delete image", description = "Delete product image")
-  public ResponseEntity<Void> deleteImage(
-      @Parameter(description = "Image ID", required = true) @PathVariable UUID imageId,
-      TAccountRequest accountRequest) {
-    logRequest("Deleting image", imageId, accountRequest);
-    s3Service.deleteImage(imageId, accountRequest);
-    return noContent();
-  }
+  // @DeleteMapping("/images/{imageId}")
+  // @ResponseMessage(message = "Delete image success")
+  // @Operation(summary = "Delete image", description = "Delete product image")
+  // public ResponseEntity<Void> deleteImage(
+  //     @Parameter(description = "Image ID", required = true) @PathVariable UUID imageId,
+  //     TAccountRequest accountRequest) {
+  //   logRequest("Deleting image", imageId, accountRequest);
+  //   s3Service.deleteImage(imageId, accountRequest);
+  //   return noContent();
+  // }
 
-  @PostMapping("/images/bulk")
-  @ResponseMessage(message = "Bulk upload images success")
-  @Operation(summary = "Bulk upload images", description = "Upload multiple images")
-  public ResponseEntity<List<ProductImageResponse>> bulkUploadImages(
-      @Parameter(description = "Product ID", required = true) @RequestParam UUID productId,
-      @Parameter(description = "Image files", required = true) @RequestParam("files") List<MultipartFile> files,
-      @Parameter(description = "Variant ID") @RequestParam(required = false) UUID variantId,
-      TAccountRequest accountRequest) {
-    logRequest("Bulk uploading " + files.size() + " images for product " + productId, accountRequest);
-    List<ProductImageResponse> response = s3Service.bulkUploadProductImages(files, productId, variantId,
-        accountRequest);
-    return created(response);
-  }
+  // @PostMapping("/images/bulk")
+  // @ResponseMessage(message = "Bulk upload images success")
+  // @Operation(summary = "Bulk upload images", description = "Upload multiple images")
+  // public ResponseEntity<List<ProductImageResponse>> bulkUploadImages(
+  //     @Parameter(description = "Product ID", required = true) @RequestParam UUID productId,
+  //     @Parameter(description = "Image files", required = true) @RequestParam("files") List<MultipartFile> files,
+  //     @Parameter(description = "Variant ID") @RequestParam(required = false) UUID variantId,
+  //     TAccountRequest accountRequest) {
+  //   logRequest("Bulk uploading " + files.size() + " images for product " + productId, accountRequest);
+  //   List<ProductImageResponse> response = s3Service.bulkUploadProductImages(files, productId, variantId,
+  //       accountRequest);
+  //   return created(response);
+  // }
 
   // ================== RESTORE OPERATION ==================
 
-  @PatchMapping("/{productId}/restore")
-  @ResponseMessage(message = "Restore product success")
-  @Operation(summary = "Restore product", description = "Restore deleted product")
-  public ResponseEntity<ProductResponse> restoreProduct(
-      @Parameter(description = "Product ID", required = true) @PathVariable UUID productId,
-      TAccountRequest accountRequest) {
-    logRequest("Restoring product", productId, accountRequest);
-    ProductResponse response = productService.restoreProduct(productId, accountRequest);
-    return ok(response);
-  }
+  // @PatchMapping("/{productId}/restore")
+  // @ResponseMessage(message = "Restore product success")
+  // @Operation(summary = "Restore product", description = "Restore deleted product")
+  // public ResponseEntity<ProductResponse> restoreProduct(
+  //     @Parameter(description = "Product ID", required = true) @PathVariable UUID productId,
+  //     TAccountRequest accountRequest) {
+  //   logRequest("Restoring product", productId, accountRequest);
+  //   ProductResponse response = productService.restoreProduct(productId, accountRequest);
+  //   return ok(response);
+  // }
 }

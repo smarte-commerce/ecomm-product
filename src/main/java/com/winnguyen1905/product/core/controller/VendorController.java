@@ -57,52 +57,52 @@ public class VendorController extends BaseController {
 
   // ================== VENDOR REGISTRATION & PROFILE ==================
 
-  @PostMapping("/register")
-  @ResponseMessage(message = "Vendor registration submitted successfully")
-  @Operation(summary = "Register new vendor", description = "Submit vendor registration application")
-  @ApiResponses({
-      @ApiResponse(responseCode = "201", description = "Registration submitted successfully"),
-      @ApiResponse(responseCode = "400", description = "Invalid registration data")
-  })
-  public ResponseEntity<VendorRegistrationResponse> registerVendor(
-      @Valid @RequestBody VendorRegistrationRequest vendorRegistrationRequest) {
-    logPublicRequest("New vendor registration request received");
-    var response = vendorProductService.registerVendor(vendorRegistrationRequest);
-    return created(response);
-  }
+  // @PostMapping("/register")
+  // @ResponseMessage(message = "Vendor registration submitted successfully")
+  // @Operation(summary = "Register new vendor", description = "Submit vendor registration application")
+  // @ApiResponses({
+  //     @ApiResponse(responseCode = "201", description = "Registration submitted successfully"),
+  //     @ApiResponse(responseCode = "400", description = "Invalid registration data")
+  // })
+  // public ResponseEntity<VendorRegistrationResponse> registerVendor(
+  //     @Valid @RequestBody VendorRegistrationRequest vendorRegistrationRequest) {
+  //   logPublicRequest("New vendor registration request received");
+  //   var response = vendorProductService.registerVendor(vendorRegistrationRequest);
+  //   return created(response);
+  // }
 
-  @GetMapping("/profile")
-  @ResponseMessage(message = "Get vendor profile success")
-  @Operation(summary = "Get vendor profile", description = "Get current vendor's profile information")
-  @ApiResponses({
-      @ApiResponse(responseCode = "200", description = "Profile retrieved successfully"),
-      @ApiResponse(responseCode = "403", description = "Not authorized to access this resource"),
-      @ApiResponse(responseCode = "404", description = "Vendor profile not found")
-  })
-  // @PreAuthorize("hasRole('VENDOR')")
-  public ResponseEntity<VendorProfileResponse> getVendorProfile(TAccountRequest accountRequest) {
-    logRequest("Getting vendor profile", accountRequest);
-    var response = vendorProductService.getVendorProfile(accountRequest.id());
-    return ok(response);
-  }
+  // @GetMapping("/profile")
+  // @ResponseMessage(message = "Get vendor profile success")
+  // @Operation(summary = "Get vendor profile", description = "Get current vendor's profile information")
+  // @ApiResponses({
+  //     @ApiResponse(responseCode = "200", description = "Profile retrieved successfully"),
+  //     @ApiResponse(responseCode = "403", description = "Not authorized to access this resource"),
+  //     @ApiResponse(responseCode = "404", description = "Vendor profile not found")
+  // })
+  // // @PreAuthorize("hasRole('VENDOR')")
+  // public ResponseEntity<VendorProfileResponse> getVendorProfile(TAccountRequest accountRequest) {
+  //   logRequest("Getting vendor profile", accountRequest);
+  //   var response = vendorProductService.getVendorProfile(accountRequest.id());
+  //   return ok(response);
+  // }
 
-  @PutMapping("/profile")
-  @ResponseMessage(message = "Update vendor profile success")
-  @Operation(summary = "Update vendor profile", description = "Update vendor profile information")
-  @ApiResponses({
-      @ApiResponse(responseCode = "200", description = "Profile updated successfully"),
-      @ApiResponse(responseCode = "400", description = "Invalid profile data"),
-      @ApiResponse(responseCode = "403", description = "Not authorized to access this resource"),
-      @ApiResponse(responseCode = "404", description = "Vendor profile not found")
-  })
-  // @PreAuthorize("hasRole('VENDOR')")
-  public ResponseEntity<VendorProfileResponse> updateVendorProfile(
-      @Valid @RequestBody VendorProfileUpdateRequest profileUpdateRequest,
-      TAccountRequest accountRequest) {
-    logRequest("Updating vendor profile", accountRequest);
-    var response = vendorProductService.updateVendorProfile(accountRequest.id(), profileUpdateRequest);
-    return ok(response);
-  }
+  // @PutMapping("/profile")
+  // @ResponseMessage(message = "Update vendor profile success")
+  // @Operation(summary = "Update vendor profile", description = "Update vendor profile information")
+  // @ApiResponses({
+  //     @ApiResponse(responseCode = "200", description = "Profile updated successfully"),
+  //     @ApiResponse(responseCode = "400", description = "Invalid profile data"),
+  //     @ApiResponse(responseCode = "403", description = "Not authorized to access this resource"),
+  //     @ApiResponse(responseCode = "404", description = "Vendor profile not found")
+  // })
+  // // @PreAuthorize("hasRole('VENDOR')")
+  // public ResponseEntity<VendorProfileResponse> updateVendorProfile(
+  //     @Valid @RequestBody VendorProfileUpdateRequest profileUpdateRequest,
+  //     TAccountRequest accountRequest) {
+  //   logRequest("Updating vendor profile", accountRequest);
+  //   var response = vendorProductService.updateVendorProfile(accountRequest.id(), profileUpdateRequest);
+  //   return ok(response);
+  // }
 
   // ================== VENDOR PRODUCT ANALYTICS ==================
 

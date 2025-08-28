@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -31,6 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RestController
 @RequestMapping("/api/v1/elasticsearch")
+@Profile("!local")  // Exclude from local profile
 @RequiredArgsConstructor
 public class ElasticsearchController {
 
@@ -131,104 +133,104 @@ public class ElasticsearchController {
   }
 
   // Admin endpoints for synchronization
-  @PostMapping("/admin/sync/product/{productId}")
-  public ResponseEntity<RestResponse<String>> syncProduct(@PathVariable UUID productId) {
-    log.info("Syncing product: {}", productId);
+  // @PostMapping("/admin/sync/product/{productId}")
+  // public ResponseEntity<RestResponse<String>> syncProduct(@PathVariable UUID productId) {
+  //   log.info("Syncing product: {}", productId);
 
-    productSyncService.syncProduct(productId);
+  //   productSyncService.syncProduct(productId);
 
-    return ResponseEntity.ok(
-        RestResponse.<String>builder()
-            .data("Product sync initiated")
-            .message("Product synchronization started successfully")
-            .build());
-  }
+  //   return ResponseEntity.ok(
+  //       RestResponse.<String>builder()
+  //           .data("Product sync initiated")
+  //           .message("Product synchronization started successfully")
+  //           .build());
+  // }
 
-  @PostMapping("/admin/sync/products")
-  public ResponseEntity<RestResponse<String>> syncProducts(@RequestBody List<UUID> productIds) {
-    log.info("Syncing {} products", productIds.size());
+  // @PostMapping("/admin/sync/products")
+  // public ResponseEntity<RestResponse<String>> syncProducts(@RequestBody List<UUID> productIds) {
+  //   log.info("Syncing {} products", productIds.size());
 
-    productSyncService.syncProducts(productIds);
+  //   productSyncService.syncProducts(productIds);
 
-    return ResponseEntity.ok(
-        RestResponse.<String>builder()
-            .data("Products sync initiated")
-            .message("Products synchronization started successfully")
-            .build());
-  }
+  //   return ResponseEntity.ok(
+  //       RestResponse.<String>builder()
+  //           .data("Products sync initiated")
+  //           .message("Products synchronization started successfully")
+  //           .build());
+  // }
 
-  @PostMapping("/admin/sync/inventory/{inventoryId}")
-  public ResponseEntity<RestResponse<String>> syncInventory(@PathVariable UUID inventoryId) {
-    log.info("Syncing inventory: {}", inventoryId);
+  // @PostMapping("/admin/sync/inventory/{inventoryId}")
+  // public ResponseEntity<RestResponse<String>> syncInventory(@PathVariable UUID inventoryId) {
+  //   log.info("Syncing inventory: {}", inventoryId);
 
-    productSyncService.syncInventory(inventoryId);
+  //   productSyncService.syncInventory(inventoryId);
 
-    return ResponseEntity.ok(
-        RestResponse.<String>builder()
-            .data("Inventory sync initiated")
-            .message("Inventory synchronization started successfully")
-            .build());
-  }
+  //   return ResponseEntity.ok(
+  //       RestResponse.<String>builder()
+  //           .data("Inventory sync initiated")
+  //           .message("Inventory synchronization started successfully")
+  //           .build());
+  // }
 
-  @PostMapping("/admin/reindex")
-  public ResponseEntity<RestResponse<String>> fullReindex() {
-    log.info("Starting full reindex");
+  // @PostMapping("/admin/reindex")
+  // public ResponseEntity<RestResponse<String>> fullReindex() {
+  //   log.info("Starting full reindex");
 
-    productSyncService.fullReindex();
+  //   productSyncService.fullReindex();
 
-    return ResponseEntity.ok(
-        RestResponse.<String>builder()
-            .data("Full reindex initiated")
-            .message("Full reindex started successfully")
-            .build());
-  }
+  //   return ResponseEntity.ok(
+  //       RestResponse.<String>builder()
+  //           .data("Full reindex initiated")
+  //           .message("Full reindex started successfully")
+  //           .build());
+  // }
 
-  @DeleteMapping("/admin/product/{productId}")
-  public ResponseEntity<RestResponse<String>> deleteProduct(@PathVariable UUID productId) {
-    log.info("Deleting product from Elasticsearch: {}", productId);
+  // @DeleteMapping("/admin/product/{productId}")
+  // public ResponseEntity<RestResponse<String>> deleteProduct(@PathVariable UUID productId) {
+  //   log.info("Deleting product from Elasticsearch: {}", productId);
 
-    productSyncService.deleteProduct(productId);
+  //   productSyncService.deleteProduct(productId);
 
-    return ResponseEntity.ok(
-        RestResponse.<String>builder()
-            .data("Product deletion initiated")
-            .message("Product deletion started successfully")
-            .build());
-  }
+  //   return ResponseEntity.ok(
+  //       RestResponse.<String>builder()
+  //           .data("Product deletion initiated")
+  //           .message("Product deletion started successfully")
+  //           .build());
+  // }
 
-  @GetMapping("/admin/health")
-  public ResponseEntity<RestResponse<Map<String, Object>>> healthCheck() {
-    log.debug("Elasticsearch health check requested");
+  // @GetMapping("/admin/health")
+  // public ResponseEntity<RestResponse<Map<String, Object>>> healthCheck() {
+  //   log.debug("Elasticsearch health check requested");
 
-    boolean isHealthy = productSyncService.isHealthy();
-    long documentCount = productSyncService.getDocumentCount();
+  //   boolean isHealthy = productSyncService.isHealthy();
+  //   long documentCount = productSyncService.getDocumentCount();
 
-    Map<String, Object> healthData = Map.of(
-        "healthy", isHealthy,
-        "documentCount", documentCount,
-        "status", isHealthy ? "UP" : "DOWN");
+  //   Map<String, Object> healthData = Map.of(
+  //       "healthy", isHealthy,
+  //       "documentCount", documentCount,
+  //       "status", isHealthy ? "UP" : "DOWN");
 
-    return ResponseEntity.ok(
-        RestResponse.<Map<String, Object>>builder()
-            .data(healthData)
-            .message("Elasticsearch health check completed")
-            .build());
-  }
+  //   return ResponseEntity.ok(
+  //       RestResponse.<Map<String, Object>>builder()
+  //           .data(healthData)
+  //           .message("Elasticsearch health check completed")
+  //           .build());
+  // }
 
-  @GetMapping("/admin/stats")
-  public ResponseEntity<RestResponse<Map<String, Object>>> getStats() {
-    log.debug("Elasticsearch stats requested");
+  // @GetMapping("/admin/stats")
+  // public ResponseEntity<RestResponse<Map<String, Object>>> getStats() {
+  //   log.debug("Elasticsearch stats requested");
 
-    long documentCount = productSyncService.getDocumentCount();
+  //   long documentCount = productSyncService.getDocumentCount();
 
-    Map<String, Object> stats = Map.of(
-        "totalDocuments", documentCount,
-        "indexName", "products");
+  //   Map<String, Object> stats = Map.of(
+  //       "totalDocuments", documentCount,
+  //       "indexName", "products");
 
-    return ResponseEntity.ok(
-        RestResponse.<Map<String, Object>>builder()
-            .data(stats)
-            .message("Elasticsearch stats retrieved successfully")
-            .build());
-  }
+  //   return ResponseEntity.ok(
+  //       RestResponse.<Map<String, Object>>builder()
+  //           .data(stats)
+  //           .message("Elasticsearch stats retrieved successfully")
+  //           .build());
+  // }
 }
