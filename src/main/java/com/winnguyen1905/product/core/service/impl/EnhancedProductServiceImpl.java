@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.winnguyen1905.product.common.constant.ProductStatus;
 import com.winnguyen1905.product.core.mapper_v2.EnhancedProductMapper;
 import com.winnguyen1905.product.core.model.request.CreateProductRequest;
+import com.winnguyen1905.product.core.model.request.CreateProductVariantRequest;
 import com.winnguyen1905.product.core.model.request.SearchProductRequest;
 import com.winnguyen1905.product.core.model.request.UpdateProductRequest;
 import com.winnguyen1905.product.core.model.response.ProductResponse;
@@ -24,6 +25,7 @@ import com.winnguyen1905.product.exception.ResourceNotFoundException;
 import com.winnguyen1905.product.persistance.entity.EBrand;
 import com.winnguyen1905.product.persistance.entity.ECategory;
 import com.winnguyen1905.product.persistance.entity.EProduct;
+import com.winnguyen1905.product.persistance.entity.EProductVariant;
 import com.winnguyen1905.product.persistance.repository.BrandRepository;
 import com.winnguyen1905.product.persistance.repository.CategoryRepository;
 import com.winnguyen1905.product.persistance.repository.EnhancedProductRepository;
@@ -52,7 +54,7 @@ public class EnhancedProductServiceImpl implements EnhancedProductService {
   // ================== CRUD OPERATIONS ==================
 
   @Override
-  @Transactional
+  // @Transactional
   public ProductResponse createProduct(CreateProductRequest request, TAccountRequest accountRequest) {
     log.info("Creating product: {} for vendor: {}", request.name(), accountRequest.id());
 
@@ -83,6 +85,14 @@ public class EnhancedProductServiceImpl implements EnhancedProductService {
       ECategory category = categoryRepository.findById(request.categoryId())
           .orElseThrow(() -> new ResourceNotFoundException("Category not found: " + request.categoryId()));
       product.setCategory(category);
+    }
+
+    if (request.variants() != null && !request.variants().isEmpty()) {
+      for (CreateProductVariantRequest variantRequest : request.variants()) {
+        EProductVariant variant = EnhancedProductMapper.toVariantEntity(variantRequest, product);
+        variant.setProduct(product);
+        product.getVariants().add(variant);
+      }
     }
 
     // Save product
